@@ -31,3 +31,11 @@ jobs:
           node-version: '14.x'
 
       - run: yarn
+
+      - run: yarn build
+      
+      - name: Upload to IPFS
+        uses: aquiladev/ipfs-action@v0.1.5
+        with:
+          path: ./build
+          verbose: true
