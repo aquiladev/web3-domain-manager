@@ -1,0 +1,155 @@
+import React from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import { Web3ReactProvider, useWeb3React, UnsupportedChainIdError } from '@web3-react/core';
+import {
+  NoEthereumProviderError,
+  UserRejectedRequestError as UserRejectedRequestErrorInjected
+} from '@web3-react/injected-connector';
+import Web3 from 'web3';
+
+import Container from '@material-ui/core/Container';
+import Grid from '@material-ui/core/Grid';
+import Card from '@material-ui/core/Card';
+import CardActionArea from '@material-ui/core/CardActionArea';
+import CardContent from '@material-ui/core/CardContent';
+import CardMedia from '@material-ui/core/CardMedia';
+import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
+import Backdrop from '@material-ui/core/Backdrop';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+
+import './App.css';
+import mmLogo from './images/mm.png';
+import { injected, useEagerConnect, useInactiveListener } from './hooks';
+import Domains from './Domains';
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    flexGrow: 1,
+    overflow: 'hidden',
+  },
+  card: {
+    width: 230,
+    textAlign: 'center',
+  },
+  cardMedia: {
+    width: 'auto',
+    maxWidth: '100%',
+    maxHeight: 140,
+    margin: '0 auto',
+    paddingTop: 26,
+  },
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#fff',
+  },
+  grow: {
+    flexGrow: 1,
+  },
+}));
+
+function getErrorMessage(error) {
+  console.error(error)
+  if (error instanceof NoEthereumProviderError) {
+    return 'No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile.'
+  } else if (error instanceof UnsupportedChainIdError) {
+    return "You're connected to an unsupported network."
+  } else if (error instanceof UserRejectedRequestErrorInjected) {
+    return 'Please authorize this website to access your Ethereum account.'
+  } else {
+    return 'An unknown error occurred. Check the console for more details.'
+  }
+}
+
+function getLibrary(provider) {
+  const library = new Web3(provider)
+  library.pollingInterval = 12000
+  return library
+}
+
+export default function() {
+  return (
+    <Web3ReactProvider getLibrary={getLibrary}>
+      <App />
+    </Web3ReactProvider>
+  )
+}
+
+function App() {
+  const classes = useStyles();
+  const context = useWeb3React();
+  const { connector, library, chainId, account, activate, deactivate, active, error } = context;
+
+  const [activatingConnector, setActivatingConnector] = React.useState()
+  React.useEffect(() => {
+    if (activatingConnector && activatingConnector === connector) {
+      setActivatingConnector(undefined)
+    }
+  }, [activatingConnector, connector]);
+
+  const triedEager = useEagerConnect();
+  useInactiveListener(!triedEager || !!activatingConnector);
+
+  const currentConnector = injected
+  const activating = currentConnector === activatingConnector
+  const connected = currentConnector === connector
+  // const disabled = !triedEager || !!activatingConnector || connected || !!error
+
+  return (
+    <div className={classes.root}>
+      {!!error && <h4 style={{ marginTop: '1rem', marginBottom: '0' }}>{getErrorMessage(error)}</h4>}
+      {
+        !connected &&
+        <Container maxWidth="sm">
+          <Grid
+            container
+            spacing={0}
+            direction="column"
+            alignItems="center"
+            justify="center"
+            style={{ minHeight: '100vh' }}
+          >
+            <Grid item xs={3}>
+              <Card className={classes.card}>
+                <CardActionArea onClick={() => {
+                  setActivatingConnector(currentConnector)
+                  activate(injected)
+                }}>
+                  <CardMedia component="img" image={mmLogo} className={classes.cardMedia} />
+                  <CardContent>
+                    <Typography variant="h5" component="h2">
+                      MetaMask
+                    </Typography>
+                  </CardContent>
+                </CardActionArea>
+              </Card>
+            </Grid>
+          </Grid>
+          <Backdrop className={classes.backdrop} open={activating}>
+            <CircularProgress color="inherit" />
+          </Backdrop>
+        </Container>
+      }
+      {
+        connected &&
+        <>
+          {active && (
+            <AppBar position="static">
+              <Toolbar>
+                <div className={classes.grow} />
+                <Typography variant="h6" component="h5">
+                  {account}
+                </Typography>
+                <Button variant="contained" onClick={() => { deactivate() }}>Disconnect</Button>
+              </Toolbar>
+            </AppBar>
+          )}
+
+          {account && <Domains library={library} account={account} />}
+        </>
+      }
+    </div>
+  );
+}
