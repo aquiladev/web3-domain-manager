@@ -80,7 +80,7 @@ export default function() {
 function App() {
   const classes = useStyles();
   const context = useWeb3React();
-  const { connector, library, chainId, account, activate, deactivate, active, error } = context;
+  const { connector, library, account, activate, deactivate, active, error } = context;
 
   const [activatingConnector, setActivatingConnector] = React.useState()
   React.useEffect(() => {

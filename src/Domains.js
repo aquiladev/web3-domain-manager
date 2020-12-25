@@ -104,7 +104,7 @@ const Domains = ({library, account}) => {
 
   useEffect(() => {
     getPastEvents()
-  }, [false])
+  })
 
   return (
     <Container maxWidth="sm">

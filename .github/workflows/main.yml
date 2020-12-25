@@ -32,7 +32,7 @@ jobs:
 
       - run: yarn
 
-      - run: yarn build
+      - run: CI=false && yarn build
       
       - name: Upload to IPFS
         uses: aquiladev/ipfs-action@v0.1.5
