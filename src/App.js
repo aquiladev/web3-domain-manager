@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Web3ReactProvider, useWeb3React, UnsupportedChainIdError } from '@web3-react/core';
 import {
@@ -87,10 +87,11 @@ export default function() {
 function App() {
   const classes = useStyles();
   const context = useWeb3React();
-  const { connector, library, account, activate, deactivate, active, error } = context;
+  const { connector, library, account, chainId, activate, deactivate, active, error } = context;
 
-  const [activatingConnector, setActivatingConnector] = React.useState()
-  React.useEffect(() => {
+  const [activatingConnector, setActivatingConnector] = useState();
+  
+  useEffect(() => {
     if (activatingConnector && activatingConnector === connector) {
       setActivatingConnector(undefined)
     }
@@ -170,7 +171,7 @@ function App() {
               </Backdrop>
             </>
         }
-        {connected && account && <Domains library={library} account={account} />}
+        {connected && account && <Domains library={library} account={account} chainId={chainId} />}
       </Container>
     </div>
   );

@@ -15,14 +15,12 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 
-import registryContract from './contracts/Registry.json';
-import resolverContract from './contracts/Resolver.json';
-import proxyReaderContract from './contracts/ProxyReader.json';
-import keys from './utils/standardKeys';
+import registryJson from 'dot-crypto/truffle-artifacts/Registry.json';
+import resolverJson from 'dot-crypto/truffle-artifacts/Resolver.json';
+import proxyReaderJson from 'dot-crypto/truffle-artifacts/ProxyReader.json';
+import NetworkConfig from 'dot-crypto/src/network-config/network-config.json';
 
-const registryAddress = '0xD1E5b0FF1287aA9f9A268759062E4Ab08b9Dacbe';
-const resolverAddress = '0xb66DcE2DA6afAAa98F2013446dBCB0f4B0ab2842';
-const proxyReaderAddress = '0xa6E7cEf2EDDEA66352Fd68E5915b60BDbb7309f5';
+import keys from './utils/standardKeys';
 
 const useStyles = makeStyles((theme) => ({
   header: {
@@ -34,20 +32,32 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const create_blocks = {
+  1: 9082251,
+  4: 7484092,
+}
+
 function getDomain(uri) {
   return uri.replace('https://metadata.unstoppabledomains.com/metadata/', '')
 }
 
-const Domains = ({library, account}) => {
+const Domains = ({library, account, chainId}) => {
   const classes = useStyles();
+  const stateKey = `${account}_${chainId}`;
 
-  const registry = new library.eth.Contract(registryContract.abi, registryAddress);
-  const proxyReader = new library.eth.Contract(proxyReaderContract.abi, proxyReaderAddress);
-
-  const [domains, setDomains] = useState([]);
-  const [fetched, setFetched] = useState(false);
+  const [data, setData] = useState({
+    [stateKey]: {
+      isFetched: false,
+      domains: []
+    }
+  });
+  const [fetched, setFetched] = useState(true);
   const [open, setOpen] = useState(false);
   const [domain, setDomain] = useState({});
+
+  const {contracts} = NetworkConfig.networks[chainId];
+  const registry = new library.eth.Contract(registryJson.abi, contracts.Registry.address);
+  const proxyReader = new library.eth.Contract(proxyReaderJson.abi, contracts.ProxyReader.address);
 
   const handleOpen = (domain) => {
     setDomain(domain);
@@ -60,25 +70,27 @@ const Domains = ({library, account}) => {
 
   const _keys = Object.values(keys);
 
-  const getPastEvents = () => {
+  const loadPastEvents = () => {
+    setFetched(false);
+
     registry.getPastEvents('Transfer', {
       filter: { to: account },
-      fromBlock: 9082251,
+      fromBlock: create_blocks[chainId],
     }, async (error, events) => {
       if (error) {
         return console.error(error);
       }
       
-      const _domains = []
+      const _domains = [];
       const _tokens = [];
 
       events.forEach(async (e) => {
         _tokens.push(e.returnValues.tokenId);
       });
       
-      const data = await proxyReader.methods.getDataForMany(_keys, _tokens).call();
+      const domainData = await proxyReader.methods.getDataForMany(_keys, _tokens).call();
       for (let index = 0; index < _tokens.length; index++) {
-        if(data.owners[index] !== account) {
+        if(domainData.owners[index] !== account) {
           return;
         }
 
@@ -86,24 +98,34 @@ const Domains = ({library, account}) => {
         const uri = await registry.methods.tokenURI(token).call();
 
         const records = {};
-        _keys.forEach((k, i) => records[k] = data.values[index][i]);
+        _keys.forEach((k, i) => records[k] = domainData.values[index][i]);
 
         _domains.push({
           id: token,
           name: getDomain(uri),
-          owner: data.owners[index],
-          resolver: data.resolvers[index],
+          owner: domainData.owners[index],
+          resolver: domainData.resolvers[index],
           records
         });
       }
       
-      setDomains(() => _domains);
+      const _data = {
+        ...data,
+        [stateKey]: {
+          isFetched: true,
+          domains: _domains || []
+        }
+      };
+
+      setData(() => _data);
       setFetched(() => true);
     })
   }
 
   useEffect(() => {
-    getPastEvents()
+    if(!data[stateKey] || !data[stateKey].isFetched) {
+      loadPastEvents();
+    }
   })
 
   return (
@@ -117,12 +139,12 @@ const Domains = ({library, account}) => {
             <CircularProgress color="inherit" />
           </Backdrop>
         }
-        {fetched && !!domains.length &&
+        {fetched && data[stateKey] && !!data[stateKey].domains.length &&
           <>
             <List component="nav">
-              {domains.map(domain => (
+              {data[stateKey].domains.map(domain => (
                 <>
-                  <ListItem button onClick={() => { handleOpen(domain); }}>
+                  <ListItem button onClick={() => { handleOpen(domain); }} key={domain.id}>
                     <ListItemText primary={domain.name} />
                   </ListItem>
                   <Divider />
@@ -144,7 +166,7 @@ const Domains = ({library, account}) => {
                         <b>ID</b>
                       </Grid>
                       <Grid item xs={9}>
-                        <Typography noWrap="wrap">
+                        <Typography noWrap>
                           {domain.id}
                         </Typography>
                       </Grid>
@@ -154,7 +176,7 @@ const Domains = ({library, account}) => {
                         <b>Resolver</b>
                       </Grid>
                       <Grid item xs={9}>
-                        <Typography noWrap="wrap">
+                        <Typography noWrap>
                           {domain.resolver}
                         </Typography>
                       </Grid>
@@ -164,7 +186,7 @@ const Domains = ({library, account}) => {
                         <b>Owner</b>
                       </Grid>
                       <Grid item xs={9}>
-                        <Typography noWrap="wrap">
+                        <Typography noWrap>
                           {domain.owner}
                         </Typography>
                       </Grid>
@@ -180,12 +202,12 @@ const Domains = ({library, account}) => {
                           ([_, val]) => !!val
                         ).map(([key, val]) => {
                           return (
-                            <Grid container item xs={12}>
+                            <Grid container item xs={12} key={`${domain.id}_${key}`}>
                               <Grid item xs={3}>
                                 <b>{key}</b>
                               </Grid>
                               <Grid item xs={9}>
-                                <Typography noWrap="wrap">
+                                <Typography noWrap>
                                   {val}
                                 </Typography>
                               </Grid>
@@ -207,7 +229,10 @@ const Domains = ({library, account}) => {
             }
           </>
         }
-        {fetched && !domains.length && <p>No .crypto domains found. <a href="https://unstoppabledomains.com/">Buy here</a></p>}
+        {
+          fetched && data[stateKey] && !data[stateKey].domains.length &&
+          <p>No .crypto domains found. <a href="https://unstoppabledomains.com/">Buy here</a></p>
+        }
       </div>
     </Container>
   )

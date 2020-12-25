@@ -4653,6 +4653,10 @@ dot-case@^3.0.3:
     no-case "^3.0.3"
     tslib "^1.10.0"
 
+"dot-crypto@https://github.com/unstoppabledomains/dot-crypto.git#51621857870282d085f3461c9a22ca9aafd9269b":
+  version "1.1.0"
+  resolved "https://github.com/unstoppabledomains/dot-crypto.git#51621857870282d085f3461c9a22ca9aafd9269b"
+
 dot-prop@^5.2.0:
   version "5.3.0"
   resolved "https://registry.yarnpkg.com/dot-prop/-/dot-prop-5.3.0.tgz#90ccce708cd9cd82cc4dc8c3ddd9abdd55b20e88"
