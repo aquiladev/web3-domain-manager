@@ -19,6 +19,7 @@ import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
+import Alert from '@material-ui/lab/Alert';
 
 import './App.css';
 import mmLogo from './images/mm.png';
@@ -29,6 +30,12 @@ const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
     overflow: 'hidden',
+  },
+  title: {
+    display: 'none',
+    [theme.breakpoints.up('sm')]: {
+      display: 'block',
+    },
   },
   card: {
     width: 230,
@@ -99,57 +106,72 @@ function App() {
 
   return (
     <div className={classes.root}>
-      {!!error && <h4 style={{ marginTop: '1rem', marginBottom: '0' }}>{getErrorMessage(error)}</h4>}
-      {
-        !connected &&
-        <Container maxWidth="sm">
-          <Grid
-            container
-            spacing={0}
-            direction="column"
-            alignItems="center"
-            justify="center"
-            style={{ minHeight: '100vh' }}
-          >
-            <Grid item xs={3}>
-              <Card className={classes.card}>
-                <CardActionArea onClick={() => {
-                  setActivatingConnector(currentConnector)
-                  activate(injected)
-                }}>
-                  <CardMedia component="img" image={mmLogo} className={classes.cardMedia} />
-                  <CardContent>
-                    <Typography variant="h5" component="h2">
-                      MetaMask
-                    </Typography>
-                  </CardContent>
-                </CardActionArea>
-              </Card>
-            </Grid>
-          </Grid>
-          <Backdrop className={classes.backdrop} open={activating}>
-            <CircularProgress color="inherit" />
-          </Backdrop>
-        </Container>
-      }
-      {
-        connected &&
-        <>
+      <AppBar position="fixed">
+        <Toolbar>
+          <Typography className={classes.title} variant="h5" noWrap>
+            manage-dot-CRYPTO
+          </Typography>
+          <div className={classes.grow} />
           {active && (
-            <AppBar position="static">
-              <Toolbar>
-                <div className={classes.grow} />
-                <Typography variant="h6" component="h5">
-                  {account}
-                </Typography>
-                <Button variant="contained" onClick={() => { deactivate() }}>Disconnect</Button>
-              </Toolbar>
-            </AppBar>
+            <>
+              <Typography variant="subtitle1">
+                {account}
+              </Typography>
+              <Button
+                variant="contained"
+                onClick={() => { deactivate() }}
+                style={{ marginLeft: 10 }}>
+                  Disconnect
+              </Button>
+            </>
           )}
-
-          {account && <Domains library={library} account={account} />}
-        </>
-      }
+        </Toolbar>
+      </AppBar>
+      <Container maxWidth="sm">
+        {
+          !!error && 
+            <Alert
+              variant="filled"
+              severity="error"
+              style={{ position: 'fixed', zIndex: 1200, bottom: 10, left: 10 }}
+              >
+                {getErrorMessage(error)}
+            </Alert>
+        }
+        {
+          (!connected || !account) &&
+            <>
+              <Grid
+                container
+                spacing={0}
+                direction="column"
+                alignItems="center"
+                justify="center"
+                style={{ minHeight: '100vh' }}
+              >
+                <Grid item xs={3}>
+                  <Card className={classes.card}>
+                    <CardActionArea onClick={() => {
+                      setActivatingConnector(currentConnector)
+                      activate(injected)
+                    }}>
+                      <CardMedia component="img" image={mmLogo} className={classes.cardMedia} />
+                      <CardContent>
+                        <Typography variant="h5" component="h2">
+                          MetaMask
+                        </Typography>
+                      </CardContent>
+                    </CardActionArea>
+                  </Card>
+                </Grid>
+              </Grid>
+              <Backdrop className={classes.backdrop} open={activating}>
+                <CircularProgress color="inherit" />
+              </Backdrop>
+            </>
+        }
+        {connected && account && <Domains library={library} account={account} />}
+      </Container>
     </div>
   );
 }

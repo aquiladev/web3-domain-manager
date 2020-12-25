@@ -107,7 +107,7 @@ const Domains = ({library, account}) => {
   })
 
   return (
-    <Container maxWidth="sm">
+    <Container style={{ paddingTop: '3rem' }}>
       <Typography className={classes.header} variant="h5" component="h6">
         Domains
       </Typography>
