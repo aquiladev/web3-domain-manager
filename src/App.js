@@ -21,7 +21,6 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Alert from '@material-ui/lab/Alert';
 
-import './App.css';
 import mmLogo from './images/mm.png';
 import { injected, useEagerConnect, useInactiveListener } from './hooks';
 import Domains from './Domains';
@@ -128,7 +127,7 @@ function App() {
           )}
         </Toolbar>
       </AppBar>
-      <Container maxWidth="sm">
+      <Container maxWidth="md">
         {
           !!error && 
             <Alert
