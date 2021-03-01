@@ -4,6 +4,7 @@
   "private": true,
   "homepage": ".",
   "dependencies": {
+    "@gitgraph/react": "1.5.4",
     "@material-ui/core": "4.11.2",
     "@material-ui/icons": "4.11.2",
     "@material-ui/lab": "4.0.0-alpha.57",
@@ -17,7 +18,7 @@
     "react-dom": "^17.0.1",
     "react-scripts": "4.0.1",
     "web-vitals": "^0.2.4",
-    "web3": "1.3.1"
+    "web3": "1.3.4"
   },
   "scripts": {
     "start": "react-scripts start",

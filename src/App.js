@@ -23,7 +23,7 @@ import Alert from '@material-ui/lab/Alert';
 
 import mmLogo from './images/mm.png';
 import { injected, useEagerConnect, useInactiveListener } from './hooks';
-import Domains from './Domains';
+import Domains from './components/Domains';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -127,7 +127,7 @@ function App() {
           )}
         </Toolbar>
       </AppBar>
-      <Container maxWidth="md">
+      <Container maxWidth="lg">
         {
           !!error && 
             <Alert
