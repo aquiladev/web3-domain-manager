@@ -102,7 +102,6 @@ function App() {
   const currentConnector = injected
   const activating = currentConnector === activatingConnector
   const connected = currentConnector === connector
-  // const disabled = !triedEager || !!activatingConnector || connected || !!error
 
   return (
     <div className={classes.root}>

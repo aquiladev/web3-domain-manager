@@ -49,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
     color: '#fff',
   },
   tabs: {
-
+    width: '100%',
   }
 }));
 
@@ -184,6 +184,13 @@ const Domains = ({library, account, chainId}) => {
 
   const loadDomainEvents = (domainId) => {
     console.debug('Loading DOMAIN events...');
+    setEvents({
+      ...events,
+      [domainId]: {
+        isFetched: false,
+        events: []
+      }
+    });
 
     fetchDomainEvents(library, registry, domainId)
       .then((domainEvents) => {
@@ -222,12 +229,8 @@ const Domains = ({library, account, chainId}) => {
                 </AccordionSummary>
                 <AccordionDetails>
                   {domainTab && domainTab.startsWith(domain.id) &&
-                    <div>
-                      <Tabs
-                        value={domainTab}
-                        onChange={selectDomainEvents(domain.id)}
-                        className={classes.tabs}
-                      >
+                    <div className={classes.tabs}>
+                      <Tabs value={domainTab} onChange={selectDomainEvents(domain.id)}>
                         <Tab label="Info" value={domain.id} />
                         <Tab label="Events" value={`${domain.id}_e`} />
                         {/* <Tab label="Events Graph" value={`${domain.id}_eg`} /> */}
