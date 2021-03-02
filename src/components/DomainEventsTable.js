@@ -20,6 +20,21 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
+const renderEventType = (event) => {
+  switch(event.event) {
+    case 'Transfer':
+      return <>{
+        event.returnValues.from === '0x0000000000000000000000000000000000000000' ?
+          'Mint' :
+          event.returnValues.to === '0x0000000000000000000000000000000000000000' ?
+            'Burn' :
+            'Transfer'
+        }</>;
+    default:
+      return <>{event.event}</>;
+  }
+}
+
 const renderEvent = (event) => {
   const data = Object.keys(event.returnValues)
     .filter(key => !(+key) && key !== '0')
@@ -40,7 +55,10 @@ const renderEvent = (event) => {
     case 'Sync':
       return <>Set record with key hash {event.returnValues.updateId} <div>(Resolver: {event.returnValues.resolver})</div></>;
     case 'Transfer':
-      return <>Transfer to {event.returnValues.to} <div>(From: {event.returnValues.from})</div></>;
+      return <>
+        Transfer to {event.returnValues.to}
+        {event.returnValues.from !== '0x0000000000000000000000000000000000000000' && <div>(From: {event.returnValues.from})</div>}
+      </>;
     default:
       return <>{JSON.stringify(data, null, '  ')}</>;
   }
@@ -67,7 +85,7 @@ const DomainEventsTable = ({ events }) => {
                   <TableCell component="th" scope="row">
                     {event.blockNumber}
                   </TableCell>
-                  <TableCell align="left">{event.event}</TableCell>
+                  <TableCell align="left">{renderEventType(event)}</TableCell>
                   <TableCell align="left">{renderEvent(event)}</TableCell>
                 </TableRow>
               )}
