@@ -53,6 +53,10 @@ const useStyles = makeStyles((theme) => ({
   },
   grow: {
     flexGrow: 1,
+    paddingLeft: 30,
+  },
+  navButton: {
+    color: 'white',
   },
 }));
 
@@ -89,6 +93,7 @@ function App() {
   const { connector, library, account, chainId, activate, deactivate, active, error } = context;
 
   const [activatingConnector, setActivatingConnector] = useState();
+  const [isLookup, setIsLookup] = useState();
   
   useEffect(() => {
     if (activatingConnector && activatingConnector === connector) {
@@ -110,7 +115,13 @@ function App() {
           <Typography className={classes.title} variant="h5" noWrap>
             manage-dot-CRYPTO
           </Typography>
-          <div className={classes.grow} />
+          <div className={classes.grow}>
+            <Button
+              className={classes.navButton}
+              onClick={() => {setIsLookup(!isLookup)}}>
+                {isLookup ? 'My Domains' : 'Lookup'}
+            </Button>
+          </div>
           {active && (
             <>
               <Typography variant="subtitle1">
