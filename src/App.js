@@ -24,6 +24,7 @@ import Alert from '@material-ui/lab/Alert';
 import mmLogo from './images/mm.png';
 import { injected, useEagerConnect, useInactiveListener } from './hooks';
 import Domains from './components/Domains';
+import Lookup from './components/Lookup';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -180,7 +181,8 @@ function App() {
               </Backdrop>
             </>
         }
-        {connected && account && <Domains library={library} account={account} chainId={chainId} />}
+        {connected && account && !isLookup && <Domains library={library} account={account} chainId={chainId} />}
+        {connected && isLookup && <Lookup library={library} />}
       </Container>
     </div>
   );
