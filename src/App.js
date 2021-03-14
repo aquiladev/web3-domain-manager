@@ -182,7 +182,7 @@ function App() {
             </>
         }
         {connected && account && !isLookup && <Domains library={library} account={account} chainId={chainId} />}
-        {connected && isLookup && <Lookup library={library} />}
+        {connected && isLookup && <Lookup library={library} chainId={chainId} />}
       </Container>
     </div>
   );
