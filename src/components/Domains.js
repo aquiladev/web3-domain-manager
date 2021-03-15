@@ -21,6 +21,7 @@ import FormControl from '@material-ui/core/FormControl';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Box from '@material-ui/core/Box';
+import Alert from '@material-ui/lab/Alert';
 
 import registryJson from 'dot-crypto/truffle-artifacts/Registry.json';
 import resolverJson from 'dot-crypto/truffle-artifacts/Resolver.json';
@@ -35,6 +36,7 @@ import {
   fetchTransferEvents,
   fetchDomainEvents
 } from '../events';
+import {isAddress} from '../utils/address';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -50,7 +52,7 @@ const useStyles = makeStyles((theme) => ({
   },
   tabs: {
     width: '100%',
-  }
+  },
 }));
 
 function getDomain(uri) {
@@ -90,7 +92,9 @@ const Domains = ({library, account, chainId}) => {
   const [expanded, setExpanded] = React.useState(false);
   const [domainTab, setDomainTab] = React.useState(undefined);
   const [domain, setDomain] = useState(undefined);
-  const [receiver, setReceiver] = React.useState('0x0000000000000000000000000000000000000000');
+  const [receiver, setReceiver] = React.useState();
+  const [transferError, setTransferError] = React.useState(undefined);
+  const [transferring, setTransferring] = React.useState(false);
 
   const {contracts} = NetworkConfig.networks[chainId];
   const registry = new library.eth.Contract(registryJson.abi, contracts.Registry.address);
@@ -111,14 +115,33 @@ const Domains = ({library, account, chainId}) => {
   };
 
   const handleTransferClose = () => {
+    if(transferring) {
+      return;
+    }
+
     setDomain();
   }
 
   const handleTransfer = async (domain, receiver) => {
     console.log(account, receiver, domain.id);
-    await registry.methods['0x42842e0e'](account, receiver, domain.id)
-      .send({from: account});
-    setDomain();
+
+    setTransferError();
+    if(!isAddress(receiver)) {
+      setTransferError('Recipient address is invalid');
+      return;
+    }
+
+    try {
+      setTransferring(true);
+      await registry.methods['0x42842e0e'](account, receiver, domain.id)
+        .send({from: account});
+    } catch (error) {
+      setTransferError(error && error.message);
+      return;
+    } finally {
+      setTransferring(false);
+      setDomain();
+    }
   }
 
   const _keys = Object.values(keys);
@@ -278,14 +301,20 @@ const Domains = ({library, account, chainId}) => {
                           setReceiver(value);
                         }}/>
                     </FormControl>
+                    {transferError &&
+                      <Alert severity="error" style={{ marginTop: 10 }}>
+                        {transferError}
+                      </Alert>
+                    }
                   </DialogContent>
                   <DialogActions>
-                    <Button onClick={handleTransferClose} color="primary">
+                    <Button onClick={handleTransferClose} color="primary" disabled={transferring}>
                       Cancel
                     </Button>
-                    <Button onClick={() => { handleTransfer(domain, receiver) }} color="primary">
+                    <Button onClick={() => { handleTransfer(domain, receiver) }} color="primary" disabled={transferring}>
                       Transfer
                     </Button>
+                    {transferring && <CircularProgress size={24} />}
                   </DialogActions>
                 </>
               }
