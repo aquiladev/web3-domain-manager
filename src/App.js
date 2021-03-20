@@ -24,6 +24,7 @@ import Alert from '@material-ui/lab/Alert';
 import mmLogo from './images/mm.png';
 import { injected, useEagerConnect, useInactiveListener } from './hooks';
 import Domains from './components/Domains';
+import Lookup from './components/Lookup';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -53,6 +54,10 @@ const useStyles = makeStyles((theme) => ({
   },
   grow: {
     flexGrow: 1,
+    paddingLeft: 30,
+  },
+  navButton: {
+    color: 'white',
   },
 }));
 
@@ -89,6 +94,7 @@ function App() {
   const { connector, library, account, chainId, activate, deactivate, active, error } = context;
 
   const [activatingConnector, setActivatingConnector] = useState();
+  const [isLookup, setIsLookup] = useState();
   
   useEffect(() => {
     if (activatingConnector && activatingConnector === connector) {
@@ -110,7 +116,13 @@ function App() {
           <Typography className={classes.title} variant="h5" noWrap>
             manage-dot-CRYPTO
           </Typography>
-          <div className={classes.grow} />
+          <div className={classes.grow}>
+            <Button
+              className={classes.navButton}
+              onClick={() => {setIsLookup(!isLookup)}}>
+                {isLookup ? 'My Domains' : 'Lookup'}
+            </Button>
+          </div>
           {active && (
             <>
               <Typography variant="subtitle1">
@@ -169,7 +181,8 @@ function App() {
               </Backdrop>
             </>
         }
-        {connected && account && <Domains library={library} account={account} chainId={chainId} />}
+        {connected && account && !isLookup && <Domains library={library} account={account} chainId={chainId} />}
+        {connected && isLookup && <Lookup library={library} chainId={chainId} />}
       </Container>
     </div>
   );
