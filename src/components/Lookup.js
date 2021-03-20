@@ -13,9 +13,9 @@ import proxyReaderJson from 'dot-crypto/truffle-artifacts/ProxyReader.json';
 import NetworkConfig from 'dot-crypto/src/network-config/network-config.json';
 
 import DomainList from './DomainList';
-import namehash from '../namehash';
+import namehash from '../utils/namehash';
 import keys from '../utils/standardKeys';
-import { fetchDomainEvents } from '../events';
+import { fetchDomainEvents } from '../utils/events';
 
 const useStyles = makeStyles((theme) => ({
   root: {

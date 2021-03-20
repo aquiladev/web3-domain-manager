@@ -22,7 +22,7 @@ import keys from '../utils/standardKeys';
 import {
   fetchTransferEvents,
   fetchDomainEvents
-} from '../events';
+} from '../utils/events';
 import {isAddress} from '../utils/address';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
