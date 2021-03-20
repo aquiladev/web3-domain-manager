@@ -68,17 +68,17 @@ const DomainList = ({isFetching, domains, onEventsLoad, onDomainSelect, actions}
 
   return (
     <>
-      <Typography className={classes.header} variant="h5" component="h6">
-        Domains
-      </Typography>
-      <div>
-        {
-          <Backdrop className={classes.backdrop} open={isFetching}>
-            <CircularProgress color="inherit" />
-          </Backdrop>
-        }
-        {domains && domains.length &&
-          <>
+      {
+        <Backdrop className={classes.backdrop} open={isFetching}>
+          <CircularProgress color="inherit" />
+        </Backdrop>
+      }
+      {domains && domains.length &&
+        <>
+          <Typography className={classes.header} variant="h5" component="h6">
+            Domains
+          </Typography>
+          <div>
             {domains.map(domain => (
               <Accordion expanded={expanded === domain.id} onChange={selectDomain(domain)} key={domain.id}>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -108,9 +108,9 @@ const DomainList = ({isFetching, domains, onEventsLoad, onDomainSelect, actions}
                 }
               </Accordion>
             ))}
-          </>
-        }
-      </div>
+          </div>
+        </>
+      }
     </>
   )
 }
