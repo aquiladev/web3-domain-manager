@@ -9,6 +9,8 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
 import TextField from '@material-ui/core/TextField';
 import FormControl from '@material-ui/core/FormControl';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Alert from '@material-ui/lab/Alert';
 
 import registryJson from 'dot-crypto/truffle-artifacts/Registry.json';
 import resolverJson from 'dot-crypto/truffle-artifacts/Resolver.json';
@@ -21,6 +23,7 @@ import {
   fetchTransferEvents,
   fetchDomainEvents
 } from '../events';
+import {isAddress} from '../utils/address';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -36,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
   },
   tabs: {
     width: '100%',
-  }
+  },
 }));
 
 function getDomain(uri) {
@@ -56,7 +59,9 @@ const Domains = ({library, account, chainId}) => {
   const [fetched, setFetched] = useState(true);
   const [domainTab, setDomainTab] = React.useState(undefined);
   const [domain, setDomain] = useState(undefined);
-  const [receiver, setReceiver] = React.useState('0x0000000000000000000000000000000000000000');
+  const [receiver, setReceiver] = React.useState();
+  const [transferError, setTransferError] = React.useState(undefined);
+  const [transferring, setTransferring] = React.useState(false);
 
   const {contracts} = NetworkConfig.networks[chainId];
   const registry = new library.eth.Contract(registryJson.abi, contracts.Registry.address);
@@ -67,14 +72,33 @@ const Domains = ({library, account, chainId}) => {
   };
 
   const handleTransferClose = () => {
+    if(transferring) {
+      return;
+    }
+
     setDomain();
   }
 
   const handleTransfer = async (domain, receiver) => {
     console.log(account, receiver, domain.id);
-    await registry.methods['0x42842e0e'](account, receiver, domain.id)
-      .send({from: account});
-    setDomain();
+
+    setTransferError();
+    if(!isAddress(receiver)) {
+      setTransferError('Recipient address is invalid');
+      return;
+    }
+
+    try {
+      setTransferring(true);
+      await registry.methods['0x42842e0e'](account, receiver, domain.id)
+        .send({from: account});
+    } catch (error) {
+      setTransferError(error && error.message);
+      return;
+    } finally {
+      setTransferring(false);
+      setDomain();
+    }
   }
 
   const _keys = Object.values(keys);
@@ -154,23 +178,21 @@ const Domains = ({library, account, chainId}) => {
 
   return (
     <Container style={{ paddingTop: '3rem' }}>
-      {fetched && data[stateKey] && !!data[stateKey].domains.length  &&
-        <DomainList
-          isFetching={!fetched}
-          domains={data[stateKey].domains}
-          onEventsLoad={loadDomainEvents}
-          onDomainSelect={setDomainTab}
-          actions={(
-            <>
-              <Button size="small" disabled color="primary">
-                Update records
-              </Button>
-              <Button size="small" color="primary" onClick={handleTransferOpen(domainTab)}>
-                Transfer
-              </Button>
-            </>
-          )} />
-      }
+      <DomainList
+        isFetching={!fetched}
+        domains={data && (data[stateKey] || {}).domains}
+        onEventsLoad={loadDomainEvents}
+        onDomainSelect={setDomainTab}
+        actions={(
+          <>
+            <Button size="small" disabled color="primary">
+              Update records
+            </Button>
+            <Button size="small" color="primary" onClick={handleTransferOpen(domainTab)}>
+              Transfer
+            </Button>
+          </>
+        )} />
       <Dialog
         open={!!domain}
         TransitionComponent={Transition}
@@ -191,6 +213,11 @@ const Domains = ({library, account, chainId}) => {
                     setReceiver(value);
                   }}/>
               </FormControl>
+              {transferError &&
+                <Alert severity="error" style={{ marginTop: 10 }}>
+                  {transferError}
+                </Alert>
+              }
             </DialogContent>
             <DialogActions>
               <Button onClick={handleTransferClose} color="primary">
@@ -199,6 +226,7 @@ const Domains = ({library, account, chainId}) => {
               <Button onClick={() => { handleTransfer(domain, receiver) }} color="primary">
                 Transfer
               </Button>
+              {transferring && <CircularProgress size={24} />}
             </DialogActions>
           </>
         }
