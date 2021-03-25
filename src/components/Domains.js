@@ -24,6 +24,7 @@ import {
   fetchDomainEvents
 } from '../utils/events';
 import {isAddress} from '../utils/address';
+import RecordsForm from './RecordsForm';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -59,6 +60,7 @@ const Domains = ({library, account, chainId}) => {
   const [fetched, setFetched] = useState(true);
   const [domainTab, setDomainTab] = React.useState(undefined);
   const [domain, setDomain] = useState(undefined);
+  const [records, setRecords] = useState(undefined);
   const [receiver, setReceiver] = React.useState();
   const [transferError, setTransferError] = React.useState(undefined);
   const [transferring, setTransferring] = React.useState(false);
@@ -69,6 +71,11 @@ const Domains = ({library, account, chainId}) => {
 
   const handleTransferOpen = (_domain) => () => {
     setDomain(_domain)
+  };
+
+  const handleRecordsOpen = (_domain) => () => {
+    console.log(_domain)
+    setRecords(_domain)
   };
 
   const handleTransferClose = () => {
@@ -185,7 +192,7 @@ const Domains = ({library, account, chainId}) => {
         onDomainSelect={setDomainTab}
         actions={(
           <>
-            <Button size="small" disabled color="primary">
+            <Button size="small" color="primary" onClick={handleRecordsOpen(domainTab)}>
               Update records
             </Button>
             <Button size="small" color="primary" onClick={handleTransferOpen(domainTab)}>
@@ -228,6 +235,20 @@ const Domains = ({library, account, chainId}) => {
               </Button>
               {transferring && <CircularProgress size={24} />}
             </DialogActions>
+          </>
+        }
+      </Dialog>
+      <Dialog
+        open={!!records}
+        TransitionComponent={Transition}
+        keepMounted
+      >
+        {!!records &&
+          <>
+            <DialogTitle>Records [{records.name}]</DialogTitle>
+            <DialogContent>
+              <RecordsForm />
+            </DialogContent>
           </>
         }
       </Dialog>
