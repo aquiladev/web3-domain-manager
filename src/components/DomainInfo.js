@@ -12,6 +12,23 @@ const useStyles = makeStyles(() => ({
 const DomainInfo = ({domain}) => {
   const classes = useStyles();
 
+  const records = Object.entries((domain || {}).records || [])
+    .filter(([_, val]) => !!val);
+  const recordsRaw = records.map(([key, val]) => {
+      return (
+        <Grid container item xs={12} key={`${domain.id}_${key}`}>
+          <Grid item xs={3}>
+            <b>{key}</b>
+          </Grid>
+          <Grid item xs={9}>
+            <Typography noWrap>
+              {val}
+            </Typography>
+          </Grid>
+        </Grid>
+      )
+    });
+
   return (
     <Grid>
       <Grid container item xs={12}>
@@ -44,29 +61,17 @@ const DomainInfo = ({domain}) => {
           </Typography>
         </Grid>
       </Grid>
-      <Grid container item xs={12}>
-        <Typography className={classes.header} variant="subtitle1">
-          Records
-        </Typography>
-      </Grid>
       {
-        domain && domain.records &&
-          Object.entries(domain.records).filter(
-            ([_, val]) => !!val
-          ).map(([key, val]) => {
-            return (
-              <Grid container item xs={12} key={`${domain.id}_${key}`}>
-                <Grid item xs={3}>
-                  <b>{key}</b>
-                </Grid>
-                <Grid item xs={9}>
-                  <Typography noWrap>
-                    {val}
-                  </Typography>
-                </Grid>
-              </Grid>
-            )
-          })
+        records.length ?
+          <>
+            <Grid container item xs={12}>
+              <Typography className={classes.header} variant="subtitle1">
+                Records
+              </Typography>
+            </Grid>
+            {recordsRaw}
+          </>:
+        <></>
       }
     </Grid>
   );

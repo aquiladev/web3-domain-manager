@@ -81,7 +81,7 @@ const RecordsForm = ({records, updating, error, onUpdate, onCancel}) => {
       }
       return r;
     });
-    const filledKeys = _records.map(x => x[0]);
+    const filledKeys = _records.map(x => x.key);
     const fillableKeys = Object.values(keys).filter(x => !filledKeys.includes(x));
     
     setForm({
@@ -102,7 +102,7 @@ const RecordsForm = ({records, updating, error, onUpdate, onCancel}) => {
         muted: recordValue !== undefined,
       }
     ];
-    const filledKeys = _records.map(x => x[0]);
+    const filledKeys = _records.map(x => x.key);
     const fillableKeys = Object.values(keys).filter(x => !filledKeys.includes(x));
     
     setForm({
