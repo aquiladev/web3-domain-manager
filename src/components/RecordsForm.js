@@ -40,6 +40,10 @@ const useStyles = makeStyles((theme) => ({
     zIndex: theme.zIndex.drawer + 1,
     color: '#fff',
   },
+  actions: {
+    paddingTop: 20,
+    paddingBottom: 8,
+  },
 }));
 
 const RecordsForm = ({records, updating, error, onUpdate, onCancel}) => {
@@ -62,7 +66,6 @@ const RecordsForm = ({records, updating, error, onUpdate, onCancel}) => {
     const filledKeys = filledRecords.map(x => x.key);
     const fillableKeys = Object.values(keys).filter(x => !filledKeys.includes(x));
 
-    console.log('FORM EFFECT')
     setForm({
       records: filledRecords,
       displayable: filledRecords,
@@ -102,7 +105,6 @@ const RecordsForm = ({records, updating, error, onUpdate, onCancel}) => {
     const filledKeys = _records.map(x => x[0]);
     const fillableKeys = Object.values(keys).filter(x => !filledKeys.includes(x));
     
-    console.log(_records)
     setForm({
       records: _records,
       displayable: _records.filter(r => !!r.newValue),
@@ -121,25 +123,25 @@ const RecordsForm = ({records, updating, error, onUpdate, onCancel}) => {
     <>
       <Grid>
         {
-            form.displayable.map(({key, newValue}) => {
-              return (
-                <Grid container item xs={12} key={`${key}`} className={classes.record}>
-                  <Grid item xs={3}>
-                    <b>{key}</b>
-                  </Grid>
-                  <Grid item xs={8}>
-                    <FormControl variant="filled" className={classes.fControl}>
-                      <TextField variant="filled" defaultValue={newValue} className={classes.fInput}/>
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={1}>
-                    <IconButton aria-label="delete" className={classes.delete} onClick={deleteRecord(key)}>
-                      <DeleteIcon fontSize="small"/>
-                    </IconButton>
-                  </Grid>
+          form.displayable.map(({key, newValue}) => {
+            return (
+              <Grid container item xs={12} key={`${key}`} className={classes.record}>
+                <Grid item xs={3}>
+                  <b>{key}</b>
                 </Grid>
-              )
-            })
+                <Grid item xs={8}>
+                  <FormControl variant="filled" className={classes.fControl}>
+                    <TextField variant="filled" defaultValue={newValue} className={classes.fInput}/>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={1}>
+                  <IconButton aria-label="delete" className={classes.delete} onClick={deleteRecord(key)}>
+                    <DeleteIcon fontSize="small"/>
+                  </IconButton>
+                </Grid>
+              </Grid>
+            )
+          })
         }
         <Grid container item xs={12} className={classes.record}>
           <Grid item xs={3}>
@@ -180,11 +182,15 @@ const RecordsForm = ({records, updating, error, onUpdate, onCancel}) => {
             </Alert>
           }
         </Grid>
-        <Grid>
+        <Grid className={classes.actions}>
           <Button color="primary" onClick={() => {onCancel && onCancel()}}>
             Cancel
           </Button>
-          <Button size="small" color="primary" disabled={!form.muted} onClick={update}>
+          <Button
+            color="primary" 
+            variant="contained"
+            disabled={!form.muted}
+            onClick={update}>
             Update
           </Button>
         </Grid>
