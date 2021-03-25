@@ -24,6 +24,7 @@ import {
   fetchDomainEvents
 } from '../utils/events';
 import {isAddress} from '../utils/address';
+import RecordsForm from './RecordsForm';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -39,6 +40,10 @@ const useStyles = makeStyles((theme) => ({
   },
   tabs: {
     width: '100%',
+  },
+  fControl: {
+    minWidth: 500,
+    paddingRight: 12,
   },
 }));
 
@@ -59,9 +64,12 @@ const Domains = ({library, account, chainId}) => {
   const [fetched, setFetched] = useState(true);
   const [domainTab, setDomainTab] = React.useState(undefined);
   const [domain, setDomain] = useState(undefined);
+  const [records, setRecords] = useState(undefined);
   const [receiver, setReceiver] = React.useState();
   const [transferError, setTransferError] = React.useState(undefined);
   const [transferring, setTransferring] = React.useState(false);
+  const [updateError, setUpdateError] = React.useState(undefined);
+  const [updating, setUpdating] = React.useState(false);
 
   const {contracts} = NetworkConfig.networks[chainId];
   const registry = new library.eth.Contract(registryJson.abi, contracts.Registry.address);
@@ -69,6 +77,11 @@ const Domains = ({library, account, chainId}) => {
 
   const handleTransferOpen = (_domain) => () => {
     setDomain(_domain)
+  };
+
+  const handleRecordsOpen = (_domain) => () => {
+    console.log(_domain)
+    setRecords(_domain)
   };
 
   const handleTransferClose = () => {
@@ -92,22 +105,39 @@ const Domains = ({library, account, chainId}) => {
       setTransferring(true);
       await registry.methods['0x42842e0e'](account, receiver, domain.id)
         .send({from: account});
+      
+      // TODO: update domain list
+      setDomain();
     } catch (error) {
       setTransferError(error && error.message);
       return;
     } finally {
       setTransferring(false);
-      setDomain();
+    }
+  }
+
+  const handleUpdate = async (domain, records) => {
+    console.log('UPDATE', domain, records);
+
+    try {
+      setUpdating(true);
+      const resolver = new library.eth.Contract(resolverJson.abi, domain.resolver);
+      const keysToUpdate = records.map(r => r.key);
+      const valuesToUpdate = records.map(r => r.newValue || '');
+      await resolver.methods.setMany(keysToUpdate, valuesToUpdate, domain.id)
+        .send({from: account});
+
+      // TODO: update domain
+      setRecords();
+    } catch (error) {
+      setUpdateError(error && error.message);
+      return;
+    } finally {
+      setUpdating(false);
     }
   }
 
   const _keys = Object.values(keys);
-
-  useEffect(() => {
-    if(!data[stateKey] || !data[stateKey].isFetched) {
-      loadPastEvents();
-    }
-  }, [data])
 
   const loadPastEvents = () => {
     setFetched(false);
@@ -176,6 +206,12 @@ const Domains = ({library, account, chainId}) => {
       });
   }
 
+  useEffect(() => {
+    if(!data[stateKey] || !data[stateKey].isFetched) {
+      loadPastEvents();
+    }
+  }, [data])
+
   return (
     <Container style={{ paddingTop: '3rem' }}>
       <DomainList
@@ -185,7 +221,7 @@ const Domains = ({library, account, chainId}) => {
         onDomainSelect={setDomainTab}
         actions={(
           <>
-            <Button size="small" disabled color="primary">
+            <Button size="small" color="primary" onClick={handleRecordsOpen(domainTab)}>
               Update records
             </Button>
             <Button size="small" color="primary" onClick={handleTransferOpen(domainTab)}>
@@ -196,6 +232,7 @@ const Domains = ({library, account, chainId}) => {
       <Dialog
         open={!!domain}
         TransitionComponent={Transition}
+        maxWidth='lg'
         keepMounted
         onClose={handleTransferClose}
       >
@@ -203,7 +240,7 @@ const Domains = ({library, account, chainId}) => {
           <>
             <DialogTitle>Transfer {domain.name}</DialogTitle>
             <DialogContent>
-              <FormControl fullWidth className={classes.margin} variant="outlined">
+              <FormControl fullWidth className={classes.fControl} variant="outlined">
                 <TextField
                   label="Receiver"
                   variant="outlined"
@@ -228,6 +265,25 @@ const Domains = ({library, account, chainId}) => {
               </Button>
               {transferring && <CircularProgress size={24} />}
             </DialogActions>
+          </>
+        }
+      </Dialog>
+      <Dialog
+        open={!!records}
+        TransitionComponent={Transition}
+        maxWidth='lg'
+        keepMounted
+      >
+        {!!records &&
+          <>
+            <DialogTitle>Records [{records.name}]</DialogTitle>
+            <DialogContent>
+              <RecordsForm records={records.records}
+                updating={updating}
+                error={updateError}
+                onUpdate={(_records) => { handleUpdate(records, _records); }}
+                onCancel={() => { setRecords() }}/>
+            </DialogContent>
           </>
         }
       </Dialog>
