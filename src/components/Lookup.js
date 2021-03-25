@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import InputBase from '@material-ui/core/InputBase';
 import IconButton from '@material-ui/core/IconButton';
@@ -150,10 +151,12 @@ const Lookup = ({ library, chainId }) => {
         </div>
       }
       {fetched && domain &&
-        <DomainList
-          isFetching={!fetched}
-          domains={[domain]}
-          onEventsLoad={loadDomainEvents} />
+        <div style={{marginTop: 20}}>
+          <DomainList
+            isFetching={!fetched}
+            domains={[domain]}
+            onEventsLoad={loadDomainEvents} />
+        </div>
       }
     </Container>
   );

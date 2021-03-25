@@ -11,10 +11,13 @@ import TextField from '@material-ui/core/TextField';
 import FormControl from '@material-ui/core/FormControl';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Alert from '@material-ui/lab/Alert';
+import Typography from '@material-ui/core/Typography';
+import Box from '@material-ui/core/Box';
 
 import registryJson from 'dot-crypto/truffle-artifacts/Registry.json';
 import resolverJson from 'dot-crypto/truffle-artifacts/Resolver.json';
 import proxyReaderJson from 'dot-crypto/truffle-artifacts/ProxyReader.json';
+import freeMinterJson from 'dot-crypto/truffle-artifacts/FreeMinter.json';
 import NetworkConfig from 'dot-crypto/src/network-config/network-config.json';
 
 import DomainList from './DomainList';
@@ -25,15 +28,13 @@ import {
 } from '../utils/events';
 import {isAddress} from '../utils/address';
 import RecordsForm from './RecordsForm';
+import FreeDomain from './FreeDomain';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
 const useStyles = makeStyles((theme) => ({
-  header: {
-    paddingTop: 30
-  },
   backdrop: {
     zIndex: theme.zIndex.drawer + 1,
     color: '#fff',
@@ -45,6 +46,10 @@ const useStyles = makeStyles((theme) => ({
     minWidth: 500,
     paddingRight: 12,
   },
+  mintFreeDomain: {
+    marginLeft: 8,
+    marginRight: 8,
+  }
 }));
 
 function getDomain(uri) {
@@ -70,10 +75,14 @@ const Domains = ({library, account, chainId}) => {
   const [transferring, setTransferring] = React.useState(false);
   const [updateError, setUpdateError] = React.useState(undefined);
   const [updating, setUpdating] = React.useState(false);
+  const [freeDomain, setFreeDomain] = useState(false);
+  const [mintError, setMintError] = React.useState(undefined);
+  const [minting, setMinting] = React.useState(false);
 
   const {contracts} = NetworkConfig.networks[chainId];
   const registry = new library.eth.Contract(registryJson.abi, contracts.Registry.address);
   const proxyReader = new library.eth.Contract(proxyReaderJson.abi, contracts.ProxyReader.address);
+  const freeMinter = new library.eth.Contract(freeMinterJson.abi, contracts.FreeMinter.address);
 
   const handleTransferOpen = (_domain) => () => {
     setDomain(_domain)
@@ -137,6 +146,25 @@ const Domains = ({library, account, chainId}) => {
     }
   }
 
+  const handleMint = async (domainName) => {
+    console.log('MINT', domainName);
+
+    try {
+      setMinting(true);
+      
+      await freeMinter.methods.claim(domainName)
+        .send({from: account});
+
+      // TODO: update domain list
+      setFreeDomain(false);
+    } catch (error) {
+      setMintError(error && error.message);
+      return;
+    } finally {
+      setMinting(false);
+    }
+  }
+
   const _keys = Object.values(keys);
 
   const loadPastEvents = () => {
@@ -151,7 +179,9 @@ const Domains = ({library, account, chainId}) => {
         const _tokens = [];
 
         events.forEach(async (e) => {
-          _tokens.push(e.returnValues.tokenId);
+          if(!_tokens.includes(e.returnValues.tokenId)) {
+            _tokens.push(e.returnValues.tokenId);
+          }
         });
 
         console.debug('Fetching state...');      
@@ -212,11 +242,30 @@ const Domains = ({library, account, chainId}) => {
     }
   }, [data])
 
+  const _domains = data && (data[stateKey] || {}).domains;
   return (
-    <Container style={{ paddingTop: '3rem' }}>
+    <Container style={{ paddingTop: '4rem' }}>
+      {_domains && _domains.length ?
+        <Box display="flex" p={1}>
+          <Box p={1} flexGrow={1}>
+            <Typography variant="h5" component="h6">
+              Domains
+            </Typography>
+          </Box>
+          <Box p={1}>
+            <Button color="primary"
+              variant="contained"
+              className={classes.mintFreeDomain}
+              onClick={() => {setFreeDomain(true)}}>
+              Mint free domain
+            </Button>
+          </Box>
+        </Box> :
+        <></>
+      }
       <DomainList
         isFetching={!fetched}
-        domains={data && (data[stateKey] || {}).domains}
+        domains={_domains}
         onEventsLoad={loadDomainEvents}
         onDomainSelect={setDomainTab}
         actions={(
@@ -287,9 +336,31 @@ const Domains = ({library, account, chainId}) => {
           </>
         }
       </Dialog>
+      <Dialog
+        open={!!freeDomain}
+        TransitionComponent={Transition}
+        maxWidth='lg'
+        keepMounted
+      >
+        <DialogTitle>Mint Free domain</DialogTitle>
+        <DialogContent>
+          <FreeDomain
+            minting={minting}
+            error={mintError}
+            onMint={(domainName) => { handleMint(domainName); }}
+            onCancel={() => { setFreeDomain(false) }}/>
+        </DialogContent>
+      </Dialog>
       {
         fetched && data[stateKey] && !data[stateKey].domains.length &&
-        <p>No .crypto domains found. <a href="https://unstoppabledomains.com/">Buy here</a></p>
+        <p>No .crypto domains found. 
+          <Button color="primary"
+            variant="contained"
+            className={classes.mintFreeDomain}
+            onClick={() => {setFreeDomain(true)}}>
+            Mint free domain
+          </Button>
+          OR <a href="https://unstoppabledomains.com/">Buy here</a></p>
       }
     </Container>
   )

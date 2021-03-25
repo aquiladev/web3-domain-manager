@@ -73,43 +73,39 @@ const DomainList = ({isFetching, domains, onEventsLoad, onDomainSelect, actions}
           <CircularProgress color="inherit" />
         </Backdrop>
       }
-      {domains && domains.length &&
-        <>
-          <Typography className={classes.header} variant="h5" component="h6">
-            Domains
-          </Typography>
-          <div>
-            {domains.map(domain => (
-              <Accordion expanded={expanded === domain.id} onChange={selectDomain(domain)} key={domain.id}>
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                  <Typography className={classes.heading}>{domain.name}</Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                  {domainTab && domainTab.startsWith(domain.id) &&
-                    <div className={classes.tabs}>
-                      <Tabs value={domainTab} onChange={selectDomainEvents(domain.id)}>
-                        <Tab label="Info" value={domain.id} />
-                        <Tab label="Events" value={`${domain.id}_e`} />
-                      </Tabs>
-                      <TabPanel display={domain.id === domainTab}>
-                        <DomainInfo domain={domain} />
-                      </TabPanel>
-                      <TabPanel display={`${domain.id}_e` === domainTab}>
-                        <DomainEventsTable events={events} />
-                      </TabPanel>
-                    </div>
-                  }
-                </AccordionDetails>
-                <Divider />
-                {actions &&
-                  <AccordionActions>
-                    {actions}
-                  </AccordionActions>
+      {domains && domains.length ?
+        <div>
+          {domains.map(domain => (
+            <Accordion expanded={expanded === domain.id} onChange={selectDomain(domain)} key={domain.id}>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography className={classes.heading}>{domain.name}</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                {domainTab && domainTab.startsWith(domain.id) &&
+                  <div className={classes.tabs}>
+                    <Tabs value={domainTab} onChange={selectDomainEvents(domain.id)} style={{marginBottom: 20}}>
+                      <Tab label="Info" value={domain.id} />
+                      <Tab label="Events" value={`${domain.id}_e`} />
+                    </Tabs>
+                    <TabPanel display={domain.id === domainTab}>
+                      <DomainInfo domain={domain} />
+                    </TabPanel>
+                    <TabPanel display={`${domain.id}_e` === domainTab}>
+                      <DomainEventsTable events={events} />
+                    </TabPanel>
+                  </div>
                 }
-              </Accordion>
-            ))}
-          </div>
-        </>
+              </AccordionDetails>
+              <Divider />
+              {actions &&
+                <AccordionActions>
+                  {actions}
+                </AccordionActions>
+              }
+            </Accordion>
+          ))}
+        </div> :
+        <></>
       }
     </>
   )
