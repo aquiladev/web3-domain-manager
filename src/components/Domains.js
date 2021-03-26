@@ -9,6 +9,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
 import TextField from '@material-ui/core/TextField';
 import FormControl from '@material-ui/core/FormControl';
+import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Alert from '@material-ui/lab/Alert';
 import Typography from '@material-ui/core/Typography';
@@ -69,12 +70,18 @@ const Domains = ({library, account, chainId}) => {
   const [fetched, setFetched] = useState(true);
   const [domainTab, setDomainTab] = React.useState(undefined);
   const [domain, setDomain] = useState(undefined);
-  const [records, setRecords] = useState(undefined);
+
+  const [defaultResolverError, setDefaultResolverError] = React.useState(undefined);
+  const [defaultResolving, setDefaultResolving] = React.useState(false);
+
   const [receiver, setReceiver] = React.useState();
   const [transferError, setTransferError] = React.useState(undefined);
   const [transferring, setTransferring] = React.useState(false);
+
+  const [records, setRecords] = useState(undefined);
   const [updateError, setUpdateError] = React.useState(undefined);
   const [updating, setUpdating] = React.useState(false);
+
   const [freeDomain, setFreeDomain] = useState(false);
   const [mintError, setMintError] = React.useState(undefined);
   const [minting, setMinting] = React.useState(false);
@@ -89,8 +96,8 @@ const Domains = ({library, account, chainId}) => {
   };
 
   const handleRecordsOpen = (_domain) => () => {
-    console.log(_domain)
-    setRecords(_domain)
+    setRecords(_domain);
+    setUpdateError();
   };
 
   const handleTransferClose = () => {
@@ -101,8 +108,8 @@ const Domains = ({library, account, chainId}) => {
     setDomain();
   }
 
-  const handleTransfer = async (domain, receiver) => {
-    console.log(account, receiver, domain.id);
+  const handleTransfer = async (_domain, receiver) => {
+    console.debug(account, receiver, _domain.id);
 
     setTransferError();
     if(!isAddress(receiver)) {
@@ -112,7 +119,7 @@ const Domains = ({library, account, chainId}) => {
 
     try {
       setTransferring(true);
-      await registry.methods['0x42842e0e'](account, receiver, domain.id)
+      await registry.methods['0x42842e0e'](account, receiver, _domain.id)
         .send({from: account});
       
       // TODO: update domain list
@@ -125,29 +132,49 @@ const Domains = ({library, account, chainId}) => {
     }
   }
 
-  const handleUpdate = async (domain, records) => {
-    console.log('UPDATE', domain, records);
+  const setDefaultResolver = (_domain) => async () => {
+    console.debug('DEFAULT RESOLVER', _domain.id);
+    setDefaultResolverError();
+
+    try {
+      setDefaultResolving(true);
+      await registry.methods.resolveTo(contracts.Resolver.address, _domain.id)
+        .send({from: account});
+      
+      // TODO: update domain list
+    } catch (error) {
+      setDefaultResolverError(error && error.message);
+      return;
+    } finally {
+      setDefaultResolving(false);
+    }
+  }
+
+  const handleUpdate = async (_domain, records) => {
+    console.debug('UPDATE', domain, records);
+    setUpdateError();
 
     try {
       setUpdating(true);
-      const resolver = new library.eth.Contract(resolverJson.abi, domain.resolver);
+      const resolver = new library.eth.Contract(resolverJson.abi, _domain.resolver);
       const keysToUpdate = records.map(r => r.key);
       const valuesToUpdate = records.map(r => r.newValue || '');
-      await resolver.methods.setMany(keysToUpdate, valuesToUpdate, domain.id)
+      await resolver.methods.setMany(keysToUpdate, valuesToUpdate, _domain.id)
         .send({from: account});
 
       // TODO: update domain
-      setRecords();
     } catch (error) {
       setUpdateError(error && error.message);
       return;
     } finally {
       setUpdating(false);
+      setRecords();
     }
   }
 
   const handleMint = async (domainName) => {
-    console.log('MINT', domainName);
+    console.debug('MINT', domainName);
+    setMintError();
 
     try {
       setMinting(true);
@@ -267,10 +294,25 @@ const Domains = ({library, account, chainId}) => {
         isFetching={!fetched}
         domains={_domains}
         onEventsLoad={loadDomainEvents}
-        onDomainSelect={setDomainTab}
+        onDomainSelect={(domain) => {
+          setDomainTab(domain);
+          setDefaultResolverError();
+        }}
         actions={(
           <>
-            <Button size="small" color="primary" onClick={handleRecordsOpen(domainTab)}>
+            {defaultResolverError &&
+              <Alert severity="error">
+                {defaultResolverError}
+              </Alert>
+            }
+            <Button size="small" color="primary" 
+              disabled={domainTab && domainTab.resolver !== '0x0000000000000000000000000000000000000000'}
+              onClick={setDefaultResolver(domainTab)}>
+              Set default resolver
+            </Button>
+            <Button size="small" color="primary"
+              disabled={domainTab && domainTab.resolver === '0x0000000000000000000000000000000000000000'}
+              onClick={handleRecordsOpen(domainTab)}>
               Update records
             </Button>
             <Button size="small" color="primary" onClick={handleTransferOpen(domainTab)}>
@@ -312,8 +354,12 @@ const Domains = ({library, account, chainId}) => {
               <Button onClick={() => { handleTransfer(domain, receiver) }} color="primary">
                 Transfer
               </Button>
-              {transferring && <CircularProgress size={24} />}
             </DialogActions>
+            {
+              <Backdrop className={classes.backdrop} open={transferring}>
+                <CircularProgress color="inherit" />
+              </Backdrop>
+            }
           </>
         }
       </Dialog>
@@ -361,6 +407,11 @@ const Domains = ({library, account, chainId}) => {
             Mint free domain
           </Button>
           OR <a href="https://unstoppabledomains.com/">Buy here</a></p>
+      }
+      {
+        <Backdrop className={classes.backdrop} open={defaultResolving}>
+          <CircularProgress color="inherit" />
+        </Backdrop>
       }
     </Container>
   )

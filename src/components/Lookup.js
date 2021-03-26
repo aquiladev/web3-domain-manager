@@ -67,7 +67,7 @@ const Lookup = ({ library, chainId }) => {
 
       setDomain(undefined);
       const tokenId = namehash(domainName);
-      console.log(domainName, tokenId);
+      console.debug(domainName, tokenId);
       await loadData(tokenId, domainName);
     } catch (error) {
       setError(error.message);
