@@ -41,14 +41,21 @@ jobs:
           timeout: 120000
           verbose: true
 
+      - name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v5.4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create Release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          tag_name: ${{ steps.tag_version.outputs.new_tag }}
+          release_name: Release ${{ steps.tag_version.outputs.new_version }}
           body: |
             [https://cloudflare-ipfs.com/ipfs/${{ steps.ipfs_upload.outputs.hash }}/](https://cloudflare-ipfs.com/ipfs/${{ steps.ipfs_upload.outputs.hash }}/)
+            ${{ steps.tag_version.outputs.changelog }}
           draft: false
           prerelease: false
