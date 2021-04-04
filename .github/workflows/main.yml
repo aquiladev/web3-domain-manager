@@ -7,8 +7,6 @@ on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -36,8 +34,21 @@ jobs:
       
       - name: Upload to IPFS
         uses: aquiladev/ipfs-action@v0.1.5
+        id: ipfs_upload
         with:
           path: ./build
           service: infura
           timeout: 120000
           verbose: true
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.version_tag }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            [https://cloudflare-ipfs.com/ipfs/${{ steps.ipfs_upload.outputs.hash }}/](https://cloudflare-ipfs.com/ipfs/${{ steps.ipfs_upload.outputs.hash }}/)
+          draft: false
+          prerelease: false
