@@ -30,11 +30,24 @@ jobs:
 
       - run: yarn
 
-      - run: CI=false && yarn build
+      - name: Build dApp
+        run: CI=false && yarn build
       
-      - name: Upload to IPFS
+      - name: Upload dApp to IPFS
         uses: aquiladev/ipfs-action@v0.1.5
-        id: ipfs_upload
+        id: ipfs_dapp_upload
+        with:
+          path: ./build
+          service: infura
+          timeout: 120000
+          verbose: true
+
+      - name: Build Gnosis Safe App
+        run: CI=false && REACT_APP_SAPP_TARGET=true && yarn build
+      
+      - name: Upload sApp to IPFS
+        uses: aquiladev/ipfs-action@v0.1.5
+        id: ipfs_sapp_upload
         with:
           path: ./build
           service: infura
@@ -55,7 +68,8 @@ jobs:
           tag_name: ${{ steps.tag_version.outputs.new_tag }}
           release_name: Release ${{ steps.tag_version.outputs.new_tag }}
           body: |
-            [https://cloudflare-ipfs.com/ipfs/${{ steps.ipfs_upload.outputs.hash }}/](https://cloudflare-ipfs.com/ipfs/${{ steps.ipfs_upload.outputs.hash }}/)
+            dApp [https://cloudflare-ipfs.com/ipfs/${{ steps.ipfs_dapp_upload.outputs.hash }}/](https://cloudflare-ipfs.com/ipfs/${{ steps.ipfs_dapp_upload.outputs.hash }}/)
+            Gnosis Safe App [https://cloudflare-ipfs.com/ipfs/${{ steps.ipfs_sapp_upload.outputs.hash }}/](https://cloudflare-ipfs.com/ipfs/${{ steps.ipfs_sapp_upload.outputs.hash }}/)
             ${{ steps.tag_version.outputs.changelog }}
           draft: false
           prerelease: false
