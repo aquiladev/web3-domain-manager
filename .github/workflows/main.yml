@@ -28,13 +28,27 @@ jobs:
         with:
           node-version: '14.x'
 
-      - run: yarn
+      - run: yarn install
 
-      - run: CI=false && yarn build
+      - name: Build dApp
+        run: CI=false yarn build
       
       - name: Upload to IPFS
         uses: aquiladev/ipfs-action@v0.1.5
-        id: ipfs_upload
+        id: ipfs_dapp_upload
+        with:
+          path: ./build
+          service: infura
+          timeout: 120000
+          verbose: true
+
+      - name: Build Gnosis Safe App
+        run: rm -rf ./build |
+          CI=false REACT_APP_SAPP_TARGET=true yarn build
+      
+      - name: Upload sApp to IPFS
+        uses: aquiladev/ipfs-action@v0.1.5
+        id: ipfs_sapp_upload
         with:
           path: ./build
           service: infura
