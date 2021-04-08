@@ -48,11 +48,17 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const NETWORK_CHAIN_ID = {
+  MAINNET: 1,
+  RINKEBY: 4,
+};
+
 function GnosisSafeApp() {
   const classes = useStyles();
 
   const { sdk, safe } = useSafeAppsSDK();
   const web3Provider = useMemo(() => new Web3(new SafeAppProvider(safe, sdk)), [sdk, safe]);
+  const chainId = NETWORK_CHAIN_ID[safe.network];
 
   return (
     <div className={classes.root}>
@@ -68,7 +74,7 @@ function GnosisSafeApp() {
         </Toolbar>
       </AppBar>
       <Container maxWidth="lg">
-        <Domains library={web3Provider} account={safe.safeAddress} chainId={4} />
+        <Domains library={web3Provider} account={safe.safeAddress} chainId={chainId} />
       </Container>
     </div>
   );
