@@ -1,6 +1,8 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "dot_crypto_domains",
+  "name": ".CRYPTO domains",
+  "description": "Decentralized application for .CRYPTO domains management",
+  "iconPath": "logo.svg",
   "icons": [
     {
       "src": "favicon.ico",
