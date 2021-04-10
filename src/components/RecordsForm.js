@@ -148,7 +148,7 @@ const RecordsForm = ({records, updating, error, onUpdate, onCancel}) => {
 
   return (
     <>
-      <Grid className={classes.form}>
+      <Grid className={classes.form} id="records-form">
         {
           form.displayable.map(({key, newValue}) => {
             return (

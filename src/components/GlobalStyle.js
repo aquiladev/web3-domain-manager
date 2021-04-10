@@ -25,6 +25,9 @@ const GlobalStyle = createGlobalStyle`
     url(${avertaFont}) format('woff2'),
     url(${avertaBoldFont}) format('woff');
   }
+  #records-form .MuiFilledInput-input {
+    padding-top: 13px;
+  }
 `;
 
 export default GlobalStyle;
