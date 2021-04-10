@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { Web3ReactProvider, useWeb3React, UnsupportedChainIdError } from '@web3-react/core';
 import {
   NoEthereumProviderError,
@@ -25,6 +25,16 @@ import mmLogo from './images/mm.png';
 import { injected, useEagerConnect, useInactiveListener } from './hooks';
 import Domains from './components/Domains';
 import Lookup from './components/Lookup';
+
+const theme = createMuiTheme({
+  overrides: {
+    MuiFilledInput: {
+      input: {
+        paddingTop: '13px',
+      },
+    },
+  },
+});
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -102,81 +112,83 @@ function DefaultApp() {
   const connected = currentConnector === connector
 
   return (
-    <div className={classes.root}>
-      <AppBar position="fixed">
-        <Toolbar>
-          <Typography className={classes.title} variant="h5" noWrap>
-            .CRYPTO domains
-          </Typography>
-          <div className={classes.grow}>
-            <Button
-              className={classes.navButton}
-              onClick={() => {setIsLookup(!isLookup)}}>
-                {isLookup ? 'My Domains' : 'Lookup'}
-            </Button>
-          </div>
-          {active && (
-            <>
-              <Typography variant="subtitle1">
-                {account}
-              </Typography>
+    <ThemeProvider theme={theme}>
+      <div className={classes.root}>
+        <AppBar position="fixed">
+          <Toolbar>
+            <Typography className={classes.title} variant="h5" noWrap>
+              .CRYPTO domains
+            </Typography>
+            <div className={classes.grow}>
               <Button
-                variant="contained"
-                onClick={() => { deactivate() }}
-                style={{ marginLeft: 10 }}>
-                  Disconnect
+                className={classes.navButton}
+                onClick={() => {setIsLookup(!isLookup)}}>
+                  {isLookup ? 'My Domains' : 'Lookup'}
               </Button>
-            </>
-          )}
-        </Toolbar>
-      </AppBar>
-      <Container maxWidth="lg">
-        {
-          !!error && 
-            <Alert
-              variant="filled"
-              severity="error"
-              style={{ position: 'fixed', zIndex: 1200, bottom: 10, left: 10 }}
-              >
-                {getErrorMessage(error)}
-            </Alert>
-        }
-        {
-          (!connected || !account) &&
-            <>
-              <Grid
-                container
-                spacing={0}
-                direction="column"
-                alignItems="center"
-                justify="center"
-                style={{ minHeight: '100vh' }}
-              >
-                <Grid item xs={3}>
-                  <Card className={classes.card}>
-                    <CardActionArea onClick={() => {
-                      setActivatingConnector(currentConnector)
-                      activate(injected)
-                    }}>
-                      <CardMedia component="img" image={mmLogo} className={classes.cardMedia} />
-                      <CardContent>
-                        <Typography variant="h5" component="h2">
-                          MetaMask
-                        </Typography>
-                      </CardContent>
-                    </CardActionArea>
-                  </Card>
+            </div>
+            {active && (
+              <>
+                <Typography variant="subtitle1">
+                  {account}
+                </Typography>
+                <Button
+                  variant="contained"
+                  onClick={() => { deactivate() }}
+                  style={{ marginLeft: 10 }}>
+                    Disconnect
+                </Button>
+              </>
+            )}
+          </Toolbar>
+        </AppBar>
+        <Container maxWidth="lg">
+          {
+            !!error && 
+              <Alert
+                variant="filled"
+                severity="error"
+                style={{ position: 'fixed', zIndex: 1200, bottom: 10, left: 10 }}
+                >
+                  {getErrorMessage(error)}
+              </Alert>
+          }
+          {
+            (!connected || !account) &&
+              <>
+                <Grid
+                  container
+                  spacing={0}
+                  direction="column"
+                  alignItems="center"
+                  justify="center"
+                  style={{ minHeight: '100vh' }}
+                >
+                  <Grid item xs={3}>
+                    <Card className={classes.card}>
+                      <CardActionArea onClick={() => {
+                        setActivatingConnector(currentConnector)
+                        activate(injected)
+                      }}>
+                        <CardMedia component="img" image={mmLogo} className={classes.cardMedia} />
+                        <CardContent>
+                          <Typography variant="h5" component="h2">
+                            MetaMask
+                          </Typography>
+                        </CardContent>
+                      </CardActionArea>
+                    </Card>
+                  </Grid>
                 </Grid>
-              </Grid>
-              <Backdrop className={classes.backdrop} open={activating}>
-                <CircularProgress color="inherit" />
-              </Backdrop>
-            </>
-        }
-        {connected && account && !isLookup && <Domains library={library} account={account} chainId={chainId} />}
-        {connected && isLookup && <Lookup library={library} chainId={chainId} />}
-      </Container>
-    </div>
+                <Backdrop className={classes.backdrop} open={activating}>
+                  <CircularProgress color="inherit" />
+                </Backdrop>
+              </>
+          }
+          {connected && account && !isLookup && <Domains library={library} account={account} chainId={chainId} />}
+          {connected && isLookup && <Lookup library={library} chainId={chainId} />}
+        </Container>
+      </div>
+    </ThemeProvider>
   );
 }
 

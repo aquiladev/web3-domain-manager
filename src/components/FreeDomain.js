@@ -2,18 +2,20 @@ import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
-import FormControl from '@material-ui/core/FormControl';
 import TextField from '@material-ui/core/TextField';
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Alert from '@material-ui/lab/Alert';
 
 const useStyles = makeStyles((theme) => ({
-  fControl: {
-    minWidth: 500,
+  form: {
+    minWidth: 600,
   },
-  fInput: {
-    width: '100%',
+  domainName: {
+    display: 'flex',
+  },
+  grow: {
+    flexGrow: 1,
   },
   backdrop: {
     zIndex: theme.zIndex.drawer + 1,
@@ -23,6 +25,7 @@ const useStyles = makeStyles((theme) => ({
     marginRight: 8,
   },
   actions: {
+    display: 'flex',
     paddingTop: 20,
     paddingBottom: 8,
   },
@@ -39,24 +42,22 @@ const FreeDomain = ({minting, error, onMint, onCancel}) => {
 
   return (
     <>
-      <Grid>
+      <Grid className={classes.form}>
         <Grid container item xs={12}>
           <Grid item xs={3}>
             <TextField
               disabled
               label="Prefix"
               defaultValue="udtestdev-"
-              variant="filled"
+              variant="outlined"
               className={classes.prefix}
             />
           </Grid>
-          <Grid item xs={9}>
-            <FormControl variant="filled" className={classes.fControl}>
-              <TextField variant="filled"
-                label="Domain name"
-                className={classes.fInput}
-                onChange={(event) => { setDomainName(event.target.value); }}/>
-            </FormControl>
+          <Grid item xs={9} className={classes.domainName}>
+            <TextField variant="outlined"
+              label="Domain name"
+              className={classes.grow}
+              onChange={(event) => { setDomainName(event.target.value); }}/>
           </Grid>
         </Grid>
         <Grid>
@@ -67,6 +68,7 @@ const FreeDomain = ({minting, error, onMint, onCancel}) => {
           }
         </Grid>
         <Grid className={classes.actions}>
+          <div className={classes.grow}></div>
           <Button color="primary" onClick={() => {onCancel && onCancel()}}>
             Cancel
           </Button>

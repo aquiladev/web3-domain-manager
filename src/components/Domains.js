@@ -8,12 +8,11 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
 import TextField from '@material-ui/core/TextField';
-import FormControl from '@material-ui/core/FormControl';
+import Grid from '@material-ui/core/Grid';
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Alert from '@material-ui/lab/Alert';
 import Typography from '@material-ui/core/Typography';
-import Box from '@material-ui/core/Box';
 
 import registryJson from 'dot-crypto/truffle-artifacts/Registry.json';
 import resolverJson from 'dot-crypto/truffle-artifacts/Resolver.json';
@@ -36,6 +35,17 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 const useStyles = makeStyles((theme) => ({
+  header: {
+    display: 'flex',
+    padding: '10px 0',
+  },
+  form: {
+    minWidth: 600,
+    display: 'flex',
+  },
+  grow: {
+    flexGrow: 1,
+  },
   backdrop: {
     zIndex: theme.zIndex.drawer + 1,
     color: '#fff',
@@ -43,14 +53,6 @@ const useStyles = makeStyles((theme) => ({
   tabs: {
     width: '100%',
   },
-  fControl: {
-    minWidth: 500,
-    paddingRight: 12,
-  },
-  mintFreeDomain: {
-    marginLeft: 8,
-    marginRight: 8,
-  }
 }));
 
 function getDomain(uri) {
@@ -106,6 +108,8 @@ const Domains = ({library, account, chainId}) => {
     }
 
     setDomain();
+    setReceiver();
+    setTransferError();
   }
 
   const handleTransfer = async (_domain, receiver) => {
@@ -163,12 +167,12 @@ const Domains = ({library, account, chainId}) => {
         .send({from: account});
 
       // TODO: update domain
+      setRecords();
     } catch (error) {
       setUpdateError(error && error.message);
       return;
     } finally {
       setUpdating(false);
-      setRecords();
     }
   }
 
@@ -273,21 +277,16 @@ const Domains = ({library, account, chainId}) => {
   return (
     <Container style={{ paddingTop: '4rem' }}>
       {_domains && _domains.length ?
-        <Box display="flex" p={1}>
-          <Box p={1} flexGrow={1}>
-            <Typography variant="h5" component="h6">
-              Domains
-            </Typography>
-          </Box>
-          <Box p={1}>
-            <Button color="primary"
-              variant="contained"
-              className={classes.mintFreeDomain}
-              onClick={() => {setFreeDomain(true)}}>
-              Mint free domain
-            </Button>
-          </Box>
-        </Box> :
+        <div className={classes.header}>
+          <Typography variant="h5" component="h6" className={classes.grow}>
+            Domains
+          </Typography>
+          <Button color="primary"
+            variant="contained"
+            onClick={() => {setFreeDomain(true)}}>
+            Mint free domain
+          </Button>
+        </div> :
         <></>
       }
       <DomainList
@@ -300,11 +299,13 @@ const Domains = ({library, account, chainId}) => {
         }}
         actions={(
           <>
-            {defaultResolverError &&
-              <Alert severity="error">
-                {defaultResolverError}
-              </Alert>
-            }
+            <div className={classes.grow}>
+              {defaultResolverError &&
+                <Alert severity="error">
+                  {defaultResolverError}
+                </Alert>
+              }
+            </div>            
             <Button size="small" color="primary" 
               disabled={domainTab && domainTab.resolver !== '0x0000000000000000000000000000000000000000'}
               onClick={setDefaultResolver(domainTab)}>
@@ -331,16 +332,16 @@ const Domains = ({library, account, chainId}) => {
           <>
             <DialogTitle>Transfer {domain.name}</DialogTitle>
             <DialogContent>
-              <FormControl fullWidth className={classes.fControl} variant="outlined">
+              <Grid className={classes.form}>
                 <TextField
                   label="Receiver"
                   variant="outlined"
                   defaultValue={receiver}
+                  className={classes.grow}
                   onChange={event => {
-                    const { value } = event.target;
-                    setReceiver(value);
+                    setReceiver(event.target.value);
                   }}/>
-              </FormControl>
+              </Grid>
               {transferError &&
                 <Alert severity="error" style={{ marginTop: 10 }}>
                   {transferError}
@@ -348,10 +349,13 @@ const Domains = ({library, account, chainId}) => {
               }
             </DialogContent>
             <DialogActions>
-              <Button onClick={handleTransferClose} color="primary">
+              <Button color="primary" onClick={handleTransferClose}>
                 Cancel
               </Button>
-              <Button onClick={() => { handleTransfer(domain, receiver) }} color="primary">
+              <Button 
+                color="primary"
+                variant="contained"
+                onClick={() => { handleTransfer(domain, receiver) }}>
                 Transfer
               </Button>
             </DialogActions>
