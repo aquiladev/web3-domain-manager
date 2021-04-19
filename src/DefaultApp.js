@@ -117,7 +117,7 @@ function DefaultApp() {
         <AppBar position="fixed">
           <Toolbar>
             <Typography className={classes.title} variant="h5" noWrap>
-              .CRYPTO domains
+              .crypto Domain Manager
             </Typography>
             <div className={classes.grow}>
               <Button

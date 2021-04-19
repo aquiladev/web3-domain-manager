@@ -53,6 +53,9 @@ const useStyles = makeStyles((theme) => ({
   tabs: {
     width: '100%',
   },
+  mintFreeDomain: {
+    margin: '0 10px',
+  }
 }));
 
 function getDomain(uri) {
@@ -284,7 +287,7 @@ const Domains = ({library, account, chainId}) => {
           <Button color="primary"
             variant="contained"
             onClick={() => {setFreeDomain(true)}}>
-            Mint free domain
+            Claim free domain
           </Button>
         </div> :
         <></>
@@ -392,7 +395,7 @@ const Domains = ({library, account, chainId}) => {
         maxWidth='lg'
         keepMounted
       >
-        <DialogTitle>Mint Free domain</DialogTitle>
+        <DialogTitle>Claim Free domain</DialogTitle>
         <DialogContent>
           <FreeDomain
             minting={minting}
@@ -408,7 +411,7 @@ const Domains = ({library, account, chainId}) => {
             variant="contained"
             className={classes.mintFreeDomain}
             onClick={() => {setFreeDomain(true)}}>
-            Mint free domain
+            Claim free domain
           </Button>
           OR <a href="https://unstoppabledomains.com/">Buy here</a></p>
       }
