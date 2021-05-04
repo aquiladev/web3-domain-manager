@@ -129,9 +129,10 @@ const Domains = ({ library, account, chainId }) => {
       await registry.methods['0x42842e0e'](account, receiver, _domain.id)
         .send({ from: account });
 
-      // TODO: update domain list
       setDomain();
+      await updateDomainState(_domain.id);
     } catch (error) {
+      console.error(error);
       setTransferError(error && error.message);
       return;
     } finally {
@@ -148,8 +149,9 @@ const Domains = ({ library, account, chainId }) => {
       await registry.methods.resolveTo(contracts.Resolver.address, _domain.id)
         .send({ from: account });
 
-      // TODO: update domain list
+      await updateDomainState(_domain.id);
     } catch (error) {
+      console.error(error);
       setDefaultResolverError(error && error.message);
       return;
     } finally {
@@ -158,7 +160,7 @@ const Domains = ({ library, account, chainId }) => {
   }
 
   const handleUpdate = async (_domain, records) => {
-    console.debug('UPDATE', domain, records);
+    console.debug('UPDATE', _domain, records);
     setUpdateError();
 
     try {
@@ -169,9 +171,10 @@ const Domains = ({ library, account, chainId }) => {
       await resolver.methods.setMany(keysToUpdate, valuesToUpdate, _domain.id)
         .send({ from: account });
 
-      // TODO: update domain
       setRecords();
+      await updateDomainState(_domain.id);
     } catch (error) {
+      console.error(error);
       setUpdateError(error && error.message);
       return;
     } finally {
@@ -189,9 +192,10 @@ const Domains = ({ library, account, chainId }) => {
       await freeMinter.methods.claim(domainName)
         .send({ from: account });
 
-      // TODO: update domain list
       setFreeDomain(false);
+      await loadPastEvents();
     } catch (error) {
+      console.error(error);
       setClaimError(error && error.message);
       return;
     } finally {
@@ -201,15 +205,13 @@ const Domains = ({ library, account, chainId }) => {
 
   const _keys = Object.values(keys);
 
-  const loadPastEvents = () => {
+  const loadPastEvents = async () => {
     setFetched(false);
     console.debug('Loading events...');
 
-    fetchTransferEvents(library, registry, account)
+    return fetchTransferEvents(library, registry, account)
       .then(async (events) => {
         console.debug('Loaded events', events);
-
-        const _domains = [];
         const _tokens = [];
 
         events.forEach(async (e) => {
@@ -218,30 +220,7 @@ const Domains = ({ library, account, chainId }) => {
           }
         });
 
-        console.debug('Fetching state...');
-        const domainData = await proxyReader.methods.getDataForMany(_keys, _tokens).call();
-        console.debug('Fetched state', domainData);
-
-        for (let index = 0; index < _tokens.length; index++) {
-          if (domainData.owners[index] !== account) {
-            continue;
-          }
-
-          const token = _tokens[index];
-          const uri = await registry.methods.tokenURI(token).call();
-
-          const records = {};
-          _keys.forEach((k, i) => records[k] = domainData.values[index][i]);
-
-          _domains.push({
-            id: token,
-            name: getDomain(uri),
-            owner: domainData.owners[index],
-            resolver: domainData.resolvers[index],
-            records
-          });
-        }
-
+        const _domains = await fetchDomains(_tokens);
         const _data = {
           ...data,
           [stateKey]: {
@@ -251,9 +230,58 @@ const Domains = ({ library, account, chainId }) => {
         };
 
         console.debug('Update state', _data);
-        setData(() => _data);
-        setFetched(() => true);
+        setData(_data);
+        setFetched(true);
       });
+  }
+
+  const fetchDomains = async (tokens) => {
+    const domains = [];
+
+    console.debug('Fetching data...');
+    const data = await proxyReader.methods.getDataForMany(_keys, tokens).call();
+    console.debug('Fetched data', data);
+
+    for (let index = 0; index < tokens.length; index++) {
+      if (data.owners[index] !== account) {
+        continue;
+      }
+
+      const token = tokens[index];
+      const uri = await registry.methods.tokenURI(token).call();
+
+      const records = {};
+      _keys.forEach((k, i) => records[k] = data.values[index][i]);
+
+      domains.push({
+        id: token,
+        name: getDomain(uri),
+        owner: data.owners[index],
+        resolver: data.resolvers[index],
+        records
+      });
+    }
+
+    return domains;
+  }
+
+  const updateDomainState = async (tokenId) => {
+    const domain = (await fetchDomains([tokenId]))[0];
+    const domains = data[stateKey].domains
+      .map(d => domain && d.id === domain.id ? { ...d, ...domain } : d)
+      .filter(d => domain || d.id !== tokenId);
+
+    const _data = {
+      ...data,
+      [stateKey]: {
+        isFetched: true,
+        domains
+      }
+    };
+
+    console.debug('Update domain state', _data);
+    setData(_data);
+    setDomainTab(domain);
   }
 
   const loadDomainEvents = (domainId) => {
