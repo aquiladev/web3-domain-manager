@@ -1,8 +1,8 @@
 {
-  "short_name": "dot_crypto_domains",
-  "name": ".CRYPTO domains",
-  "description": "Decentralized application for .CRYPTO domains management",
-  "iconPath": "logo.svg",
+  "short_name": "crypto_domain_manager",
+  "name": ".crypto Domain Manager",
+  "description": "Create and manage .crypto domains",
+  "iconPath": "logo.png",
   "icons": [
     {
       "src": "favicon.ico",

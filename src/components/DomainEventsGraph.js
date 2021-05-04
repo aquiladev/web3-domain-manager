@@ -13,7 +13,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const DomainEventsGraph = ({events}) => {
+const DomainEventsGraph = ({ events }) => {
   const classes = useStyles();
 
   const _template = templateExtend(TemplateName.Metro, {
@@ -43,7 +43,7 @@ const DomainEventsGraph = ({events}) => {
       }}>
         {(gitgraph) => {
           const master = gitgraph.branch("Registry");
-          if(events) {
+          if (events) {
             events.events.map(e => {
               // master.commit({
               //   subject: e.event,

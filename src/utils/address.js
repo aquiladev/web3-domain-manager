@@ -1,6 +1,6 @@
 import sha3 from 'crypto-js/sha3';
 
-export function isAddress (address) {
+export function isAddress(address) {
   if (!/^(0x)?[0-9a-f]{40}$/i.test(address)) {
     // check if it has the basic requirements of an address
     return false;
@@ -15,9 +15,9 @@ export function isAddress (address) {
 
 export function isChecksumAddress(address) {
   // Check each case
-  address = address.replace('0x','');
+  address = address.replace('0x', '');
   var addressHash = sha3(address.toLowerCase());
-  for (var i = 0; i < 40; i++ ) {
+  for (var i = 0; i < 40; i++) {
     // the nth letter should be uppercase if the nth digit of casemap is 1
     if ((parseInt(addressHash[i], 16) > 7 && address[i].toUpperCase() !== address[i]) ||
       (parseInt(addressHash[i], 16) <= 7 && address[i].toLowerCase() !== address[i])) {

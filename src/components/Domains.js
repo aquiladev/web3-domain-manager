@@ -26,7 +26,7 @@ import {
   fetchTransferEvents,
   fetchDomainEvents
 } from '../utils/events';
-import {isAddress} from '../utils/address';
+import { isAddress } from '../utils/address';
 import RecordsForm from './RecordsForm';
 import FreeDomain from './FreeDomain';
 
@@ -53,13 +53,16 @@ const useStyles = makeStyles((theme) => ({
   tabs: {
     width: '100%',
   },
+  btn: {
+    margin: '0 10px',
+  }
 }));
 
 function getDomain(uri) {
   return uri.replace('https://metadata.unstoppabledomains.com/metadata/', '')
 }
 
-const Domains = ({library, account, chainId}) => {
+const Domains = ({ library, account, chainId }) => {
   const classes = useStyles();
   const stateKey = `${account}_${chainId}`;
 
@@ -85,10 +88,10 @@ const Domains = ({library, account, chainId}) => {
   const [updating, setUpdating] = React.useState(false);
 
   const [freeDomain, setFreeDomain] = useState(false);
-  const [mintError, setMintError] = React.useState(undefined);
-  const [minting, setMinting] = React.useState(false);
+  const [claimError, setClaimError] = React.useState(undefined);
+  const [claiming, setClaiming] = React.useState(false);
 
-  const {contracts} = NetworkConfig.networks[chainId];
+  const { contracts } = NetworkConfig.networks[chainId];
   const registry = new library.eth.Contract(registryJson.abi, contracts.Registry.address);
   const proxyReader = new library.eth.Contract(proxyReaderJson.abi, contracts.ProxyReader.address);
   const freeMinter = new library.eth.Contract(freeMinterJson.abi, contracts.FreeMinter.address);
@@ -103,7 +106,7 @@ const Domains = ({library, account, chainId}) => {
   };
 
   const handleTransferClose = () => {
-    if(transferring) {
+    if (transferring) {
       return;
     }
 
@@ -116,7 +119,7 @@ const Domains = ({library, account, chainId}) => {
     console.debug(account, receiver, _domain.id);
 
     setTransferError();
-    if(!isAddress(receiver)) {
+    if (!isAddress(receiver)) {
       setTransferError('Recipient address is invalid');
       return;
     }
@@ -124,11 +127,12 @@ const Domains = ({library, account, chainId}) => {
     try {
       setTransferring(true);
       await registry.methods['0x42842e0e'](account, receiver, _domain.id)
-        .send({from: account});
-      
-      // TODO: update domain list
+        .send({ from: account });
+
       setDomain();
+      await updateDomainState(_domain.id);
     } catch (error) {
+      console.error(error);
       setTransferError(error && error.message);
       return;
     } finally {
@@ -143,10 +147,11 @@ const Domains = ({library, account, chainId}) => {
     try {
       setDefaultResolving(true);
       await registry.methods.resolveTo(contracts.Resolver.address, _domain.id)
-        .send({from: account});
-      
-      // TODO: update domain list
+        .send({ from: account });
+
+      await updateDomainState(_domain.id);
     } catch (error) {
+      console.error(error);
       setDefaultResolverError(error && error.message);
       return;
     } finally {
@@ -155,7 +160,7 @@ const Domains = ({library, account, chainId}) => {
   }
 
   const handleUpdate = async (_domain, records) => {
-    console.debug('UPDATE', domain, records);
+    console.debug('UPDATE', _domain, records);
     setUpdateError();
 
     try {
@@ -164,11 +169,12 @@ const Domains = ({library, account, chainId}) => {
       const keysToUpdate = records.map(r => r.key);
       const valuesToUpdate = records.map(r => r.newValue || '');
       await resolver.methods.setMany(keysToUpdate, valuesToUpdate, _domain.id)
-        .send({from: account});
+        .send({ from: account });
 
-      // TODO: update domain
       setRecords();
+      await updateDomainState(_domain.id);
     } catch (error) {
+      console.error(error);
       setUpdateError(error && error.message);
       return;
     } finally {
@@ -176,69 +182,45 @@ const Domains = ({library, account, chainId}) => {
     }
   }
 
-  const handleMint = async (domainName) => {
-    console.debug('MINT', domainName);
-    setMintError();
+  const handleClaim = async (domainName) => {
+    console.debug('CLAIM', domainName);
+    setClaimError();
 
     try {
-      setMinting(true);
-      
-      await freeMinter.methods.claim(domainName)
-        .send({from: account});
+      setClaiming(true);
 
-      // TODO: update domain list
+      await freeMinter.methods.claim(domainName)
+        .send({ from: account });
+
       setFreeDomain(false);
+      await loadPastEvents();
     } catch (error) {
-      setMintError(error && error.message);
+      console.error(error);
+      setClaimError(error && error.message);
       return;
     } finally {
-      setMinting(false);
+      setClaiming(false);
     }
   }
 
   const _keys = Object.values(keys);
 
-  const loadPastEvents = () => {
+  const loadPastEvents = async () => {
     setFetched(false);
     console.debug('Loading events...');
 
-    fetchTransferEvents(library, registry, account)
+    return fetchTransferEvents(library, registry, account)
       .then(async (events) => {
         console.debug('Loaded events', events);
-
-        const _domains = [];
         const _tokens = [];
 
         events.forEach(async (e) => {
-          if(!_tokens.includes(e.returnValues.tokenId)) {
+          if (!_tokens.includes(e.returnValues.tokenId)) {
             _tokens.push(e.returnValues.tokenId);
           }
         });
 
-        console.debug('Fetching state...');      
-        const domainData = await proxyReader.methods.getDataForMany(_keys, _tokens).call();
-        console.debug('Fetched state', domainData);
-
-        for (let index = 0; index < _tokens.length; index++) {
-          if(domainData.owners[index] !== account) {
-            continue;
-          }
-
-          const token = _tokens[index];
-          const uri = await registry.methods.tokenURI(token).call();
-
-          const records = {};
-          _keys.forEach((k, i) => records[k] = domainData.values[index][i]);
-
-          _domains.push({
-            id: token,
-            name: getDomain(uri),
-            owner: domainData.owners[index],
-            resolver: domainData.resolvers[index],
-            records
-          });
-        }
-        
+        const _domains = await fetchDomains(_tokens);
         const _data = {
           ...data,
           [stateKey]: {
@@ -248,9 +230,58 @@ const Domains = ({library, account, chainId}) => {
         };
 
         console.debug('Update state', _data);
-        setData(() => _data);
-        setFetched(() => true);
+        setData(_data);
+        setFetched(true);
       });
+  }
+
+  const fetchDomains = async (tokens) => {
+    const domains = [];
+
+    console.debug('Fetching data...');
+    const data = await proxyReader.methods.getDataForMany(_keys, tokens).call();
+    console.debug('Fetched data', data);
+
+    for (let index = 0; index < tokens.length; index++) {
+      if (data.owners[index] !== account) {
+        continue;
+      }
+
+      const token = tokens[index];
+      const uri = await registry.methods.tokenURI(token).call();
+
+      const records = {};
+      _keys.forEach((k, i) => records[k] = data.values[index][i]);
+
+      domains.push({
+        id: token,
+        name: getDomain(uri),
+        owner: data.owners[index],
+        resolver: data.resolvers[index],
+        records
+      });
+    }
+
+    return domains;
+  }
+
+  const updateDomainState = async (tokenId) => {
+    const domain = (await fetchDomains([tokenId]))[0];
+    const domains = data[stateKey].domains
+      .map(d => domain && d.id === domain.id ? { ...d, ...domain } : d)
+      .filter(d => domain || d.id !== tokenId);
+
+    const _data = {
+      ...data,
+      [stateKey]: {
+        isFetched: true,
+        domains
+      }
+    };
+
+    console.debug('Update domain state', _data);
+    setData(_data);
+    setDomainTab(domain);
   }
 
   const loadDomainEvents = (domainId) => {
@@ -260,7 +291,7 @@ const Domains = ({library, account, chainId}) => {
       .then((domainEvents) => {
         console.debug('Loaded DOMAIN events', domainEvents);
 
-        return  {
+        return {
           isFetched: true,
           events: domainEvents || []
         }
@@ -268,7 +299,7 @@ const Domains = ({library, account, chainId}) => {
   }
 
   useEffect(() => {
-    if(!data[stateKey] || !data[stateKey].isFetched) {
+    if (!data[stateKey] || !data[stateKey].isFetched) {
       loadPastEvents();
     }
   }, [data])
@@ -283,8 +314,8 @@ const Domains = ({library, account, chainId}) => {
           </Typography>
           <Button color="primary"
             variant="contained"
-            onClick={() => {setFreeDomain(true)}}>
-            Mint free domain
+            onClick={() => { setFreeDomain(true) }}>
+            Claim free domain
           </Button>
         </div> :
         <></>
@@ -305,8 +336,8 @@ const Domains = ({library, account, chainId}) => {
                   {defaultResolverError}
                 </Alert>
               }
-            </div>            
-            <Button size="small" color="primary" 
+            </div>
+            <Button size="small" color="primary"
               disabled={domainTab && domainTab.resolver !== '0x0000000000000000000000000000000000000000'}
               onClick={setDefaultResolver(domainTab)}>
               Set default resolver
@@ -340,7 +371,7 @@ const Domains = ({library, account, chainId}) => {
                   className={classes.grow}
                   onChange={event => {
                     setReceiver(event.target.value);
-                  }}/>
+                  }} />
               </Grid>
               {transferError &&
                 <Alert severity="error" style={{ marginTop: 10 }}>
@@ -352,7 +383,7 @@ const Domains = ({library, account, chainId}) => {
               <Button color="primary" onClick={handleTransferClose}>
                 Cancel
               </Button>
-              <Button 
+              <Button
                 color="primary"
                 variant="contained"
                 onClick={() => { handleTransfer(domain, receiver) }}>
@@ -381,7 +412,7 @@ const Domains = ({library, account, chainId}) => {
                 updating={updating}
                 error={updateError}
                 onUpdate={(_records) => { handleUpdate(records, _records); }}
-                onCancel={() => { setRecords() }}/>
+                onCancel={() => { setRecords() }} />
             </DialogContent>
           </>
         }
@@ -392,23 +423,23 @@ const Domains = ({library, account, chainId}) => {
         maxWidth='lg'
         keepMounted
       >
-        <DialogTitle>Mint Free domain</DialogTitle>
+        <DialogTitle>Claim Free domain</DialogTitle>
         <DialogContent>
           <FreeDomain
-            minting={minting}
-            error={mintError}
-            onMint={(domainName) => { handleMint(domainName); }}
-            onCancel={() => { setFreeDomain(false) }}/>
+            claiming={claiming}
+            onClaim={(domainName) => { handleClaim(domainName); }}
+            onCancel={() => { setFreeDomain(false) }}
+            error={claimError} />
         </DialogContent>
       </Dialog>
       {
         fetched && data[stateKey] && !data[stateKey].domains.length &&
-        <p>No .crypto domains found. 
+        <p>No .crypto domains found.
           <Button color="primary"
             variant="contained"
-            className={classes.mintFreeDomain}
-            onClick={() => {setFreeDomain(true)}}>
-            Mint free domain
+            className={classes.btn}
+            onClick={() => { setFreeDomain(true) }}>
+            Claim free domain
           </Button>
           OR <a href="https://unstoppabledomains.com/">Buy here</a></p>
       }

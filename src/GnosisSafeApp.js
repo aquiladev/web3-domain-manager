@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, { useMemo } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { ThemeProvider } from 'styled-components';
 import { theme, Loader, Title } from '@gnosis.pm/safe-react-components';
@@ -65,7 +65,7 @@ function GnosisSafeApp() {
       <AppBar position="fixed">
         <Toolbar>
           <Typography className={classes.title} variant="h5" noWrap>
-            manage-dot-CRYPTO
+            .crypto Domain Manager
           </Typography>
           <div className={classes.grow}></div>
           <Typography variant="subtitle1">

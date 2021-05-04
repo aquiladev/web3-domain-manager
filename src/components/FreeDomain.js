@@ -31,13 +31,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const FreeDomain = ({minting, error, onMint, onCancel}) => {
+const FreeDomain = ({ claiming, error, onClaim, onCancel }) => {
   const classes = useStyles();
 
   const [domainName, setDomainName] = useState('');
 
-  const mint = () => {
-    onMint && onMint(domainName);
+  const claim = () => {
+    onClaim && onClaim(domainName);
   }
 
   return (
@@ -57,7 +57,7 @@ const FreeDomain = ({minting, error, onMint, onCancel}) => {
             <TextField variant="outlined"
               label="Domain name"
               className={classes.grow}
-              onChange={(event) => { setDomainName(event.target.value); }}/>
+              onChange={(event) => { setDomainName(event.target.value); }} />
           </Grid>
         </Grid>
         <Grid>
@@ -69,20 +69,20 @@ const FreeDomain = ({minting, error, onMint, onCancel}) => {
         </Grid>
         <Grid className={classes.actions}>
           <div className={classes.grow}></div>
-          <Button color="primary" onClick={() => {onCancel && onCancel()}}>
+          <Button color="primary" onClick={() => { onCancel && onCancel() }}>
             Cancel
           </Button>
           <Button
             color="primary"
             variant="contained"
             disabled={!domainName}
-            onClick={mint}>
-            Mint
+            onClick={claim}>
+            Claim
           </Button>
         </Grid>
       </Grid>
       {
-        <Backdrop className={classes.backdrop} open={minting}>
+        <Backdrop className={classes.backdrop} open={claiming}>
           <CircularProgress color="inherit" />
         </Backdrop>
       }

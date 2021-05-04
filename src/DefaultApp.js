@@ -97,7 +97,7 @@ function DefaultApp() {
 
   const [activatingConnector, setActivatingConnector] = useState();
   const [isLookup, setIsLookup] = useState();
-  
+
   useEffect(() => {
     if (activatingConnector && activatingConnector === connector) {
       setActivatingConnector(undefined)
@@ -117,13 +117,13 @@ function DefaultApp() {
         <AppBar position="fixed">
           <Toolbar>
             <Typography className={classes.title} variant="h5" noWrap>
-              .CRYPTO domains
+              .crypto Domain Manager
             </Typography>
             <div className={classes.grow}>
               <Button
                 className={classes.navButton}
-                onClick={() => {setIsLookup(!isLookup)}}>
-                  {isLookup ? 'My Domains' : 'Lookup'}
+                onClick={() => { setIsLookup(!isLookup) }}>
+                {isLookup ? 'My Domains' : 'Lookup'}
               </Button>
             </div>
             {active && (
@@ -135,7 +135,7 @@ function DefaultApp() {
                   variant="contained"
                   onClick={() => { deactivate() }}
                   style={{ marginLeft: 10 }}>
-                    Disconnect
+                  Disconnect
                 </Button>
               </>
             )}
@@ -143,46 +143,46 @@ function DefaultApp() {
         </AppBar>
         <Container maxWidth="lg">
           {
-            !!error && 
-              <Alert
-                variant="filled"
-                severity="error"
-                style={{ position: 'fixed', zIndex: 1200, bottom: 10, left: 10 }}
-                >
-                  {getErrorMessage(error)}
-              </Alert>
+            !!error &&
+            <Alert
+              variant="filled"
+              severity="error"
+              style={{ position: 'fixed', zIndex: 1200, bottom: 10, left: 10 }}
+            >
+              {getErrorMessage(error)}
+            </Alert>
           }
           {
             (!connected || !account) &&
-              <>
-                <Grid
-                  container
-                  spacing={0}
-                  direction="column"
-                  alignItems="center"
-                  justify="center"
-                  style={{ minHeight: '100vh' }}
-                >
-                  <Grid item xs={3}>
-                    <Card className={classes.card}>
-                      <CardActionArea onClick={() => {
-                        setActivatingConnector(currentConnector)
-                        activate(injected)
-                      }}>
-                        <CardMedia component="img" image={mmLogo} className={classes.cardMedia} />
-                        <CardContent>
-                          <Typography variant="h5" component="h2">
-                            MetaMask
+            <>
+              <Grid
+                container
+                spacing={0}
+                direction="column"
+                alignItems="center"
+                justify="center"
+                style={{ minHeight: '100vh' }}
+              >
+                <Grid item xs={3}>
+                  <Card className={classes.card}>
+                    <CardActionArea onClick={() => {
+                      setActivatingConnector(currentConnector)
+                      activate(injected)
+                    }}>
+                      <CardMedia component="img" image={mmLogo} className={classes.cardMedia} />
+                      <CardContent>
+                        <Typography variant="h5" component="h2">
+                          MetaMask
                           </Typography>
-                        </CardContent>
-                      </CardActionArea>
-                    </Card>
-                  </Grid>
+                      </CardContent>
+                    </CardActionArea>
+                  </Card>
                 </Grid>
-                <Backdrop className={classes.backdrop} open={activating}>
-                  <CircularProgress color="inherit" />
-                </Backdrop>
-              </>
+              </Grid>
+              <Backdrop className={classes.backdrop} open={activating}>
+                <CircularProgress color="inherit" />
+              </Backdrop>
+            </>
           }
           {connected && account && !isLookup && <Domains library={library} account={account} chainId={chainId} />}
           {connected && isLookup && <Lookup library={library} chainId={chainId} />}
@@ -192,7 +192,7 @@ function DefaultApp() {
   );
 }
 
-export default function() {
+export default function () {
   return (
     <Web3ReactProvider getLibrary={getLibrary}>
       <DefaultApp />

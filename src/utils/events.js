@@ -19,7 +19,7 @@ export async function fetchDomainEvents(library, contract, domainId) {
     return fetchEvents(
       contract,
       event,
-      {tokenId: domainId},
+      { tokenId: domainId },
       create_blocks[chainId]
     );
   })).then(x => x.flat().sort((a, b) => a.blockNumber - b.blockNumber));
@@ -30,7 +30,7 @@ export async function fetchTransferEvents(library, contract, account) {
   return fetchEvents(
     contract,
     'Transfer',
-    {to: account},
+    { to: account },
     create_blocks[chainId]
   );
 }
