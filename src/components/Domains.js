@@ -26,7 +26,7 @@ import {
   fetchTransferEvents,
   fetchDomainEvents
 } from '../utils/events';
-import {isAddress} from '../utils/address';
+import { isAddress } from '../utils/address';
 import RecordsForm from './RecordsForm';
 import FreeDomain from './FreeDomain';
 
@@ -53,7 +53,7 @@ const useStyles = makeStyles((theme) => ({
   tabs: {
     width: '100%',
   },
-  mintFreeDomain: {
+  btn: {
     margin: '0 10px',
   }
 }));
@@ -62,7 +62,7 @@ function getDomain(uri) {
   return uri.replace('https://metadata.unstoppabledomains.com/metadata/', '')
 }
 
-const Domains = ({library, account, chainId}) => {
+const Domains = ({ library, account, chainId }) => {
   const classes = useStyles();
   const stateKey = `${account}_${chainId}`;
 
@@ -88,10 +88,10 @@ const Domains = ({library, account, chainId}) => {
   const [updating, setUpdating] = React.useState(false);
 
   const [freeDomain, setFreeDomain] = useState(false);
-  const [mintError, setMintError] = React.useState(undefined);
-  const [minting, setMinting] = React.useState(false);
+  const [claimError, setClaimError] = React.useState(undefined);
+  const [claiming, setClaiming] = React.useState(false);
 
-  const {contracts} = NetworkConfig.networks[chainId];
+  const { contracts } = NetworkConfig.networks[chainId];
   const registry = new library.eth.Contract(registryJson.abi, contracts.Registry.address);
   const proxyReader = new library.eth.Contract(proxyReaderJson.abi, contracts.ProxyReader.address);
   const freeMinter = new library.eth.Contract(freeMinterJson.abi, contracts.FreeMinter.address);
@@ -106,7 +106,7 @@ const Domains = ({library, account, chainId}) => {
   };
 
   const handleTransferClose = () => {
-    if(transferring) {
+    if (transferring) {
       return;
     }
 
@@ -119,7 +119,7 @@ const Domains = ({library, account, chainId}) => {
     console.debug(account, receiver, _domain.id);
 
     setTransferError();
-    if(!isAddress(receiver)) {
+    if (!isAddress(receiver)) {
       setTransferError('Recipient address is invalid');
       return;
     }
@@ -127,8 +127,8 @@ const Domains = ({library, account, chainId}) => {
     try {
       setTransferring(true);
       await registry.methods['0x42842e0e'](account, receiver, _domain.id)
-        .send({from: account});
-      
+        .send({ from: account });
+
       // TODO: update domain list
       setDomain();
     } catch (error) {
@@ -146,8 +146,8 @@ const Domains = ({library, account, chainId}) => {
     try {
       setDefaultResolving(true);
       await registry.methods.resolveTo(contracts.Resolver.address, _domain.id)
-        .send({from: account});
-      
+        .send({ from: account });
+
       // TODO: update domain list
     } catch (error) {
       setDefaultResolverError(error && error.message);
@@ -167,7 +167,7 @@ const Domains = ({library, account, chainId}) => {
       const keysToUpdate = records.map(r => r.key);
       const valuesToUpdate = records.map(r => r.newValue || '');
       await resolver.methods.setMany(keysToUpdate, valuesToUpdate, _domain.id)
-        .send({from: account});
+        .send({ from: account });
 
       // TODO: update domain
       setRecords();
@@ -179,23 +179,23 @@ const Domains = ({library, account, chainId}) => {
     }
   }
 
-  const handleMint = async (domainName) => {
-    console.debug('MINT', domainName);
-    setMintError();
+  const handleClaim = async (domainName) => {
+    console.debug('CLAIM', domainName);
+    setClaimError();
 
     try {
-      setMinting(true);
-      
+      setClaiming(true);
+
       await freeMinter.methods.claim(domainName)
-        .send({from: account});
+        .send({ from: account });
 
       // TODO: update domain list
       setFreeDomain(false);
     } catch (error) {
-      setMintError(error && error.message);
+      setClaimError(error && error.message);
       return;
     } finally {
-      setMinting(false);
+      setClaiming(false);
     }
   }
 
@@ -213,17 +213,17 @@ const Domains = ({library, account, chainId}) => {
         const _tokens = [];
 
         events.forEach(async (e) => {
-          if(!_tokens.includes(e.returnValues.tokenId)) {
+          if (!_tokens.includes(e.returnValues.tokenId)) {
             _tokens.push(e.returnValues.tokenId);
           }
         });
 
-        console.debug('Fetching state...');      
+        console.debug('Fetching state...');
         const domainData = await proxyReader.methods.getDataForMany(_keys, _tokens).call();
         console.debug('Fetched state', domainData);
 
         for (let index = 0; index < _tokens.length; index++) {
-          if(domainData.owners[index] !== account) {
+          if (domainData.owners[index] !== account) {
             continue;
           }
 
@@ -241,7 +241,7 @@ const Domains = ({library, account, chainId}) => {
             records
           });
         }
-        
+
         const _data = {
           ...data,
           [stateKey]: {
@@ -263,7 +263,7 @@ const Domains = ({library, account, chainId}) => {
       .then((domainEvents) => {
         console.debug('Loaded DOMAIN events', domainEvents);
 
-        return  {
+        return {
           isFetched: true,
           events: domainEvents || []
         }
@@ -271,7 +271,7 @@ const Domains = ({library, account, chainId}) => {
   }
 
   useEffect(() => {
-    if(!data[stateKey] || !data[stateKey].isFetched) {
+    if (!data[stateKey] || !data[stateKey].isFetched) {
       loadPastEvents();
     }
   }, [data])
@@ -286,7 +286,7 @@ const Domains = ({library, account, chainId}) => {
           </Typography>
           <Button color="primary"
             variant="contained"
-            onClick={() => {setFreeDomain(true)}}>
+            onClick={() => { setFreeDomain(true) }}>
             Claim free domain
           </Button>
         </div> :
@@ -308,8 +308,8 @@ const Domains = ({library, account, chainId}) => {
                   {defaultResolverError}
                 </Alert>
               }
-            </div>            
-            <Button size="small" color="primary" 
+            </div>
+            <Button size="small" color="primary"
               disabled={domainTab && domainTab.resolver !== '0x0000000000000000000000000000000000000000'}
               onClick={setDefaultResolver(domainTab)}>
               Set default resolver
@@ -343,7 +343,7 @@ const Domains = ({library, account, chainId}) => {
                   className={classes.grow}
                   onChange={event => {
                     setReceiver(event.target.value);
-                  }}/>
+                  }} />
               </Grid>
               {transferError &&
                 <Alert severity="error" style={{ marginTop: 10 }}>
@@ -355,7 +355,7 @@ const Domains = ({library, account, chainId}) => {
               <Button color="primary" onClick={handleTransferClose}>
                 Cancel
               </Button>
-              <Button 
+              <Button
                 color="primary"
                 variant="contained"
                 onClick={() => { handleTransfer(domain, receiver) }}>
@@ -384,7 +384,7 @@ const Domains = ({library, account, chainId}) => {
                 updating={updating}
                 error={updateError}
                 onUpdate={(_records) => { handleUpdate(records, _records); }}
-                onCancel={() => { setRecords() }}/>
+                onCancel={() => { setRecords() }} />
             </DialogContent>
           </>
         }
@@ -398,19 +398,19 @@ const Domains = ({library, account, chainId}) => {
         <DialogTitle>Claim Free domain</DialogTitle>
         <DialogContent>
           <FreeDomain
-            minting={minting}
-            error={mintError}
-            onMint={(domainName) => { handleMint(domainName); }}
-            onCancel={() => { setFreeDomain(false) }}/>
+            claiming={claiming}
+            onClaim={(domainName) => { handleClaim(domainName); }}
+            onCancel={() => { setFreeDomain(false) }}
+            error={claimError} />
         </DialogContent>
       </Dialog>
       {
         fetched && data[stateKey] && !data[stateKey].domains.length &&
-        <p>No .crypto domains found. 
+        <p>No .crypto domains found.
           <Button color="primary"
             variant="contained"
-            className={classes.mintFreeDomain}
-            onClick={() => {setFreeDomain(true)}}>
+            className={classes.btn}
+            onClick={() => { setFreeDomain(true) }}>
             Claim free domain
           </Button>
           OR <a href="https://unstoppabledomains.com/">Buy here</a></p>

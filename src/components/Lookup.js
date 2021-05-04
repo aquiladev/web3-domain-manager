@@ -151,7 +151,7 @@ const Lookup = ({ library, chainId }) => {
         </div>
       }
       {fetched && domain &&
-        <div style={{marginTop: 20}}>
+        <div style={{ marginTop: 20 }}>
           <DomainList
             isFetching={!fetched}
             domains={[domain]}

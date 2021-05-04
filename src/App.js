@@ -3,8 +3,8 @@ import React from 'react';
 import DefaultApp from './DefaultApp';
 import GnosisSafeApp from './GnosisSafeApp';
 
-export default function() {
+export default function () {
   return (
-    process.env.REACT_APP_SAPP_TARGET ? <GnosisSafeApp/> : <DefaultApp/>
+    process.env.REACT_APP_SAPP_TARGET ? <GnosisSafeApp /> : <DefaultApp />
   );
 }

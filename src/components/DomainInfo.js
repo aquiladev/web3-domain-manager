@@ -9,25 +9,25 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const DomainInfo = ({domain}) => {
+const DomainInfo = ({ domain }) => {
   const classes = useStyles();
 
   const records = Object.entries((domain || {}).records || [])
     .filter(([_, val]) => !!val);
   const recordsRaw = records.map(([key, val]) => {
-      return (
-        <Grid container item xs={12} key={`${domain.id}_${key}`}>
-          <Grid item xs={3}>
-            <b>{key}</b>
-          </Grid>
-          <Grid item xs={9}>
-            <Typography noWrap>
-              {val}
-            </Typography>
-          </Grid>
+    return (
+      <Grid container item xs={12} key={`${domain.id}_${key}`}>
+        <Grid item xs={3}>
+          <b>{key}</b>
         </Grid>
-      )
-    });
+        <Grid item xs={9}>
+          <Typography noWrap>
+            {val}
+          </Typography>
+        </Grid>
+      </Grid>
+    )
+  });
 
   return (
     <Grid>
@@ -70,8 +70,8 @@ const DomainInfo = ({domain}) => {
               </Typography>
             </Grid>
             {recordsRaw}
-          </>:
-        <></>
+          </> :
+          <></>
       }
     </Grid>
   );

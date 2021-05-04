@@ -47,7 +47,7 @@ const TabPanel = (props) => {
   );
 }
 
-const DomainList = ({isFetching, domains, onEventsLoad, onDomainSelect, actions}) => {
+const DomainList = ({ isFetching, domains, onEventsLoad, onDomainSelect, actions }) => {
   const classes = useStyles();
 
   const [expanded, setExpanded] = useState(false);
@@ -83,7 +83,7 @@ const DomainList = ({isFetching, domains, onEventsLoad, onDomainSelect, actions}
               <AccordionDetails>
                 {domainTab && domainTab.startsWith(domain.id) &&
                   <div className={classes.tabs}>
-                    <Tabs value={domainTab} onChange={selectDomainEvents(domain.id)} style={{marginBottom: 20}}>
+                    <Tabs value={domainTab} onChange={selectDomainEvents(domain.id)} style={{ marginBottom: 20 }}>
                       <Tab label="Info" value={domain.id} />
                       <Tab label="Events" value={`${domain.id}_e`} />
                     </Tabs>

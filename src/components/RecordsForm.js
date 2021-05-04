@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const RecordsForm = ({records, updating, error, onUpdate, onCancel}) => {
+const RecordsForm = ({ records, updating, error, onUpdate, onCancel }) => {
   const classes = useStyles();
 
   const [recordKey, setRecordKey] = useState('');
@@ -63,7 +63,7 @@ const RecordsForm = ({records, updating, error, onUpdate, onCancel}) => {
     const filledRecords = Object.entries(records).filter(
       ([_, val]) => !!val
     ).map(([key, value]) => {
-      return {key, value, newValue: value};
+      return { key, value, newValue: value };
     });
     const filledKeys = filledRecords.map(x => x.key);
     const fillableKeys = Object.values(keys).filter(x => !filledKeys.includes(x));
@@ -78,7 +78,7 @@ const RecordsForm = ({records, updating, error, onUpdate, onCancel}) => {
   const updateRecord = (_record) => (event) => {
     const value = event.target.value;
     const _records = form.records.map((r) => {
-      if(r.key === _record) {
+      if (r.key === _record) {
         r.newValue = value;
         r.muted = r.value !== value;
       }
@@ -87,7 +87,7 @@ const RecordsForm = ({records, updating, error, onUpdate, onCancel}) => {
 
     const filledKeys = _records.map(x => x.key);
     const fillableKeys = Object.values(keys).filter(x => !filledKeys.includes(x));
-    
+
     setForm({
       records: _records,
       displayable: _records.filter(r => !!r.newValue),
@@ -98,7 +98,7 @@ const RecordsForm = ({records, updating, error, onUpdate, onCancel}) => {
 
   const deleteRecord = (_record) => () => {
     const _records = form.records.map((r) => {
-      if(r.key === _record) {
+      if (r.key === _record) {
         r.newValue = undefined;
         r.muted = r.value !== undefined;
       }
@@ -106,7 +106,7 @@ const RecordsForm = ({records, updating, error, onUpdate, onCancel}) => {
     });
     const filledKeys = _records.map(x => x.key);
     const fillableKeys = Object.values(keys).filter(x => !filledKeys.includes(x));
-    
+
     setForm({
       records: _records,
       displayable: _records.filter(r => !!r.newValue),
@@ -116,7 +116,7 @@ const RecordsForm = ({records, updating, error, onUpdate, onCancel}) => {
   };
 
   const addRecord = () => {
-    if(!recordKey || !recordValue) {
+    if (!recordKey || !recordValue) {
       return;
     }
 
@@ -131,7 +131,7 @@ const RecordsForm = ({records, updating, error, onUpdate, onCancel}) => {
     ];
     const filledKeys = _records.map(x => x.key);
     const fillableKeys = Object.values(keys).filter(x => !filledKeys.includes(x));
-    
+
     setForm({
       records: _records,
       displayable: _records.filter(r => !!r.newValue),
@@ -150,7 +150,7 @@ const RecordsForm = ({records, updating, error, onUpdate, onCancel}) => {
     <>
       <Grid className={classes.form} id="records-form">
         {
-          form.displayable.map(({key, newValue}) => {
+          form.displayable.map(({ key, newValue }) => {
             return (
               <Grid container item xs={12} key={`${key}`} className={classes.record}>
                 <Grid item xs={12} className={classes.recordKey}>{key}</Grid>
@@ -158,9 +158,9 @@ const RecordsForm = ({records, updating, error, onUpdate, onCancel}) => {
                   <TextField variant="filled"
                     defaultValue={newValue}
                     className={classes.grow}
-                    onChange={updateRecord(key)}/>
+                    onChange={updateRecord(key)} />
                   <IconButton aria-label="delete" onClick={deleteRecord(key)}>
-                    <DeleteIcon fontSize="small"/>
+                    <DeleteIcon fontSize="small" />
                   </IconButton>
                 </Grid>
               </Grid>
@@ -191,9 +191,9 @@ const RecordsForm = ({records, updating, error, onUpdate, onCancel}) => {
               className={classes.grow}
               defaultValue={recordValue}
               value={recordValue}
-              onChange={(event) => { setRecordValue(event.target.value); }}/>
+              onChange={(event) => { setRecordValue(event.target.value); }} />
             <IconButton aria-label="add" disabled={!recordKey} onClick={addRecord}>
-              <AddIcon fontSize="small"/>
+              <AddIcon fontSize="small" />
             </IconButton>
           </Grid>
         </Grid>
@@ -206,11 +206,11 @@ const RecordsForm = ({records, updating, error, onUpdate, onCancel}) => {
         </Grid>
         <Grid className={classes.actions}>
           <div className={classes.grow}></div>
-          <Button color="primary" onClick={() => {onCancel && onCancel()}}>
+          <Button color="primary" onClick={() => { onCancel && onCancel() }}>
             Cancel
           </Button>
           <Button
-            color="primary" 
+            color="primary"
             variant="contained"
             disabled={!form.muted}
             onClick={update}>

@@ -21,7 +21,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 const renderEventType = (event) => {
-  switch(event.event) {
+  switch (event.event) {
     case 'Transfer':
       return <>{
         event.returnValues.from === '0x0000000000000000000000000000000000000000' ?
@@ -29,7 +29,7 @@ const renderEventType = (event) => {
           event.returnValues.to === '0x0000000000000000000000000000000000000000' ?
             'Burn' :
             'Transfer'
-        }</>;
+      }</>;
     default:
       return <>{event.event}</>;
   }
@@ -43,11 +43,11 @@ const renderEvent = (event) => {
       return obj;
     }, {});
 
-  switch(event.event) {
+  switch (event.event) {
     case 'Approval':
       return <>Approved operator {event.returnValues.approved} for token {event.returnValues.tokenId}</>;
     case 'ApprovalForAll':
-      return <>{event.returnValues.approved ? 'Approved': 'Disapproved'} operator {event.returnValues.operator}</>;
+      return <>{event.returnValues.approved ? 'Approved' : 'Disapproved'} operator {event.returnValues.operator}</>;
     case 'NewURI':
       return <>{event.returnValues.uri}</>;
     case 'Resolve':
@@ -80,7 +80,7 @@ const DomainEventsTable = ({ events }) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {events && events.events.map((event, i) => 
+              {events && events.events.map((event, i) =>
                 <TableRow key={i}>
                   <TableCell component="th" scope="row">
                     {event.blockNumber}

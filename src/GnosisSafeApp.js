@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, { useMemo } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { ThemeProvider } from 'styled-components';
 import { theme, Loader, Title } from '@gnosis.pm/safe-react-components';
