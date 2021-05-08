@@ -14,17 +14,15 @@ import CardActionArea from '@material-ui/core/CardActionArea';
 import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
 import Alert from '@material-ui/lab/Alert';
 
 import mmLogo from './images/mm.png';
 import { injected, useEagerConnect, useInactiveListener } from './hooks';
 import Domains from './components/Domains';
 import Lookup from './components/Lookup';
+import Header from './components/Header';
 
 const theme = createMuiTheme({
   overrides: {
@@ -33,6 +31,11 @@ const theme = createMuiTheme({
         paddingTop: '13px',
       },
     },
+    MuiDialogActions: {
+      root: {
+        display: 'block'
+      }
+    }
   },
 });
 
@@ -42,9 +45,9 @@ const useStyles = makeStyles((theme) => ({
     overflow: 'hidden',
   },
   title: {
-    display: 'none',
+    fontSize: '1rem',
     [theme.breakpoints.up('sm')]: {
-      display: 'block',
+      fontSize: '1.5rem',
     },
   },
   card: {
@@ -76,7 +79,7 @@ function getErrorMessage(error) {
   if (error instanceof NoEthereumProviderError) {
     return 'No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile.'
   } else if (error instanceof UnsupportedChainIdError) {
-    return "You're connected to an unsupported network."
+    return 'You\'re connected to an unsupported network.'
   } else if (error instanceof UserRejectedRequestErrorInjected) {
     return 'Please authorize this website to access your Ethereum account.'
   } else {
@@ -114,39 +117,18 @@ function DefaultApp() {
   return (
     <ThemeProvider theme={theme}>
       <div className={classes.root}>
-        <AppBar position="fixed">
-          <Toolbar>
-            <Typography className={classes.title} variant="h5" noWrap>
-              .crypto Domain Manager
-            </Typography>
-            <div className={classes.grow}>
-              <Button
-                className={classes.navButton}
-                onClick={() => { setIsLookup(!isLookup) }}>
-                {isLookup ? 'My Domains' : 'Lookup'}
-              </Button>
-            </div>
-            {active && (
-              <>
-                <Typography variant="subtitle1">
-                  {account}
-                </Typography>
-                <Button
-                  variant="contained"
-                  onClick={() => { deactivate() }}
-                  style={{ marginLeft: 10 }}>
-                  Disconnect
-                </Button>
-              </>
-            )}
-          </Toolbar>
-        </AppBar>
-        <Container maxWidth="lg">
+        <Header 
+          active={active}
+          account={account}
+          deactivate={deactivate}
+          isLookup={isLookup}
+          setIsLookup={setIsLookup} />
+        <Container maxWidth='lg'>
           {
             !!error &&
             <Alert
-              variant="filled"
-              severity="error"
+              variant='filled'
+              severity='error'
               style={{ position: 'fixed', zIndex: 1200, bottom: 10, left: 10 }}
             >
               {getErrorMessage(error)}
@@ -158,29 +140,27 @@ function DefaultApp() {
               <Grid
                 container
                 spacing={0}
-                direction="column"
-                alignItems="center"
-                justify="center"
+                direction='column'
+                alignItems='center'
+                justify='center'
                 style={{ minHeight: '100vh' }}
               >
-                <Grid item xs={3}>
-                  <Card className={classes.card}>
-                    <CardActionArea onClick={() => {
-                      setActivatingConnector(currentConnector)
-                      activate(injected)
-                    }}>
-                      <CardMedia component="img" image={mmLogo} className={classes.cardMedia} />
-                      <CardContent>
-                        <Typography variant="h5" component="h2">
-                          MetaMask
-                          </Typography>
-                      </CardContent>
-                    </CardActionArea>
-                  </Card>
-                </Grid>
+                <Card className={classes.card}>
+                  <CardActionArea onClick={() => {
+                    setActivatingConnector(currentConnector)
+                    activate(injected)
+                  }}>
+                    <CardMedia component='img' image={mmLogo} className={classes.cardMedia} />
+                    <CardContent>
+                      <Typography variant='h5' component='h2'>
+                        MetaMask
+                      </Typography>
+                    </CardContent>
+                  </CardActionArea>
+                </Card>
               </Grid>
               <Backdrop className={classes.backdrop} open={activating}>
-                <CircularProgress color="inherit" />
+                <CircularProgress color='inherit' />
               </Backdrop>
             </>
           }

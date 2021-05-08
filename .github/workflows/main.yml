@@ -71,6 +71,8 @@ jobs:
           body: |
             dApp [https://cloudflare-ipfs.com/ipfs/${{ steps.ipfs_dapp_upload.outputs.hash }}/](https://cloudflare-ipfs.com/ipfs/${{ steps.ipfs_dapp_upload.outputs.hash }}/)
             Gnosis Safe App [https://cloudflare-ipfs.com/ipfs/${{ steps.ipfs_sapp_upload.outputs.hash }}/](https://cloudflare-ipfs.com/ipfs/${{ steps.ipfs_sapp_upload.outputs.hash }}/)
+            Note: [Gnosis Safe App guideline](https://github.com/aquiladev/manage-dot-crypto/blob/main/README.md#gnosis-safe-app)
+            
             ${{ steps.tag_version.outputs.changelog }}
           draft: false
           prerelease: false

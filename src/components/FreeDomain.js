@@ -10,6 +10,9 @@ import Alert from '@material-ui/lab/Alert';
 const useStyles = makeStyles((theme) => ({
   form: {
     minWidth: 600,
+    [theme.breakpoints.down('sm')]: {
+      minWidth: 'initial',
+    }
   },
   domainName: {
     display: 'flex',
@@ -44,46 +47,48 @@ const FreeDomain = ({ claiming, error, onClaim, onCancel }) => {
     <>
       <Grid className={classes.form}>
         <Grid container item xs={12}>
-          <Grid item xs={3}>
+          <Grid item sm={3} xs={12}>
             <TextField
               disabled
-              label="Prefix"
-              defaultValue="udtestdev-"
-              variant="outlined"
+              label='Prefix'
+              defaultValue='udtestdev-'
+              variant='outlined'
+              size='small'
               className={classes.prefix}
             />
           </Grid>
-          <Grid item xs={9} className={classes.domainName}>
-            <TextField variant="outlined"
-              label="Domain name"
+          <Grid item sm={9} xs={12} className={classes.domainName}>
+            <TextField variant='outlined'
+              label='Domain name'
+              size='small'
               className={classes.grow}
               onChange={(event) => { setDomainName(event.target.value); }} />
           </Grid>
         </Grid>
         <Grid>
           {error &&
-            <Alert severity="error" style={{ marginTop: 10 }}>
+            <Alert severity='error' style={{ marginTop: 10 }}>
               {error}
             </Alert>
           }
         </Grid>
         <Grid className={classes.actions}>
-          <div className={classes.grow}></div>
-          <Button color="primary" onClick={() => { onCancel && onCancel() }}>
+          <Button color='primary' onClick={() => { onCancel && onCancel() }}>
             Cancel
           </Button>
           <Button
-            color="primary"
-            variant="contained"
+            color='primary'
+            variant='contained'
             disabled={!domainName}
             onClick={claim}>
             Claim
           </Button>
+          <div className={classes.grow}></div>
         </Grid>
       </Grid>
       {
         <Backdrop className={classes.backdrop} open={claiming}>
-          <CircularProgress color="inherit" />
+          <CircularProgress color='inherit' />
         </Backdrop>
       }
     </>

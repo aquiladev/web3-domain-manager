@@ -31,7 +31,7 @@ import RecordsForm from './RecordsForm';
 import FreeDomain from './FreeDomain';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
-  return <Slide direction="up" ref={ref} {...props} />;
+  return <Slide direction='up' ref={ref} {...props} />;
 });
 
 const useStyles = makeStyles((theme) => ({
@@ -42,6 +42,9 @@ const useStyles = makeStyles((theme) => ({
   form: {
     minWidth: 600,
     display: 'flex',
+    [theme.breakpoints.down('sm')]: {
+      minWidth: 'initial',
+    }
   },
   grow: {
     flexGrow: 1,
@@ -309,11 +312,11 @@ const Domains = ({ library, account, chainId }) => {
     <Container style={{ paddingTop: '4rem' }}>
       {_domains && _domains.length ?
         <div className={classes.header}>
-          <Typography variant="h5" component="h6" className={classes.grow}>
+          <Typography variant='h5' component='h6' className={classes.grow}>
             Domains
           </Typography>
-          <Button color="primary"
-            variant="contained"
+          <Button color='primary'
+            variant='contained'
             onClick={() => { setFreeDomain(true) }}>
             Claim free domain
           </Button>
@@ -330,26 +333,25 @@ const Domains = ({ library, account, chainId }) => {
         }}
         actions={(
           <>
+            {
+              domainTab && domainTab.resolver === '0x0000000000000000000000000000000000000000' ?
+              <Button size='small' color='primary' onClick={setDefaultResolver(domainTab)}>
+                Set default resolver
+              </Button> :
+              <Button size='small' color='primary' onClick={handleRecordsOpen(domainTab)}>
+                Update records
+              </Button>
+            }
+            <Button size='small' color='primary' onClick={handleTransferOpen(domainTab)}>
+              Transfer
+            </Button>
             <div className={classes.grow}>
               {defaultResolverError &&
-                <Alert severity="error">
+                <Alert severity='error'>
                   {defaultResolverError}
                 </Alert>
               }
             </div>
-            <Button size="small" color="primary"
-              disabled={domainTab && domainTab.resolver !== '0x0000000000000000000000000000000000000000'}
-              onClick={setDefaultResolver(domainTab)}>
-              Set default resolver
-            </Button>
-            <Button size="small" color="primary"
-              disabled={domainTab && domainTab.resolver === '0x0000000000000000000000000000000000000000'}
-              onClick={handleRecordsOpen(domainTab)}>
-              Update records
-            </Button>
-            <Button size="small" color="primary" onClick={handleTransferOpen(domainTab)}>
-              Transfer
-            </Button>
           </>
         )} />
       <Dialog
@@ -365,8 +367,9 @@ const Domains = ({ library, account, chainId }) => {
             <DialogContent>
               <Grid className={classes.form}>
                 <TextField
-                  label="Receiver"
-                  variant="outlined"
+                  label='Receiver'
+                  variant='outlined'
+                  size='small'
                   defaultValue={receiver}
                   className={classes.grow}
                   onChange={event => {
@@ -374,25 +377,25 @@ const Domains = ({ library, account, chainId }) => {
                   }} />
               </Grid>
               {transferError &&
-                <Alert severity="error" style={{ marginTop: 10 }}>
+                <Alert severity='error' style={{ marginTop: 10 }}>
                   {transferError}
                 </Alert>
               }
             </DialogContent>
             <DialogActions>
-              <Button color="primary" onClick={handleTransferClose}>
+              <Button color='primary' onClick={handleTransferClose}>
                 Cancel
               </Button>
               <Button
-                color="primary"
-                variant="contained"
+                color='primary'
+                variant='contained'
                 onClick={() => { handleTransfer(domain, receiver) }}>
                 Transfer
               </Button>
             </DialogActions>
             {
               <Backdrop className={classes.backdrop} open={transferring}>
-                <CircularProgress color="inherit" />
+                <CircularProgress color='inherit' />
               </Backdrop>
             }
           </>
@@ -435,17 +438,17 @@ const Domains = ({ library, account, chainId }) => {
       {
         fetched && data[stateKey] && !data[stateKey].domains.length &&
         <p>No .crypto domains found.
-          <Button color="primary"
-            variant="contained"
+          <Button color='primary'
+            variant='contained'
             className={classes.btn}
             onClick={() => { setFreeDomain(true) }}>
             Claim free domain
           </Button>
-          OR <a href="https://unstoppabledomains.com/">Buy here</a></p>
+          OR <a href='https://unstoppabledomains.com/'>Buy here</a></p>
       }
       {
         <Backdrop className={classes.backdrop} open={defaultResolving}>
-          <CircularProgress color="inherit" />
+          <CircularProgress color='inherit' />
         </Backdrop>
       }
     </Container>

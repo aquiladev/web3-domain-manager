@@ -34,12 +34,12 @@ const TabPanel = (props) => {
 
   return (
     <div
-      role="tabpanel"
+      role='tabpanel'
       hidden={!display}
       {...other}
     >
       {display && (
-        <Box pl={3}>
+        <Box>
           {children}
         </Box>
       )}
@@ -70,7 +70,7 @@ const DomainList = ({ isFetching, domains, onEventsLoad, onDomainSelect, actions
     <>
       {
         <Backdrop className={classes.backdrop} open={isFetching}>
-          <CircularProgress color="inherit" />
+          <CircularProgress color='inherit' />
         </Backdrop>
       }
       {domains && domains.length ?
@@ -84,8 +84,8 @@ const DomainList = ({ isFetching, domains, onEventsLoad, onDomainSelect, actions
                 {domainTab && domainTab.startsWith(domain.id) &&
                   <div className={classes.tabs}>
                     <Tabs value={domainTab} onChange={selectDomainEvents(domain.id)} style={{ marginBottom: 20 }}>
-                      <Tab label="Info" value={domain.id} />
-                      <Tab label="Events" value={`${domain.id}_e`} />
+                      <Tab label='Info' value={domain.id} />
+                      <Tab label='Events' value={`${domain.id}_e`} />
                     </Tabs>
                     <TabPanel display={domain.id === domainTab}>
                       <DomainInfo domain={domain} />
