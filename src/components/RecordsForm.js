@@ -17,6 +17,9 @@ import keys from '../utils/standardKeys';
 const useStyles = makeStyles((theme) => ({
   form: {
     minWidth: 600,
+    [theme.breakpoints.down('sm')]: {
+      minWidth: 'initial'
+    }
   },
   record: {
     paddingTop: 8,
@@ -148,19 +151,20 @@ const RecordsForm = ({ records, updating, error, onUpdate, onCancel }) => {
 
   return (
     <>
-      <Grid className={classes.form} id="records-form">
+      <Grid className={classes.form} id='records-form'>
         {
           form.displayable.map(({ key, newValue }) => {
             return (
               <Grid container item xs={12} key={`${key}`} className={classes.record}>
                 <Grid item xs={12} className={classes.recordKey}>{key}</Grid>
                 <Grid item xs={12} className={classes.recordValue}>
-                  <TextField variant="filled"
+                  <TextField variant='filled'
                     defaultValue={newValue}
+                    size='small'
                     className={classes.grow}
                     onChange={updateRecord(key)} />
-                  <IconButton aria-label="delete" onClick={deleteRecord(key)}>
-                    <DeleteIcon fontSize="small" />
+                  <IconButton aria-label='delete' onClick={deleteRecord(key)}>
+                    <DeleteIcon fontSize='small' />
                   </IconButton>
                 </Grid>
               </Grid>
@@ -168,11 +172,12 @@ const RecordsForm = ({ records, updating, error, onUpdate, onCancel }) => {
           })
         }
         <Grid container item xs={12} className={classes.record}>
-          <Grid item xs={4}>
+          <Grid item sm={4} xs={12}>
             <div className={classes.recordKeySelectContainer}>
               <Select value={recordKey}
                 displayEmpty
-                variant="filled"
+                size='small'
+                variant='filled'
                 className={classes.recordKeySelect}
                 onChange={(event) => { setRecordKey(event.target.value) }}>
                 <MenuItem value=''>Select record key</MenuItem>
@@ -186,41 +191,41 @@ const RecordsForm = ({ records, updating, error, onUpdate, onCancel }) => {
               </Select>
             </div>
           </Grid>
-          <Grid item xs={8} className={classes.recordValue}>
-            <TextField variant="filled"
+          <Grid item sm={8} xs={12} className={classes.recordValue}>
+            <TextField variant='filled'
               className={classes.grow}
               defaultValue={recordValue}
               value={recordValue}
               onChange={(event) => { setRecordValue(event.target.value); }} />
-            <IconButton aria-label="add" disabled={!recordKey} onClick={addRecord}>
-              <AddIcon fontSize="small" />
+            <IconButton aria-label='add' disabled={!recordKey} onClick={addRecord}>
+              <AddIcon fontSize='small' />
             </IconButton>
           </Grid>
         </Grid>
         <Grid>
           {error &&
-            <Alert severity="error" style={{ marginTop: 10 }}>
+            <Alert severity='error' style={{ marginTop: 10 }}>
               {error}
             </Alert>
           }
         </Grid>
         <Grid className={classes.actions}>
-          <div className={classes.grow}></div>
-          <Button color="primary" onClick={() => { onCancel && onCancel() }}>
+          <Button color='primary' onClick={() => { onCancel && onCancel() }}>
             Cancel
           </Button>
           <Button
-            color="primary"
-            variant="contained"
+            color='primary'
+            variant='contained'
             disabled={!form.muted}
             onClick={update}>
             Update
           </Button>
+          <div className={classes.grow}></div>
         </Grid>
       </Grid>
       {
         <Backdrop className={classes.backdrop} open={updating}>
-          <CircularProgress color="inherit" />
+          <CircularProgress color='inherit' />
         </Backdrop>
       }
     </>

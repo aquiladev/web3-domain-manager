@@ -17,10 +17,10 @@ const DomainInfo = ({ domain }) => {
   const recordsRaw = records.map(([key, val]) => {
     return (
       <Grid container item xs={12} key={`${domain.id}_${key}`}>
-        <Grid item xs={3}>
+        <Grid item sm={3} xs={12}>
           <b>{key}</b>
         </Grid>
-        <Grid item xs={9}>
+        <Grid item sm={9} xs={12}>
           <Typography noWrap>
             {val}
           </Typography>
@@ -30,32 +30,32 @@ const DomainInfo = ({ domain }) => {
   });
 
   return (
-    <Grid>
+    <>
       <Grid container item xs={12}>
-        <Grid item xs={3}>
+        <Grid item sm={3} xs={12}>
           <b>ID</b>
         </Grid>
-        <Grid item xs={9}>
+        <Grid item sm={9} xs={12}>
           <Typography noWrap>
             {domain.id}
           </Typography>
         </Grid>
       </Grid>
       <Grid container item xs={12}>
-        <Grid item xs={3}>
+        <Grid item sm={3} xs={12}>
           <b>Resolver</b>
         </Grid>
-        <Grid item xs={9}>
+        <Grid item sm={9} xs={12}>
           <Typography noWrap>
             {domain.resolver}
           </Typography>
         </Grid>
       </Grid>
       <Grid container item xs={12}>
-        <Grid item xs={3}>
+        <Grid item sm={3} xs={12}>
           <b>Owner</b>
         </Grid>
-        <Grid item xs={9}>
+        <Grid item sm={9} xs={12}>
           <Typography noWrap>
             {domain.owner}
           </Typography>
@@ -65,7 +65,7 @@ const DomainInfo = ({ domain }) => {
         records.length ?
           <>
             <Grid container item xs={12}>
-              <Typography className={classes.header} variant="subtitle1">
+              <Typography className={classes.header} variant='subtitle1'>
                 Records
               </Typography>
             </Grid>
@@ -73,7 +73,7 @@ const DomainInfo = ({ domain }) => {
           </> :
           <></>
       }
-    </Grid>
+    </>
   );
 };
 
