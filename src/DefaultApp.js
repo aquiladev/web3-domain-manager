@@ -5,6 +5,9 @@ import {
   NoEthereumProviderError,
   UserRejectedRequestError as UserRejectedRequestErrorInjected
 } from '@web3-react/injected-connector';
+import {
+  UserRejectedRequestError as UserRejectedRequestErrorWalletConnect
+} from '@web3-react/walletconnect-connector';
 import Web3 from 'web3';
 
 import Container from '@material-ui/core/Container';
@@ -19,7 +22,8 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Alert from '@material-ui/lab/Alert';
 
 import mmLogo from './images/mm.png';
-import { injected, useEagerConnect, useInactiveListener } from './hooks';
+import { useEagerConnect, useInactiveListener } from './hooks';
+import { injected, walletconnect } from './connectors';
 import Domains from './components/Domains';
 import Lookup from './components/Lookup';
 import Header from './components/Header';
@@ -74,13 +78,26 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const ConnectorNames = {
+  Injected: 'MetaMask',
+  WalletConnect: 'WalletConnect',
+}
+
+const connectorsByName = {
+  [ConnectorNames.Injected]: injected,
+  [ConnectorNames.WalletConnect]: walletconnect,
+}
+
 function getErrorMessage(error) {
   console.error(error)
   if (error instanceof NoEthereumProviderError) {
     return 'No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile.'
   } else if (error instanceof UnsupportedChainIdError) {
     return 'You\'re connected to an unsupported network.'
-  } else if (error instanceof UserRejectedRequestErrorInjected) {
+  } else if (
+    error instanceof UserRejectedRequestErrorInjected ||
+    error instanceof UserRejectedRequestErrorWalletConnect
+  ) {
     return 'Please authorize this website to access your Ethereum account.'
   } else {
     return 'An unknown error occurred. Check the console for more details.'
@@ -110,9 +127,9 @@ function DefaultApp() {
   const triedEager = useEagerConnect();
   useInactiveListener(!triedEager || !!activatingConnector);
 
-  const currentConnector = injected
-  const activating = currentConnector === activatingConnector
-  const connected = currentConnector === connector
+  // const currentConnector = injected
+  // const activating = currentConnector === activatingConnector
+  // const connected = currentConnector === connector
 
   return (
     <ThemeProvider theme={theme}>
@@ -135,37 +152,47 @@ function DefaultApp() {
             </Alert>
           }
           {
-            (!connected || !account) &&
+            // (!connected || !account) &&
+            !account &&
             <>
               <Grid
                 container
                 spacing={0}
-                direction='column'
                 alignItems='center'
                 justify='center'
                 style={{ minHeight: '100vh' }}
               >
-                <Card className={classes.card}>
-                  <CardActionArea onClick={() => {
-                    setActivatingConnector(currentConnector)
-                    activate(injected)
-                  }}>
-                    <CardMedia component='img' image={mmLogo} className={classes.cardMedia} />
-                    <CardContent>
-                      <Typography variant='h5' component='h2'>
-                        MetaMask
-                      </Typography>
-                    </CardContent>
-                  </CardActionArea>
-                </Card>
+                {Object.keys(connectorsByName).map(name => {
+                  const currentConnector = connectorsByName[name];
+                  const activating = currentConnector === activatingConnector;
+                  const connected = currentConnector === connector;
+
+                  return (
+                    <>
+                      <Card className={classes.card}>
+                        <CardActionArea onClick={async () => {
+                          setActivatingConnector(currentConnector);
+                          activate(connectorsByName[name]);
+                        }}>
+                          {/* <CardMedia component='img' image={mmLogo} className={classes.cardMedia} /> */}
+                          <CardContent>
+                            <Typography variant='h5' component='h2'>
+                              {name}
+                            </Typography>
+                          </CardContent>
+                        </CardActionArea>
+                      </Card>
+                    </>
+                  )}
+                )}
               </Grid>
-              <Backdrop className={classes.backdrop} open={activating}>
+              {/* <Backdrop className={classes.backdrop} open={activating}>
                 <CircularProgress color='inherit' />
-              </Backdrop>
+              </Backdrop> */}
             </>
           }
-          {connected && account && !isLookup && <Domains library={library} account={account} chainId={chainId} />}
-          {connected && isLookup && <Lookup library={library} chainId={chainId} />}
+          {/* {connected && account && !isLookup && <Domains library={library} account={account} chainId={chainId} />}
+          {connected && isLookup && <Lookup library={library} chainId={chainId} />} */}
         </Container>
       </div>
     </ThemeProvider>

@@ -33,7 +33,8 @@ export default function Header({active, account, deactivate, isLookup, setIsLook
   const open = Boolean(anchorEl);
 
   const renderAccount = () => {
-    return `${account.substr(0, 6)}...${account.substring(account.length - 4)}`;
+    // return `${account.substr(0, 6)}...${account.substring(account.length - 4)}`;
+    return account;
   }
 
   const handleMenu = (event) => {
