@@ -8,6 +8,11 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
+import { ZERO_ADDRESS } from './../utils/constants';
+import EtherscanAddress from './EtherscanAddress';
+import EtherscanBlock from './EtherscanBlock';
+import EtherscanTransaction from './EtherscanTransaction';
+
 const useStyles = makeStyles(() => ({
   header: {
     paddingTop: 30
@@ -24,9 +29,9 @@ const renderEventType = (event) => {
   switch (event.event) {
     case 'Transfer':
       return <>{
-        event.returnValues.from === '0x0000000000000000000000000000000000000000' ?
+        event.returnValues.from === ZERO_ADDRESS ?
           'Mint' :
-          event.returnValues.to === '0x0000000000000000000000000000000000000000' ?
+          event.returnValues.to === ZERO_ADDRESS ?
             'Burn' :
             'Transfer'
       }</>;
@@ -35,7 +40,7 @@ const renderEventType = (event) => {
   }
 }
 
-const renderEvent = (event) => {
+const renderEvent = (event, chainId) => {
   const data = Object.keys(event.returnValues)
     .filter(key => !(+key) && key !== '0')
     .reduce((obj, key) => {
@@ -51,20 +56,28 @@ const renderEvent = (event) => {
     case 'NewURI':
       return <>{event.returnValues.uri}</>;
     case 'Resolve':
-      return <>Set resolver {event.returnValues.to}</>;
+      return <>Set resolver {
+        <EtherscanAddress address={event.returnValues.to} chainId={chainId}></EtherscanAddress>
+      }</>;
     case 'Sync':
-      return <>Set record with key hash {event.returnValues.updateId} <div>(Resolver: {event.returnValues.resolver})</div></>;
+      return <>Set record with key hash {event.returnValues.updateId} <div>(Resolver: {
+        <EtherscanAddress address={event.returnValues.resolver} chainId={chainId}></EtherscanAddress>
+      })</div></>;
     case 'Transfer':
       return <>
-        Transfer to {event.returnValues.to}
-        {event.returnValues.from !== '0x0000000000000000000000000000000000000000' && <div>(From: {event.returnValues.from})</div>}
+        Transfer to {
+          <EtherscanAddress address={event.returnValues.to} chainId={chainId}></EtherscanAddress>
+        }
+        {event.returnValues.from !== ZERO_ADDRESS &&
+          <div>(From: {<EtherscanAddress address={event.returnValues.from} chainId={chainId}></EtherscanAddress>})</div>
+        }
       </>;
     default:
       return <>{JSON.stringify(data, null, '  ')}</>;
   }
 }
 
-const DomainEventsTable = ({ events }) => {
+const DomainEventsTable = ({ events, chainId }) => {
   const classes = useStyles();
 
   return (
@@ -74,7 +87,8 @@ const DomainEventsTable = ({ events }) => {
           <Table className={classes.table} size="small" aria-label="a dense table">
             <TableHead>
               <TableRow>
-                <TableCell>Block Number</TableCell>
+                <TableCell>Block</TableCell>
+                <TableCell>Tx</TableCell>
                 <TableCell align="left">Event</TableCell>
                 <TableCell align="left">Data</TableCell>
               </TableRow>
@@ -83,10 +97,13 @@ const DomainEventsTable = ({ events }) => {
               {events && events.events.map((event, i) =>
                 <TableRow key={i}>
                   <TableCell component="th" scope="row">
-                    {event.blockNumber}
+                    <EtherscanBlock blockNumber={event.blockNumber} chainId={chainId}></EtherscanBlock>
                   </TableCell>
-                  <TableCell align="left">{renderEventType(event)}</TableCell>
-                  <TableCell align="left">{renderEvent(event)}</TableCell>
+                  <TableCell component="th" scope="row">
+                    <EtherscanTransaction transactionHash={event.transactionHash} chainId={chainId}></EtherscanTransaction>
+                  </TableCell>
+                  <TableCell align="left">{renderEventType(event, chainId)}</TableCell>
+                  <TableCell align="left">{renderEvent(event, chainId)}</TableCell>
                 </TableRow>
               )}
             </TableBody>
