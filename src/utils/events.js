@@ -5,7 +5,6 @@ const create_blocks = {
 
 const events = [
   'Approval',
-  'ApprovalForAll',
   'NewURI',
   'NewURIPrefix',
   'Resolve',
