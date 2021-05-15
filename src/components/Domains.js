@@ -29,6 +29,7 @@ import {
 import { isAddress } from '../utils/address';
 import RecordsForm from './RecordsForm';
 import FreeDomain from './FreeDomain';
+import { ZERO_ADDRESS } from './../utils/constants';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction='up' ref={ref} {...props} />;
@@ -324,6 +325,7 @@ const Domains = ({ library, account, chainId }) => {
         <></>
       }
       <DomainList
+        chainId={chainId}
         isFetching={!fetched}
         domains={_domains}
         onEventsLoad={loadDomainEvents}
@@ -334,13 +336,13 @@ const Domains = ({ library, account, chainId }) => {
         actions={(
           <>
             {
-              domainTab && domainTab.resolver === '0x0000000000000000000000000000000000000000' ?
-              <Button size='small' color='primary' onClick={setDefaultResolver(domainTab)}>
-                Set default resolver
-              </Button> :
-              <Button size='small' color='primary' onClick={handleRecordsOpen(domainTab)}>
-                Update records
-              </Button>
+              domainTab && domainTab.resolver === ZERO_ADDRESS ?
+                <Button size='small' color='primary' onClick={setDefaultResolver(domainTab)}>
+                  Set default resolver
+                </Button> :
+                <Button size='small' color='primary' onClick={handleRecordsOpen(domainTab)}>
+                  Update records
+                </Button>
             }
             <Button size='small' color='primary' onClick={handleTransferOpen(domainTab)}>
               Transfer

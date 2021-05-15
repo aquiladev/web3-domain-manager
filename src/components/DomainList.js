@@ -47,7 +47,7 @@ const TabPanel = (props) => {
   );
 }
 
-const DomainList = ({ isFetching, domains, onEventsLoad, onDomainSelect, actions }) => {
+const DomainList = ({ chainId, isFetching, domains, onEventsLoad, onDomainSelect, actions }) => {
   const classes = useStyles();
 
   const [expanded, setExpanded] = useState(false);
@@ -88,10 +88,10 @@ const DomainList = ({ isFetching, domains, onEventsLoad, onDomainSelect, actions
                       <Tab label='Events' value={`${domain.id}_e`} />
                     </Tabs>
                     <TabPanel display={domain.id === domainTab}>
-                      <DomainInfo domain={domain} />
+                      <DomainInfo domain={domain} chainId={chainId} />
                     </TabPanel>
                     <TabPanel display={`${domain.id}_e` === domainTab}>
-                      <DomainEventsTable events={events} />
+                      <DomainEventsTable events={events} chainId={chainId} />
                     </TabPanel>
                   </div>
                 }

@@ -3,13 +3,15 @@ import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 
+import EtherscanAddress from './EtherscanAddress';
+
 const useStyles = makeStyles(() => ({
   header: {
     paddingTop: 30
   },
 }));
 
-const DomainInfo = ({ domain }) => {
+const DomainInfo = ({ domain, chainId }) => {
   const classes = useStyles();
 
   const records = Object.entries((domain || {}).records || [])
@@ -47,7 +49,7 @@ const DomainInfo = ({ domain }) => {
         </Grid>
         <Grid item sm={9} xs={12}>
           <Typography noWrap>
-            {domain.resolver}
+            <EtherscanAddress address={domain.resolver} chainId={chainId}></EtherscanAddress>
           </Typography>
         </Grid>
       </Grid>
@@ -57,7 +59,7 @@ const DomainInfo = ({ domain }) => {
         </Grid>
         <Grid item sm={9} xs={12}>
           <Typography noWrap>
-            {domain.owner}
+            <EtherscanAddress address={domain.owner} chainId={chainId}></EtherscanAddress>
           </Typography>
         </Grid>
       </Grid>
