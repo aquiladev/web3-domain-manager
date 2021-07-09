@@ -60,8 +60,8 @@ const DomainList = ({ chainId, isFetching, domains, onEventsLoad, onDomainSelect
     onDomainSelect && onDomainSelect(domain);
   };
 
-  const selectDomainEvents = (domainId) => async (_, tab) => {
-    const events = await onEventsLoad(domainId);
+  const selectDomainEvents = (domain) => async (_, tab) => {
+    const events = await onEventsLoad(domain);
     setEvents(events);
     setDomainTab(tab);
   };
@@ -83,7 +83,7 @@ const DomainList = ({ chainId, isFetching, domains, onEventsLoad, onDomainSelect
               <AccordionDetails>
                 {domainTab && domainTab.startsWith(domain.id) &&
                   <div className={classes.tabs}>
-                    <Tabs value={domainTab} onChange={selectDomainEvents(domain.id)} style={{ marginBottom: 20 }}>
+                    <Tabs value={domainTab} onChange={selectDomainEvents(domain)} style={{ marginBottom: 20 }}>
                       <Tab label='Info' value={domain.id} />
                       <Tab label='Events' value={`${domain.id}_e`} />
                     </Tabs>

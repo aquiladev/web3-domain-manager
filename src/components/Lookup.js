@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import InputBase from '@material-ui/core/InputBase';
 import IconButton from '@material-ui/core/IconButton';
@@ -9,9 +8,10 @@ import SearchIcon from '@material-ui/icons/Search';
 import Alert from '@material-ui/lab/Alert';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-import registryJson from 'dot-crypto/truffle-artifacts/Registry.json';
-import proxyReaderJson from 'dot-crypto/truffle-artifacts/ProxyReader.json';
-import NetworkConfig from 'dot-crypto/src/network-config/network-config.json';
+import NetworkConfig from 'uns/uns-config.json';
+
+import cnsRegistryJson from 'uns/artifacts/CNSRegistry.json';
+import proxyReaderJson from 'uns/artifacts/ProxyReader.json';
 
 import DomainList from './DomainList';
 import namehash from '../utils/namehash';
@@ -40,10 +40,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function getDomain(uri) {
-  return uri.replace('https://metadata.unstoppabledomains.com/metadata/', '')
-}
-
 const Lookup = ({ library, chainId }) => {
   const classes = useStyles();
 
@@ -53,7 +49,7 @@ const Lookup = ({ library, chainId }) => {
   const [error, setError] = useState(undefined);
 
   const { contracts } = NetworkConfig.networks[chainId];
-  const registry = new library.eth.Contract(registryJson.abi, contracts.Registry.address);
+  const cnsRegistry = new library.eth.Contract(cnsRegistryJson.abi, contracts.CNSRegistry.address);
   const proxyReader = new library.eth.Contract(proxyReaderJson.abi, contracts.ProxyReader.address);
 
   const _keys = Object.values(keys);
@@ -84,14 +80,14 @@ const Lookup = ({ library, chainId }) => {
     const records = {};
     _keys.forEach((k, i) => records[k] = data.values[i]);
 
-    let uri = name;
-    try {
-      uri = await registry.methods.tokenURI(tokenId).call();
-    } catch { }
+    // let uri = name;
+    // try {
+    //   uri = await cnsRegistry.methods.tokenURI(tokenId).call();
+    // } catch { }
 
     const _domain = {
       id: tokenId,
-      name: getDomain(uri),
+      name,
       owner: data.owner,
       resolver: data.resolver,
       records
@@ -105,7 +101,7 @@ const Lookup = ({ library, chainId }) => {
   const loadDomainEvents = (domainId) => {
     console.debug('Loading DOMAIN events...');
 
-    return fetchDomainEvents(library, registry, domainId)
+    return fetchDomainEvents(library, cnsRegistry, domainId)
       .then((domainEvents) => {
         console.debug('Loaded DOMAIN events', domainEvents);
 

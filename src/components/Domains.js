@@ -14,17 +14,20 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Alert from '@material-ui/lab/Alert';
 import Typography from '@material-ui/core/Typography';
 
-import registryJson from 'dot-crypto/truffle-artifacts/Registry.json';
-import resolverJson from 'dot-crypto/truffle-artifacts/Resolver.json';
-import proxyReaderJson from 'dot-crypto/truffle-artifacts/ProxyReader.json';
-import freeMinterJson from 'dot-crypto/truffle-artifacts/FreeMinter.json';
-import NetworkConfig from 'dot-crypto/src/network-config/network-config.json';
+import NetworkConfig from 'uns/uns-config.json';
+
+import cnsRegistryJson from 'uns/artifacts/CNSRegistry.json';
+import unsRegistryJson from 'uns/artifacts/UNSRegistry.json';
+import resolverJson from 'uns/artifacts/Resolver.json';
+import proxyReaderJson from 'uns/artifacts/ProxyReader.json';
+import mintingManagerJson from 'uns/artifacts/MintingManager.json';
 
 import DomainList from './DomainList';
 import keys from '../utils/standardKeys';
 import {
   fetchTransferEvents,
-  fetchDomainEvents
+  fetchDomainEvents,
+  fetchNewURIEvents,
 } from '../utils/events';
 import { isAddress } from '../utils/address';
 import RecordsForm from './RecordsForm';
@@ -62,8 +65,12 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function getDomain(uri) {
-  return uri.replace('https://metadata.unstoppabledomains.com/metadata/', '')
+async function getDomainName(library, registry, tokenId) {
+  const events = await fetchNewURIEvents(library, registry, tokenId);
+  if (!events || !events.length)
+    return tokenId;
+
+  return events[0].returnValues.uri;
 }
 
 const Domains = ({ library, account, chainId }) => {
@@ -96,9 +103,10 @@ const Domains = ({ library, account, chainId }) => {
   const [claiming, setClaiming] = React.useState(false);
 
   const { contracts } = NetworkConfig.networks[chainId];
-  const registry = new library.eth.Contract(registryJson.abi, contracts.Registry.address);
+  const cnsRegistry = new library.eth.Contract(cnsRegistryJson.abi, contracts.CNSRegistry.address);
+  const unsRegistry = new library.eth.Contract(unsRegistryJson.abi, contracts.UNSRegistry.address);
   const proxyReader = new library.eth.Contract(proxyReaderJson.abi, contracts.ProxyReader.address);
-  const freeMinter = new library.eth.Contract(freeMinterJson.abi, contracts.FreeMinter.address);
+  const mintingManager = new library.eth.Contract(mintingManagerJson.abi, contracts.MintingManager.address);
 
   const handleTransferOpen = (_domain) => () => {
     setDomain(_domain)
@@ -130,6 +138,8 @@ const Domains = ({ library, account, chainId }) => {
 
     try {
       setTransferring(true);
+
+      const registry = unsRegistry._address === _domain.registry ? unsRegistry : cnsRegistry;
       await registry.methods['0x42842e0e'](account, receiver, _domain.id)
         .send({ from: account });
 
@@ -150,7 +160,7 @@ const Domains = ({ library, account, chainId }) => {
 
     try {
       setDefaultResolving(true);
-      await registry.methods.resolveTo(contracts.Resolver.address, _domain.id)
+      await cnsRegistry.methods.resolveTo(contracts.Resolver.address, _domain.id)
         .send({ from: account });
 
       await updateDomainState(_domain.id);
@@ -186,18 +196,18 @@ const Domains = ({ library, account, chainId }) => {
     }
   }
 
-  const handleClaim = async (domainName) => {
-    console.debug('CLAIM', domainName);
+  const handleClaim = async (tld, domainName) => {
+    console.debug('CLAIM', tld, domainName);
     setClaimError();
 
     try {
       setClaiming(true);
 
-      await freeMinter.methods.claim(domainName)
+      await mintingManager.methods.claim(tld, domainName)
         .send({ from: account });
 
       setFreeDomain(false);
-      await loadPastEvents();
+      await loadTokens();
     } catch (error) {
       console.error(error);
       setClaimError(error && error.message);
@@ -209,33 +219,44 @@ const Domains = ({ library, account, chainId }) => {
 
   const _keys = Object.values(keys);
 
-  const loadPastEvents = async () => {
+  const loadTokens = async () => {
     setFetched(false);
     console.debug('Loading events...');
 
+    const cnsTokens = await fetchTokens(cnsRegistry, 'cns');
+    const unsTokens = await fetchTokens(unsRegistry, 'uns');
+
+    const _domains = await fetchDomains([...cnsTokens, ...unsTokens]);
+    const _data = {
+      ...data,
+      [stateKey]: {
+        isFetched: true,
+        domains: _domains || []
+      }
+    };
+    console.debug('Update state', _data);
+    setData(_data);
+    setFetched(true);
+  }
+
+  const fetchTokens = (registry, type) => {
     return fetchTransferEvents(library, registry, account)
       .then(async (events) => {
-        console.debug('Loaded events', events);
-        const _tokens = [];
+        console.debug(`Loaded events from registry ${registry._address}`, events);
 
+        const _tokens = [];
+        const _distinct = [];
         events.forEach(async (e) => {
-          if (!_tokens.includes(e.returnValues.tokenId)) {
-            _tokens.push(e.returnValues.tokenId);
+          if (!_distinct.includes(e.returnValues.tokenId)) {
+            _tokens.push({
+              tokenId: e.returnValues.tokenId,
+              registry: registry._address,
+              type
+            });
+            _distinct.push(e.returnValues.tokenId);
           }
         });
-
-        const _domains = await fetchDomains(_tokens);
-        const _data = {
-          ...data,
-          [stateKey]: {
-            isFetched: true,
-            domains: _domains || []
-          }
-        };
-
-        console.debug('Update state', _data);
-        setData(_data);
-        setFetched(true);
+        return _tokens;
       });
   }
 
@@ -243,7 +264,7 @@ const Domains = ({ library, account, chainId }) => {
     const domains = [];
 
     console.debug('Fetching data...');
-    const data = await proxyReader.methods.getDataForMany(_keys, tokens).call();
+    const data = await proxyReader.methods.getDataForMany(_keys, tokens.map(t => t.tokenId)).call();
     console.debug('Fetched data', data);
 
     for (let index = 0; index < tokens.length; index++) {
@@ -252,14 +273,16 @@ const Domains = ({ library, account, chainId }) => {
       }
 
       const token = tokens[index];
-      const uri = await registry.methods.tokenURI(token).call();
+      const registry = unsRegistry._address === token.registry ? unsRegistry : cnsRegistry;
 
       const records = {};
       _keys.forEach((k, i) => records[k] = data.values[index][i]);
 
       domains.push({
-        id: token,
-        name: getDomain(uri),
+        id: token.tokenId,
+        name: await getDomainName(library, registry, token.tokenId),
+        registry: token.registry,
+        type: token.type,
         owner: data.owners[index],
         resolver: data.resolvers[index],
         records
@@ -288,10 +311,11 @@ const Domains = ({ library, account, chainId }) => {
     setDomainTab(domain);
   }
 
-  const loadDomainEvents = (domainId) => {
+  const loadDomainEvents = (domain) => {
     console.debug('Loading DOMAIN events...');
 
-    return fetchDomainEvents(library, registry, domainId)
+    const registry = unsRegistry._address === domain.registry ? unsRegistry : cnsRegistry;
+    return fetchDomainEvents(library, registry, domain.id)
       .then((domainEvents) => {
         console.debug('Loaded DOMAIN events', domainEvents);
 
@@ -304,9 +328,9 @@ const Domains = ({ library, account, chainId }) => {
 
   useEffect(() => {
     if (!data[stateKey] || !data[stateKey].isFetched) {
-      loadPastEvents();
+      loadTokens();
     }
-  }, [data])
+  }, [data, stateKey])
 
   const _domains = data && (data[stateKey] || {}).domains;
   return (
@@ -432,7 +456,7 @@ const Domains = ({ library, account, chainId }) => {
         <DialogContent>
           <FreeDomain
             claiming={claiming}
-            onClaim={(domainName) => { handleClaim(domainName); }}
+            onClaim={(tld, domainName) => { handleClaim(tld, domainName); }}
             onCancel={() => { setFreeDomain(false) }}
             error={claimError} />
         </DialogContent>

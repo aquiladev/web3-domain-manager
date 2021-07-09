@@ -25,6 +25,16 @@ export async function fetchTransferEvents(library, contract, account) {
   );
 }
 
+export async function fetchNewURIEvents(library, contract, tokenId) {
+  const chainId = await library.eth.getChainId();
+  return fetchEvents(
+    contract,
+    'NewURI',
+    { tokenId },
+    CREATION_BLOCK_MAP[chainId]
+  );
+}
+
 export async function fetchEvents(contract, event, filter, fromBlock) {
   return contract.getPastEvents(event, {
     filter,
