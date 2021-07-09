@@ -18,11 +18,13 @@ import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Alert from '@material-ui/lab/Alert';
 
+import GlobalStyle from './components/GlobalStyle';
 import mmLogo from './images/mm.png';
 import { injected, useEagerConnect, useInactiveListener } from './hooks';
 import Domains from './components/Domains';
 import Lookup from './components/Lookup';
 import Header from './components/Header';
+import Footer from './components/Footer';
 
 const theme = createMuiTheme({
   overrides: {
@@ -43,6 +45,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
     overflow: 'hidden',
+    minHeight: '100%'
   },
   title: {
     fontSize: '1rem',
@@ -167,6 +170,7 @@ function DefaultApp() {
           {connected && account && !isLookup && <Domains library={library} account={account} chainId={chainId} />}
           {connected && isLookup && <Lookup library={library} chainId={chainId} />}
         </Container>
+        <Footer />
       </div>
     </ThemeProvider>
   );
@@ -175,6 +179,7 @@ function DefaultApp() {
 export default function () {
   return (
     <Web3ReactProvider getLibrary={getLibrary}>
+      <GlobalStyle />
       <DefaultApp />
     </Web3ReactProvider>
   )
