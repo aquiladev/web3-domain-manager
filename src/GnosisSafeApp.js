@@ -65,7 +65,7 @@ function GnosisSafeApp() {
       <AppBar position="fixed">
         <Toolbar>
           <Typography className={classes.title} variant="h5" noWrap>
-            .crypto Domain Manager
+            Web3 Domain Manager
           </Typography>
           <div className={classes.grow}></div>
           <Typography variant="subtitle1">

@@ -1,14 +1,9 @@
-export const CREATION_BLOCK_MAP = {
-  1: 9082251,
-  4: 7484092,
-};
-
 export const DOMAIN_EVENTS = [
   'Approval',
   'NewURI',
-  'NewURIPrefix',
-  'Resolve',
-  'Sync',
+  // 'Resolve', // CNS
+  // 'Sync',    // CNS
+  // 'Set',     // UNS
   'Transfer'
 ];
 

@@ -4880,10 +4880,6 @@ dot-case@^3.0.3:
     no-case "^3.0.3"
     tslib "^1.10.0"
 
-"dot-crypto@https://github.com/unstoppabledomains/dot-crypto.git#51621857870282d085f3461c9a22ca9aafd9269b":
-  version "1.1.0"
-  resolved "https://github.com/unstoppabledomains/dot-crypto.git#51621857870282d085f3461c9a22ca9aafd9269b"
-
 dot-prop@^5.2.0:
   version "5.3.0"
   resolved "https://registry.yarnpkg.com/dot-prop/-/dot-prop-5.3.0.tgz#90ccce708cd9cd82cc4dc8c3ddd9abdd55b20e88"
@@ -12178,6 +12174,10 @@ unquote@~1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/unquote/-/unquote-1.1.1.tgz#8fded7324ec6e88a0ff8b905e7c098cdc086d544"
   integrity sha1-j97XMk7G6IoP+LkF58CYzcCG1UQ=
+
+"uns@https://github.com/unstoppabledomains/uns#8513dd7a8e6e20f71886c0974ee56919c9649674":
+  version "0.1.0"
+  resolved "https://github.com/unstoppabledomains/uns#8513dd7a8e6e20f71886c0974ee56919c9649674"
 
 unset-value@^1.0.0:
   version "1.0.0"
