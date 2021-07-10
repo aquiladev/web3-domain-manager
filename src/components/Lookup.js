@@ -16,6 +16,7 @@ import proxyReaderJson from 'uns/artifacts/ProxyReader.json';
 import DomainList from './DomainList';
 import namehash from '../utils/namehash';
 import keys from '../utils/standardKeys';
+import { createContract } from '../utils/contract';
 import { fetchDomainEvents } from '../utils/events';
 
 const useStyles = makeStyles((theme) => ({
@@ -49,8 +50,8 @@ const Lookup = ({ library, chainId }) => {
   const [error, setError] = useState(undefined);
 
   const { contracts } = NetworkConfig.networks[chainId];
-  const cnsRegistry = new library.eth.Contract(cnsRegistryJson.abi, contracts.CNSRegistry.address);
-  const proxyReader = new library.eth.Contract(proxyReaderJson.abi, contracts.ProxyReader.address);
+  const cnsRegistry = createContract(library, chainId, cnsRegistryJson.abi, contracts.CNSRegistry);
+  const proxyReader = createContract(library, chainId, proxyReaderJson.abi, contracts.ProxyReader);
 
   const _keys = Object.values(keys);
 

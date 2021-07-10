@@ -24,6 +24,7 @@ import mintingManagerJson from 'uns/artifacts/MintingManager.json';
 
 import DomainList from './DomainList';
 import keys from '../utils/standardKeys';
+import { createContract } from '../utils/contract';
 import {
   fetchTransferEvents,
   fetchDomainEvents,
@@ -103,10 +104,10 @@ const Domains = ({ library, account, chainId }) => {
   const [claiming, setClaiming] = React.useState(false);
 
   const { contracts } = NetworkConfig.networks[chainId];
-  const cnsRegistry = new library.eth.Contract(cnsRegistryJson.abi, contracts.CNSRegistry.address);
-  const unsRegistry = new library.eth.Contract(unsRegistryJson.abi, contracts.UNSRegistry.address);
-  const proxyReader = new library.eth.Contract(proxyReaderJson.abi, contracts.ProxyReader.address);
-  const mintingManager = new library.eth.Contract(mintingManagerJson.abi, contracts.MintingManager.address);
+  const cnsRegistry = createContract(library, chainId, cnsRegistryJson.abi, contracts.CNSRegistry);
+  const unsRegistry = createContract(library, chainId, unsRegistryJson.abi, contracts.UNSRegistry);
+  const proxyReader = createContract(library, chainId, proxyReaderJson.abi, contracts.ProxyReader);
+  const mintingManager = createContract(library, chainId, mintingManagerJson.abi, contracts.MintingManager);
 
   const handleTransferOpen = (_domain) => () => {
     setDomain(_domain)

@@ -28,9 +28,9 @@ function ensureSupportedDomain(domain) {
 
 function isSupportedDomain(domain) {
   return (
-    domain === 'crypto' ||
+    ['crypto','coin','wallet','bitcoin','x','888','nft','dao','blockchain'].includes(domain) ||
     (domain.indexOf('.') > 0 &&
-      /^.{1,}\.(crypto)$/.test(domain) &&
+      /^.{1,}\.(crypto|coin|wallet|bitcoin|x|888|nft|dao|blockchain)$/.test(domain) &&
       domain.split('.').every(v => !!v.length))
   );
 }

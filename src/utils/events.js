@@ -1,37 +1,31 @@
-import {
-  CREATION_BLOCK_MAP,
-  DOMAIN_EVENTS
-} from './constants';
+import { DOMAIN_EVENTS } from './constants';
 
 export async function fetchDomainEvents(library, contract, domainId) {
-  const chainId = await library.eth.getChainId();
   return Promise.all(DOMAIN_EVENTS.map((event) => {
     return fetchEvents(
       contract,
       event,
       { tokenId: domainId },
-      CREATION_BLOCK_MAP[chainId]
+      contract._config.deploymentBlock
     );
   })).then(x => x.flat().sort((a, b) => a.blockNumber - b.blockNumber));
 }
 
 export async function fetchTransferEvents(library, contract, account) {
-  const chainId = await library.eth.getChainId();
   return fetchEvents(
     contract,
     'Transfer',
     { to: account },
-    CREATION_BLOCK_MAP[chainId]
+    contract._config.deploymentBlock
   );
 }
 
 export async function fetchNewURIEvents(library, contract, tokenId) {
-  const chainId = await library.eth.getChainId();
   return fetchEvents(
     contract,
     'NewURI',
     { tokenId },
-    CREATION_BLOCK_MAP[chainId]
+    contract._config.deploymentBlock
   );
 }
 
