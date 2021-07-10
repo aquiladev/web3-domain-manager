@@ -48,13 +48,15 @@ const DomainInfo = ({ domain, chainId }) => {
           <b>Registry</b>
         </Grid>
         <Grid item sm={9} xs={12}>
-          { domain.type &&
-            <EtherscanAddress
-              address={domain.registry}
-              chainId={chainId}
-              label={domain.type.toUpperCase()}>
-            </EtherscanAddress>
-          }
+          <Typography noWrap>
+            { domain.type &&
+              <EtherscanAddress
+                address={domain.registry}
+                chainId={chainId}
+                label={domain.type.toUpperCase()}>
+              </EtherscanAddress>
+            }
+          </Typography>
         </Grid>
       </Grid>
       <Grid container item xs={12}>
