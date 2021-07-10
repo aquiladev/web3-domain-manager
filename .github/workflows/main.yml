@@ -34,7 +34,7 @@ jobs:
         run: CI=false yarn build
       
       - name: Upload dApp to IPFS
-        uses: aquiladev/ipfs-action@v0.1.5
+        uses: aquiladev/ipfs-action@v0.1.6-1
         id: ipfs_dapp_upload
         with:
           path: ./build
@@ -47,7 +47,7 @@ jobs:
           CI=false REACT_APP_SAPP_TARGET=true yarn build
       
       - name: Upload sApp to IPFS
-        uses: aquiladev/ipfs-action@v0.1.5
+        uses: aquiladev/ipfs-action@v0.1.6-1
         id: ipfs_sapp_upload
         with:
           path: ./build
