@@ -23,7 +23,7 @@ import proxyReaderJson from 'uns/artifacts/ProxyReader.json';
 import mintingManagerJson from 'uns/artifacts/MintingManager.json';
 
 import DomainList from './DomainList';
-import keys from '../utils/standardKeys';
+import supportedKeys from '../utils/supported-keys.json';
 import { createContract } from '../utils/contract';
 import {
   fetchTransferEvents,
@@ -218,7 +218,7 @@ const Domains = ({ library, account, chainId }) => {
     }
   }
 
-  const _keys = Object.values(keys);
+  const _keys = Object.keys(supportedKeys.keys);
 
   const loadTokens = async () => {
     setFetched(false);

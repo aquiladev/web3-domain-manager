@@ -12,7 +12,7 @@ import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Alert from '@material-ui/lab/Alert';
 
-import keys from '../utils/standardKeys';
+import supportedKeys from '../utils/supported-keys.json';
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -69,7 +69,7 @@ const RecordsForm = ({ records, updating, error, onUpdate, onCancel }) => {
       return { key, value, newValue: value };
     });
     const filledKeys = filledRecords.map(x => x.key);
-    const fillableKeys = Object.values(keys).filter(x => !filledKeys.includes(x));
+    const fillableKeys = Object.keys(supportedKeys.keys).filter(x => !filledKeys.includes(x));
 
     setForm({
       records: filledRecords,
@@ -89,7 +89,7 @@ const RecordsForm = ({ records, updating, error, onUpdate, onCancel }) => {
     });
 
     const filledKeys = _records.map(x => x.key);
-    const fillableKeys = Object.values(keys).filter(x => !filledKeys.includes(x));
+    const fillableKeys = Object.keys(supportedKeys.keys).filter(x => !filledKeys.includes(x));
 
     setForm({
       records: _records,
@@ -108,7 +108,7 @@ const RecordsForm = ({ records, updating, error, onUpdate, onCancel }) => {
       return r;
     });
     const filledKeys = _records.map(x => x.key);
-    const fillableKeys = Object.values(keys).filter(x => !filledKeys.includes(x));
+    const fillableKeys = Object.keys(supportedKeys.keys).filter(x => !filledKeys.includes(x));
 
     setForm({
       records: _records,
@@ -133,7 +133,7 @@ const RecordsForm = ({ records, updating, error, onUpdate, onCancel }) => {
       }
     ];
     const filledKeys = _records.map(x => x.key);
-    const fillableKeys = Object.values(keys).filter(x => !filledKeys.includes(x));
+    const fillableKeys = Object.keys(supportedKeys.keys).filter(x => !filledKeys.includes(x));
 
     setForm({
       records: _records,

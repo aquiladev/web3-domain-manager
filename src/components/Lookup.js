@@ -11,11 +11,12 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import NetworkConfig from 'uns/uns-config.json';
 
 import cnsRegistryJson from 'uns/artifacts/CNSRegistry.json';
+import unsRegistryJson from 'uns/artifacts/UNSRegistry.json';
 import proxyReaderJson from 'uns/artifacts/ProxyReader.json';
 
 import DomainList from './DomainList';
 import namehash from '../utils/namehash';
-import keys from '../utils/standardKeys';
+import supportedKeys from '../utils/supported-keys.json';
 import { createContract } from '../utils/contract';
 import { fetchDomainEvents } from '../utils/events';
 
@@ -51,9 +52,10 @@ const Lookup = ({ library, chainId }) => {
 
   const { contracts } = NetworkConfig.networks[chainId];
   const cnsRegistry = createContract(library, chainId, cnsRegistryJson.abi, contracts.CNSRegistry);
+  const unsRegistry = createContract(library, chainId, unsRegistryJson.abi, contracts.UNSRegistry);
   const proxyReader = createContract(library, chainId, proxyReaderJson.abi, contracts.ProxyReader);
 
-  const _keys = Object.values(keys);
+  const _keys = Object.keys(supportedKeys.keys);
 
   const search = async () => {
     try {
@@ -81,14 +83,12 @@ const Lookup = ({ library, chainId }) => {
     const records = {};
     _keys.forEach((k, i) => records[k] = data.values[i]);
 
-    // let uri = name;
-    // try {
-    //   uri = await cnsRegistry.methods.tokenURI(tokenId).call();
-    // } catch { }
-
     const _domain = {
       id: tokenId,
       name,
+      registry: data.resolver === unsRegistry._address
+        ? unsRegistry._address
+        : cnsRegistry._address,
       owner: data.owner,
       resolver: data.resolver,
       records
@@ -99,10 +99,11 @@ const Lookup = ({ library, chainId }) => {
     setDomain(_domain);
   }
 
-  const loadDomainEvents = (domainId) => {
+  const loadDomainEvents = (domain) => {
     console.debug('Loading DOMAIN events...');
 
-    return fetchDomainEvents(library, cnsRegistry, domainId)
+    const registry = unsRegistry._address === domain.registry ? unsRegistry : cnsRegistry;
+    return fetchDomainEvents(library, registry, domain.id)
       .then((domainEvents) => {
         console.debug('Loaded DOMAIN events', domainEvents);
 
