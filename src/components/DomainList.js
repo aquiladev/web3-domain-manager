@@ -76,8 +76,16 @@ const DomainList = ({ chainId, isFetching, domains, onEventsLoad, onDomainSelect
       {domains && domains.length ?
         <div>
           {domains.map(domain => (
-            <Accordion expanded={expanded === domain.id} onChange={selectDomain(domain)} key={domain.id}>
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Accordion
+              expanded={expanded === domain.id}
+              onChange={selectDomain(domain)}
+              disabled={domain.loading}
+              key={domain.id}>
+              <AccordionSummary expandIcon={
+                domain.loading
+                  ? <CircularProgress size={18} thickness={5} />
+                  : <ExpandMoreIcon />
+              }>
                 <Typography className={classes.heading}>{domain.name}</Typography>
               </AccordionSummary>
               <AccordionDetails>

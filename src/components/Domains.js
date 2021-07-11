@@ -145,7 +145,7 @@ const Domains = ({ library, account, chainId }) => {
         .send({ from: account });
 
       setDomain();
-      await updateDomainState(_domain.id);
+      await updateDomainState(_domain);
     } catch (error) {
       console.error(error);
       setTransferError(error && error.message);
@@ -164,7 +164,7 @@ const Domains = ({ library, account, chainId }) => {
       await cnsRegistry.methods.resolveTo(contracts.Resolver.address, _domain.id)
         .send({ from: account });
 
-      await updateDomainState(_domain.id);
+      await updateDomainState(_domain);
     } catch (error) {
       console.error(error);
       setDefaultResolverError(error && error.message);
@@ -187,7 +187,7 @@ const Domains = ({ library, account, chainId }) => {
         .send({ from: account });
 
       setRecords();
-      await updateDomainState(_domain.id);
+      await updateDomainState(_domain);
     } catch (error) {
       console.error(error);
       setUpdateError(error && error.message);
@@ -232,7 +232,7 @@ const Domains = ({ library, account, chainId }) => {
       ...data,
       [stateKey]: {
         isFetched: true,
-        domains: _domains || []
+        domains: _domains,
       }
     };
     console.debug('Update state', _data);
@@ -264,40 +264,59 @@ const Domains = ({ library, account, chainId }) => {
   const fetchDomains = async (tokens) => {
     const domains = [];
 
-    console.debug('Fetching data...');
-    const data = await proxyReader.methods.getDataForMany(_keys, tokens.map(t => t.tokenId)).call();
-    console.debug('Fetched data', data);
-
     for (let index = 0; index < tokens.length; index++) {
-      if (data.owners[index] !== account) {
-        continue;
-      }
-
       const token = tokens[index];
       const registry = unsRegistry._address === token.registry ? unsRegistry : cnsRegistry;
 
-      const records = {};
-      _keys.forEach((k, i) => records[k] = data.values[index][i]);
-
-      domains.push({
+      const domain = {
         id: token.tokenId,
-        name: await getDomainName(library, registry, token.tokenId),
+        name: token.tokenId,
         registry: token.registry,
         type: token.type,
-        owner: data.owners[index],
-        resolver: data.resolvers[index],
-        records
+        loading: true,
+      };
+      domains.push(domain);
+
+      fetchDomain(domain, registry).then(dd => {
+        domains.map(d => {
+          return d.id === dd.id ? {...d, ...dd} : d;
+        });
+
+        setData({
+          ...data,
+          [stateKey]: {
+            isFetched: true,
+            domains: domains.filter(d => !d.removed)
+          }
+        });
       });
     }
 
-    return domains;
+    return domains.filter(d => !d.removed);
   }
 
-  const updateDomainState = async (tokenId) => {
-    const domain = (await fetchDomains([tokenId]))[0];
+  const fetchDomain = async (domain, registry) => {
+    const _data = await proxyReader.methods.getData(_keys, domain.id).call();
+
+    const records = {};
+    _keys.forEach((k, i) => records[k] = _data.values[i]);
+
+    domain.name = await getDomainName(library, registry, domain.id);
+    domain.owner = _data.owner;
+    domain.removed = _data.owner !== account;
+    domain.resolver = _data.resolver;
+    domain.records = records;
+    domain.loading = false;
+
+    return domain;
+  }
+
+  const updateDomainState = async (domain) => {
+    const registry = unsRegistry._address === domain.registry ? unsRegistry : cnsRegistry;
+    const _domain = await fetchDomain(domain, registry);
     const domains = data[stateKey].domains
-      .map(d => domain && d.id === domain.id ? { ...d, ...domain } : d)
-      .filter(d => domain || d.id !== tokenId);
+      .map(d => _domain && d.id === _domain.id ? { ...d, ..._domain } : d)
+      .filter(d => _domain || d.id !== domain.id);
 
     const _data = {
       ...data,
@@ -309,7 +328,7 @@ const Domains = ({ library, account, chainId }) => {
 
     console.debug('Update domain state', _data);
     setData(_data);
-    setDomainTab(domain);
+    setDomainTab(_domain);
   }
 
   const loadDomainEvents = (domain) => {
