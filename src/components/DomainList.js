@@ -17,9 +17,6 @@ import DomainInfo from './DomainInfo';
 import DomainEventsTable from './DomainEventsTable';
 
 const useStyles = makeStyles((theme) => ({
-  header: {
-    paddingTop: 30
-  },
   backdrop: {
     zIndex: theme.zIndex.drawer + 1,
     color: '#fff',
@@ -85,8 +82,8 @@ const DomainList = ({ chainId, isFetching, domains, onEventsLoad, onDomainSelect
                 domain.loading
                   ? <CircularProgress size={18} thickness={5} />
                   : <ExpandMoreIcon />
-              }>
-                <Typography className={classes.heading}>{domain.name}</Typography>
+                }>
+                <Typography noWrap>{domain.name}</Typography>
               </AccordionSummary>
               <AccordionDetails>
                 {domainTab && domainTab.startsWith(domain.id) &&
