@@ -11,21 +11,24 @@ const GlobalStyle = createGlobalStyle`
     margin: 0px;
     padding: 0px;
   }
-  #root {
-    height: 100%;
-  }
-  .MuiFormControl-root,
-  .MuiInputBase-root {
-    width: 100% !important;
-  }
   @font-face {
     font-family: 'Averta';
     src: local('Averta'), local('Averta Bold'),
     url(${avertaFont}) format('woff2'),
     url(${avertaBoldFont}) format('woff');
   }
+  #root {
+    height: 100%;
+  }
   #records-form .MuiFilledInput-input {
     padding-top: 13px;
+  }
+  .MuiFormControl-root,
+  .MuiInputBase-root {
+    width: 100% !important;
+  }
+  .MuiAccordionSummary-content {
+    overflow: auto;
   }
 `;
 
