@@ -8,18 +8,9 @@ import {
 import Web3 from 'web3';
 
 import Container from '@material-ui/core/Container';
-import Grid from '@material-ui/core/Grid';
-import Card from '@material-ui/core/Card';
-import CardActionArea from '@material-ui/core/CardActionArea';
-import CardContent from '@material-ui/core/CardContent';
-import CardMedia from '@material-ui/core/CardMedia';
-import Typography from '@material-ui/core/Typography';
-import Backdrop from '@material-ui/core/Backdrop';
-import CircularProgress from '@material-ui/core/CircularProgress';
 import Alert from '@material-ui/lab/Alert';
 
 import GlobalStyle from './components/GlobalStyle';
-import mmLogo from './images/mm.png';
 import { injected, useEagerConnect, useInactiveListener } from './hooks';
 import Domains from './components/Domains';
 import Lookup from './components/Lookup';
@@ -46,6 +37,9 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     overflow: 'hidden',
     minHeight: '100%'
+  },
+  content: {
+    minHeight: 100
   },
   title: {
     fontSize: '1rem',
@@ -99,7 +93,7 @@ function getLibrary(provider) {
 function DefaultApp() {
   const classes = useStyles();
   const context = useWeb3React();
-  const { connector, library, account, chainId, activate, deactivate, active, error } = context;
+  const { connector, library, account, chainId, active, error } = context;
 
   const [activatingConnector, setActivatingConnector] = useState();
   const [isLookup, setIsLookup] = useState();
@@ -114,19 +108,17 @@ function DefaultApp() {
   useInactiveListener(!triedEager || !!activatingConnector);
 
   const currentConnector = injected
-  const activating = currentConnector === activatingConnector
   const connected = currentConnector === connector
 
   return (
     <ThemeProvider theme={theme}>
       <div className={classes.root}>
-        <Header 
+        <Header
           active={active}
           account={account}
-          deactivate={deactivate}
           isLookup={isLookup}
           setIsLookup={setIsLookup} />
-        <Container maxWidth='lg'>
+        <Container maxWidth='lg' className={classes.content}>
           {
             !!error &&
             <Alert
@@ -136,36 +128,6 @@ function DefaultApp() {
             >
               {getErrorMessage(error)}
             </Alert>
-          }
-          {
-            (!connected || !account) &&
-            <>
-              <Grid
-                container
-                spacing={0}
-                direction='column'
-                alignItems='center'
-                justify='center'
-                style={{ minHeight: '100vh' }}
-              >
-                <Card className={classes.card}>
-                  <CardActionArea onClick={() => {
-                    setActivatingConnector(currentConnector)
-                    activate(injected)
-                  }}>
-                    <CardMedia component='img' image={mmLogo} className={classes.cardMedia} />
-                    <CardContent>
-                      <Typography variant='h5' component='h2'>
-                        MetaMask
-                      </Typography>
-                    </CardContent>
-                  </CardActionArea>
-                </Card>
-              </Grid>
-              <Backdrop className={classes.backdrop} open={activating}>
-                <CircularProgress color='inherit' />
-              </Backdrop>
-            </>
           }
           {connected && account && !isLookup && <Domains library={library} account={account} chainId={chainId} />}
           {connected && isLookup && <Lookup library={library} chainId={chainId} />}

@@ -3,12 +3,12 @@ import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import MenuItem from '@material-ui/core/MenuItem';
-import Menu from '@material-ui/core/Menu';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import SearchIcon from '@material-ui/icons/Search';
 import ListIcon from '@material-ui/icons/List';
+
+import ConnectButton from './ConnectButton';
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -26,23 +26,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Header({active, account, deactivate, isLookup, setIsLookup}) {
+export default function Header({active, isLookup, setIsLookup}) {
   const classes = useStyles();
-
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const open = Boolean(anchorEl);
-
-  const renderAccount = () => {
-    return `${account.substr(0, 6)}...${account.substring(account.length - 4)}`;
-  }
-
-  const handleMenu = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
 
   return (
     <header>
@@ -52,42 +37,14 @@ export default function Header({active, account, deactivate, isLookup, setIsLook
             Web3 Domain Manager
           </Typography>
           <div className={classes.grow}></div>
-          <Tooltip title={isLookup ? 'My Domains' : 'Lookup'}>
-            <IconButton color='inherit' onClick={() => { setIsLookup(!isLookup) }}>
-              {isLookup ? <ListIcon /> : <SearchIcon />}
-            </IconButton>
-          </Tooltip>
           {active && (
-            <>
-              <Typography variant='subtitle2' onClick={handleMenu}>
-                {renderAccount()}
-              </Typography>
-              <div>
-                <Menu
-                  id='menu-appbar'
-                  anchorEl={anchorEl}
-                  anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                  }}
-                  keepMounted
-                  transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                  }}
-                  open={open}
-                  onClose={handleClose}
-                >
-                  <MenuItem onClick={() => { 
-                    deactivate();
-                    handleClose();
-                  }}>
-                    Disconnect
-                  </MenuItem>
-                </Menu>
-              </div>
-            </>
+            <Tooltip title={isLookup ? 'My Domains' : 'Lookup'}>
+              <IconButton color='inherit' onClick={() => { setIsLookup(!isLookup) }}>
+                {isLookup ? <ListIcon /> : <SearchIcon />}
+              </IconButton>
+            </Tooltip>
           )}
+          <ConnectButton />
         </Toolbar>
       </AppBar>
     </header>
