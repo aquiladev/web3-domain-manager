@@ -132,8 +132,8 @@ const Lookup = ({ library, chainId }) => {
           className={classes.input}
           onKeyPress={keyPress}
           onChange={handleChange}
-          placeholder="Search .crypto domain"
-          inputProps={{ 'aria-label': 'search .crypto domain' }}
+          placeholder="Search domain (.crypto, .coin, .wallet, .bitcoin, .x, .888, .nft, .dao, .blockchain)"
+          inputProps={{ 'aria-label': 'search domain (.crypto, .coin, .wallet, .bitcoin, .x, .888, .nft, .dao, .blockchain)' }}
         />
         <IconButton
           className={classes.iconButton}

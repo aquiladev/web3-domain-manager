@@ -63,6 +63,9 @@ const useStyles = makeStyles((theme) => ({
   },
   btn: {
     margin: '0 10px',
+  },
+  noDomains: {
+    textAlign: 'center'
   }
 }));
 
@@ -483,14 +486,15 @@ const Domains = ({ library, account, chainId }) => {
       </Dialog>
       {
         fetched && data[stateKey] && !data[stateKey].domains.length &&
-        <p>No .crypto domains found.
+        <p className={classes.noDomains}>No domains found.
           <Button color='primary'
             variant='contained'
             className={classes.btn}
             onClick={() => { setFreeDomain(true) }}>
             Claim free domain
           </Button>
-          OR <a href='https://unstoppabledomains.com/'>Buy here</a></p>
+          OR <a href='https://unstoppabledomains.com/'>Buy here</a>
+        </p>
       }
       {
         <Backdrop className={classes.backdrop} open={defaultResolving}>
