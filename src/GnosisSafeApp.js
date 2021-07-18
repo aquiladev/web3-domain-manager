@@ -24,17 +24,6 @@ const useStyles = makeStyles((theme) => ({
       display: 'block',
     },
   },
-  card: {
-    width: 230,
-    textAlign: 'center',
-  },
-  cardMedia: {
-    width: 'auto',
-    maxWidth: '100%',
-    maxHeight: 140,
-    margin: '0 auto',
-    paddingTop: 26,
-  },
   backdrop: {
     zIndex: theme.zIndex.drawer + 1,
     color: '#fff',

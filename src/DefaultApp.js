@@ -5,13 +5,17 @@ import {
   NoEthereumProviderError,
   UserRejectedRequestError as UserRejectedRequestErrorInjected
 } from '@web3-react/injected-connector';
+import {
+  UserRejectedRequestError as UserRejectedRequestErrorWalletConnect
+} from '@web3-react/walletconnect-connector'
 import Web3 from 'web3';
 
 import Container from '@material-ui/core/Container';
 import Alert from '@material-ui/lab/Alert';
 
 import GlobalStyle from './components/GlobalStyle';
-import { injected, useEagerConnect, useInactiveListener } from './hooks';
+import { injected } from './connectors';
+import { useEagerConnect, useInactiveListener } from './hooks';
 import Domains from './components/Domains';
 import Lookup from './components/Lookup';
 import Header from './components/Header';
@@ -39,6 +43,7 @@ const useStyles = makeStyles((theme) => ({
     minHeight: '100%'
   },
   content: {
+    paddingTop: 60,
     minHeight: 100
   },
   title: {
@@ -46,17 +51,6 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.up('sm')]: {
       fontSize: '1.5rem',
     },
-  },
-  card: {
-    width: 230,
-    textAlign: 'center',
-  },
-  cardMedia: {
-    width: 'auto',
-    maxWidth: '100%',
-    maxHeight: 140,
-    margin: '0 auto',
-    paddingTop: 26,
   },
   backdrop: {
     zIndex: theme.zIndex.drawer + 1,
@@ -77,7 +71,10 @@ function getErrorMessage(error) {
     return 'No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile.'
   } else if (error instanceof UnsupportedChainIdError) {
     return 'You\'re connected to an unsupported network.'
-  } else if (error instanceof UserRejectedRequestErrorInjected) {
+  } else if (
+    error instanceof UserRejectedRequestErrorInjected ||
+    error instanceof UserRejectedRequestErrorWalletConnect
+  ) {
     return 'Please authorize this website to access your Ethereum account.'
   } else {
     return 'An unknown error occurred. Check the console for more details.'
@@ -93,7 +90,7 @@ function getLibrary(provider) {
 function DefaultApp() {
   const classes = useStyles();
   const context = useWeb3React();
-  const { connector, library, account, chainId, active, error } = context;
+  const { connector, library, account, activate, chainId, active, error } = context;
 
   const [activatingConnector, setActivatingConnector] = useState();
   const [isLookup, setIsLookup] = useState();
