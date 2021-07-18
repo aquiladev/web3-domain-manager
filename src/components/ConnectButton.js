@@ -7,9 +7,9 @@ import { indigo, amber } from '@material-ui/core/colors';
 import { useWeb3React } from '@web3-react/core';
 import { formatEther } from "@ethersproject/units";
 
-import { injected } from './../hooks';
 import Identicon from './Identicon';
 import AccountModal from './AccountModal';
+import ConnectModal from './ConnectModal';
 import { CHAIN_ID_NETWORK } from './../utils/constants';
 
 const useStyles = makeStyles(() => ({
@@ -47,10 +47,11 @@ const useStyles = makeStyles(() => ({
 export default function ConnectButton() {
   const classes = useStyles();
 
-  const { account, library, chainId, activate } = useWeb3React();
+  const { account, library, chainId } = useWeb3React();
 
   const [balance, setBalance] = React.useState();
   const [modalEl, setModalEl] = React.useState(null);
+  const [connect, setConnect] = React.useState();
 
   React.useEffect(() => {
     if (!!account && !!library) {
@@ -99,11 +100,14 @@ export default function ConnectButton() {
       </Box>
     </>
   ) : (
-    <Button
-      className={classes.connect_btn}
-      onClick={() => activate(injected)}
-    >
-      Connect to a wallet
-    </Button>
+    <>
+      <Button
+        className={classes.connect_btn}
+        onClick={() => setConnect(true)}
+      >
+        Connect to a wallet
+      </Button>
+      <ConnectModal isOpen={connect} onClose={() => setConnect(false) } />
+    </>
   );
 }
