@@ -28,7 +28,7 @@ const useStyles = makeStyles(() => ({
 export default function AccountModal({anchorEl, onClose}) {
   const classes = useStyles();
 
-  const { account, deactivate } = useWeb3React();
+  const { account, deactivate, connector } = useWeb3React();
 
   const open = Boolean(anchorEl);
 
@@ -64,6 +64,7 @@ export default function AccountModal({anchorEl, onClose}) {
             className={classes.btn}
             onClick={() => {
               deactivate();
+              connector.close && connector.close();
               handleClose();
             }}
           >
