@@ -14,7 +14,6 @@ import Container from '@material-ui/core/Container';
 import Alert from '@material-ui/lab/Alert';
 
 import GlobalStyle from './components/GlobalStyle';
-import { injected } from './connectors';
 import { useEagerConnect, useInactiveListener } from './hooks';
 import Domains from './components/Domains';
 import Lookup from './components/Lookup';
@@ -43,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
     minHeight: '100%'
   },
   content: {
-    paddingTop: 60,
+    paddingTop: 64,
     minHeight: 100
   },
   title: {
@@ -90,7 +89,7 @@ function getLibrary(provider) {
 function DefaultApp() {
   const classes = useStyles();
   const context = useWeb3React();
-  const { connector, library, account, activate, chainId, active, error } = context;
+  const { connector, library, account, chainId, active, error } = context;
 
   const [activatingConnector, setActivatingConnector] = useState();
   const [isLookup, setIsLookup] = useState();
@@ -103,9 +102,6 @@ function DefaultApp() {
 
   const triedEager = useEagerConnect();
   useInactiveListener(!triedEager || !!activatingConnector);
-
-  const currentConnector = injected
-  const connected = currentConnector === connector
 
   return (
     <ThemeProvider theme={theme}>
@@ -126,8 +122,8 @@ function DefaultApp() {
               {getErrorMessage(error)}
             </Alert>
           }
-          {connected && account && !isLookup && <Domains library={library} account={account} chainId={chainId} />}
-          {connected && isLookup && <Lookup library={library} chainId={chainId} />}
+          {account && !isLookup && <Domains />}
+          {isLookup && <Lookup library={library} chainId={chainId} />}
         </Container>
         <Footer />
       </div>
