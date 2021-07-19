@@ -15,6 +15,7 @@ import Alert from '@material-ui/lab/Alert';
 
 import GlobalStyle from './components/GlobalStyle';
 import { useEagerConnect, useInactiveListener } from './hooks';
+import { POLLING_INTERVAL } from './connectors';
 import Domains from './components/Domains';
 import Lookup from './components/Lookup';
 import Header from './components/Header';
@@ -81,15 +82,15 @@ function getErrorMessage(error) {
 }
 
 function getLibrary(provider) {
-  const library = new Web3(provider)
-  library.pollingInterval = 12000
-  return library
+  const library = new Web3(provider);
+  library.pollingInterval = POLLING_INTERVAL;
+  return library;
 }
 
 function DefaultApp() {
   const classes = useStyles();
-  const context = useWeb3React();
-  const { connector, library, account, chainId, active, error } = context;
+
+  const { connector, library, account, chainId, active, error } = useWeb3React();
 
   const [activatingConnector, setActivatingConnector] = useState();
   const [isLookup, setIsLookup] = useState();
