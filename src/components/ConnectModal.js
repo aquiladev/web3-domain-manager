@@ -11,17 +11,20 @@ import { Typography, Button } from '@material-ui/core';
 
 import mmLogo from './../images/mm.png';
 import wcLogo from './../images/wc.svg';
+import cwLogo from './../images/cw.svg';
 
-import { injected, walletconnect } from './../connectors';
+import { injected, walletconnect, walletlink } from './../connectors';
 
 const connectorsByName = {
   MetaMask: injected,
   WalletConnect: walletconnect,
+  'Coinbase Wallet': walletlink,
 }
 
 const connectorsLogo = {
   MetaMask: mmLogo,
   WalletConnect: wcLogo,
+  'Coinbase Wallet': cwLogo,
 }
 
 const useStyles = makeStyles((theme) => ({
