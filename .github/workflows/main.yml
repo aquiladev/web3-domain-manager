@@ -32,7 +32,14 @@ jobs:
 
       - name: Build dApp
         run: CI=false yarn build
-      
+
+      - name: Deploy gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          publish_dir: ./build
+          cname: web3domain.xyz
+
       - name: Upload dApp to IPFS
         uses: aquiladev/ipfs-action@v0.1.6-1
         id: ipfs_dapp_upload
