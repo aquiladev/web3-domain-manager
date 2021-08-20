@@ -123,7 +123,7 @@ function DefaultApp() {
               {getErrorMessage(error)}
             </Alert>
           }
-          {account && !isLookup && <Domains />}
+          {account && !isLookup && <Domains library={library} account={account} chainId={chainId} />}
           {isLookup && <Lookup library={library} chainId={chainId} />}
         </Container>
         <Footer />

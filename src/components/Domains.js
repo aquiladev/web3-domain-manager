@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { useWeb3React } from '@web3-react/core';
 import Container from '@material-ui/core/Container';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
@@ -78,10 +77,9 @@ async function getDomainName(library, registry, tokenId) {
   return events[0].returnValues.uri;
 }
 
-const Domains = () => {
+// NOTE: It is not possible to use `useWeb3React` context here, because Gnosis Safe provider
+const Domains = ({ library, account, chainId }) => {
   const classes = useStyles();
-
-  const { library, account, chainId } = useWeb3React();
   const stateKey = `${account}_${chainId}`;
 
   const [data, setData] = useState({

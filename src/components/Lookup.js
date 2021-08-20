@@ -151,6 +151,7 @@ const Lookup = ({ library, chainId }) => {
       {fetched && domain &&
         <div style={{ marginTop: 20 }}>
           <DomainList
+            chainId={chainId}
             isFetching={!fetched}
             domains={[domain]}
             onEventsLoad={loadDomainEvents} />
