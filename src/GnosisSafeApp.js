@@ -24,6 +24,10 @@ const useStyles = makeStyles((theme) => ({
       display: 'block',
     },
   },
+  content: {
+    paddingTop: 64,
+    minHeight: 100
+  },
   backdrop: {
     zIndex: theme.zIndex.drawer + 1,
     color: '#fff',
@@ -62,7 +66,7 @@ function GnosisSafeApp() {
           </Typography>
         </Toolbar>
       </AppBar>
-      <Container maxWidth="lg">
+      <Container maxWidth="lg" className={classes.content}>
         <Domains library={web3Provider} account={safe.safeAddress} chainId={chainId} />
       </Container>
     </div>
