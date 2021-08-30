@@ -24,7 +24,7 @@ export default function Footer() {
   return (
     <AppBar position='static' className={classes.footer}>
       <Typography color='textSecondary' variant='subtitle2' className={classes.info}>
-        This open source project uses the Ethereum blockchain as a datasource. It does not collect any user's data or analytics.
+        This open source project uses the Ethereum blockchain as a datasource. It does not collect any user data or analytics.
       </Typography>
       <Typography color='textSecondary' variant='subtitle2'>
         The best way to leave a feedback are star the project or create an issue on <Link href='//github.com/aquiladev/web3-domain-manager' target='_blank' rel='noopener'>GitHub</Link>.
