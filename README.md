@@ -27,4 +27,4 @@ Gnosis Safe has multiple environments:
  - Mainnet - https://gnosis-safe.io/app/
  - Rinkeby - https://rinkeby.gnosis-safe.io/app/
 
-Use latest [Web3 Domain Manager relase Gnosis Safe App version](https://github.com/aquiladev/web3-domain-manager/releases/latest)
+Use latest [Web3 Domain Manager release Gnosis Safe App version](https://github.com/aquiladev/web3-domain-manager/releases/latest)
