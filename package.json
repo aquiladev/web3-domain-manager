@@ -4,6 +4,7 @@
   "private": true,
   "homepage": "./",
   "dependencies": {
+    "@ensdomains/eth-ens-namehash": "^2.0.15",
     "@ethersproject/units": "^5.4.0",
     "@gitgraph/react": "1.5.4",
     "@gnosis.pm/safe-apps-provider": "0.2.3",

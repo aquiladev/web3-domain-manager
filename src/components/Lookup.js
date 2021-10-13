@@ -132,20 +132,20 @@ const Lookup = ({ library, chainId }) => {
           className={classes.input}
           onKeyPress={keyPress}
           onChange={handleChange}
-          placeholder="Search domain (.crypto, .coin, .wallet, .bitcoin, .x, .888, .nft, .dao, .blockchain)"
+          placeholder='Search domain (.crypto, .coin, .wallet, .bitcoin, .x, .888, .nft, .dao, .blockchain)'
           inputProps={{ 'aria-label': 'search domain (.crypto, .coin, .wallet, .bitcoin, .x, .888, .nft, .dao, .blockchain)' }}
         />
         <IconButton
           className={classes.iconButton}
           onClick={search}
-          aria-label="search">
+          aria-label='search'>
           <SearchIcon />
         </IconButton>
       </Paper>
-      {error && <Alert severity="error">{error}</Alert>}
+      {error && <Alert severity='error'>{error}</Alert>}
       {!fetched &&
         <div className={classes.loader}>
-          <CircularProgress color="inherit" />
+          <CircularProgress color='inherit' />
         </div>
       }
       {fetched && domain &&

@@ -33,7 +33,7 @@ jobs:
       - name: Build dApp
         run: CI=false REACT_APP_GITHUB_REF_SHA=${GITHUB_REF#refs/heads/}.${GITHUB_SHA::7} yarn build
 
-      - name: Deploy gh-pages
+      - name: Upload dApp to gh-pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.ACTIONS_DEPLOY_KEY }}
