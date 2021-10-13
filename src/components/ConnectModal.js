@@ -95,9 +95,8 @@ export default function ConnectModal({isOpen, onClose}) {
       <DialogContent>
         {Object.keys(connectorsByName).map(name => {
           return (
-            <div>
+            <div key={name}>
               <Button
-                key={name}
                 onClick={() => { activate(connectorsByName[name]); }}
                 className={classes.btn}
               >

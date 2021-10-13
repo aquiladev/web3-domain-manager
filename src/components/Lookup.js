@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import Paper from '@material-ui/core/Paper';
@@ -44,8 +45,9 @@ const useStyles = makeStyles((theme) => ({
 
 const Lookup = ({ library, chainId }) => {
   const classes = useStyles();
+  const { domain: domainParam } = useParams();
 
-  const [domainName, setDomainName] = useState(undefined);
+  const [domainName, setDomainName] = useState(domainParam);
   const [domain, setDomain] = useState(undefined);
   const [fetched, setFetched] = useState(true);
   const [error, setError] = useState(undefined);
@@ -56,6 +58,12 @@ const Lookup = ({ library, chainId }) => {
   const proxyReader = createContract(library, chainId, proxyReaderJson.abi, contracts.ProxyReader);
 
   const _keys = Object.keys(supportedKeys.keys);
+
+  useEffect(() => {
+    if(domainName) {
+      search();
+    }
+  }, [domainName]);
 
   const search = async () => {
     try {
@@ -132,20 +140,22 @@ const Lookup = ({ library, chainId }) => {
           className={classes.input}
           onKeyPress={keyPress}
           onChange={handleChange}
-          placeholder="Search domain (.crypto, .coin, .wallet, .bitcoin, .x, .888, .nft, .dao, .blockchain)"
+          placeholder='Search domain (.crypto, .coin, .wallet, .bitcoin, .x, .888, .nft, .dao, .blockchain)'
           inputProps={{ 'aria-label': 'search domain (.crypto, .coin, .wallet, .bitcoin, .x, .888, .nft, .dao, .blockchain)' }}
+          defaultValue={domainName}
+          value={domainName}
         />
         <IconButton
           className={classes.iconButton}
           onClick={search}
-          aria-label="search">
+          aria-label='search'>
           <SearchIcon />
         </IconButton>
       </Paper>
-      {error && <Alert severity="error">{error}</Alert>}
+      {error && <Alert severity='error'>{error}</Alert>}
       {!fetched &&
         <div className={classes.loader}>
-          <CircularProgress color="inherit" />
+          <CircularProgress color='inherit' />
         </div>
       }
       {fetched && domain &&

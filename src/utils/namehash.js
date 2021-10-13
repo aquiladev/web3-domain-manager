@@ -1,43 +1,29 @@
-import { keccak_256 as sha3 } from 'js-sha3';
+import { BigNumber } from "@ethersproject/bignumber";
+const namehash = require('@ensdomains/eth-ens-namehash');
 
 export default function hamehash(domain) {
   domain = domain ? domain.trim().toLowerCase() : '';
-  ensureSupportedDomain(domain);
+  try {
+    return BigNumber.from(domain).toHexString();
+  } catch {}
 
-  const parent =
-    '0000000000000000000000000000000000000000000000000000000000000000';
-  return '0x' + [parent]
-    .concat(
-      domain
-        .split('.')
-        .reverse()
-        .filter(label => label),
-    )
-    .reduce((parent, label) =>
-      childhash(parent, label),
-    );
+  ensureSupportedTLD(domain);
+  return namehash.hash(domain)
 }
 
-function ensureSupportedDomain(domain) {
-  if (!isSupportedDomain(domain)) {
+function ensureSupportedTLD(domain) {
+  if (!isSupportedTLD(domain)) {
     throw new Error('Domain is not supported', {
       domain,
     });
   }
 }
 
-function isSupportedDomain(domain) {
+function isSupportedTLD(domain) {
   return (
     ['crypto','coin','wallet','bitcoin','x','888','nft','dao','blockchain'].includes(domain) ||
     (domain.indexOf('.') > 0 &&
       /^.{1,}\.(crypto|coin|wallet|bitcoin|x|888|nft|dao|blockchain)$/.test(domain) &&
       domain.split('.').every(v => !!v.length))
   );
-}
-
-function childhash(parent, label) {
-  parent = parent.replace(/^0x/, '');
-  const childHash = sha3(label);
-  // eslint-disable-next-line no-undef
-  return sha3(Buffer.from(parent + childHash, 'hex'));
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -50,6 +50,13 @@ const DomainList = ({ chainId, isFetching, domains, onEventsLoad, onDomainSelect
   const [expanded, setExpanded] = useState(false);
   const [domainTab, setDomainTab] = useState(undefined);
   const [events, setEvents] = useState({});
+
+  useEffect(() => {
+    console.log(domains.length)
+    if(domains && domains.length === 1) {
+      selectDomain(domains[0])(undefined, true);
+    }
+  }, [domains]);
 
   const selectDomain = (domain) => (_, isExpanded) => {
     setExpanded(isExpanded ? domain.id : false);

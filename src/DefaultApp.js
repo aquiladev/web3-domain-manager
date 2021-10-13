@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { makeStyles, createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { Web3ReactProvider, useWeb3React, UnsupportedChainIdError } from '@web3-react/core';
 import {
@@ -93,7 +94,6 @@ function DefaultApp() {
   const { connector, library, account, chainId, active, error } = useWeb3React();
 
   const [activatingConnector, setActivatingConnector] = useState();
-  const [isLookup, setIsLookup] = useState();
 
   useEffect(() => {
     if (activatingConnector && activatingConnector === connector) {
@@ -106,28 +106,35 @@ function DefaultApp() {
 
   return (
     <ThemeProvider theme={theme}>
-      <div className={classes.root}>
-        <Header
-          active={active}
-          account={account}
-          isLookup={isLookup}
-          setIsLookup={setIsLookup} />
-        <Container maxWidth='lg' className={classes.content}>
-          {
-            !!error &&
-            <Alert
-              variant='filled'
-              severity='error'
-              style={{ position: 'fixed', zIndex: 1200, bottom: 10, left: 10 }}
-            >
-              {getErrorMessage(error)}
-            </Alert>
-          }
-          {account && !isLookup && <Domains library={library} account={account} chainId={chainId} />}
-          {isLookup && <Lookup library={library} chainId={chainId} />}
-        </Container>
-        <Footer />
-      </div>
+      <Router>
+        <div className={classes.root}>
+          <Header active={active} account={account} />
+          <Container maxWidth='lg' className={classes.content}>
+            {
+              !!error &&
+              <Alert
+                variant='filled'
+                severity='error'
+                style={{ position: 'fixed', zIndex: 1200, bottom: 10, left: 10 }}
+              >
+                {getErrorMessage(error)}
+              </Alert>
+            }
+            <Switch>
+              <Route path='/lookup/:domain'>
+                {active && <Lookup library={library} chainId={chainId} />}
+              </Route>
+              <Route path='/lookup'>
+                {active && <Lookup library={library} chainId={chainId} />}
+              </Route>
+              <Route path='/'>
+                {account && <Domains library={library} account={account} chainId={chainId} />}
+              </Route>
+            </Switch>
+          </Container>
+          <Footer />
+        </div>
+      </Router>
     </ThemeProvider>
   );
 }
