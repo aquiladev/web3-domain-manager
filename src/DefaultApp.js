@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import { HashRouter, Switch, Route } from 'react-router-dom';
 import { makeStyles, createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { Web3ReactProvider, useWeb3React, UnsupportedChainIdError } from '@web3-react/core';
 import {
@@ -106,7 +106,7 @@ function DefaultApp() {
 
   return (
     <ThemeProvider theme={theme}>
-      <Router>
+      <HashRouter>
         <div className={classes.root}>
           <Header active={active} account={account} />
           <Container maxWidth='lg' className={classes.content}>
@@ -134,7 +134,7 @@ function DefaultApp() {
           </Container>
           <Footer />
         </div>
-      </Router>
+      </HashRouter>
     </ThemeProvider>
   );
 }
