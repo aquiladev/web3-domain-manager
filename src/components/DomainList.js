@@ -52,7 +52,6 @@ const DomainList = ({ chainId, isFetching, domains, onEventsLoad, onDomainSelect
   const [events, setEvents] = useState({});
 
   useEffect(() => {
-    console.log(domains.length)
     if(domains && domains.length === 1) {
       selectDomain(domains[0])(undefined, true);
     }

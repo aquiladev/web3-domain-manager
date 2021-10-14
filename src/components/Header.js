@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useRouteMatch } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -29,8 +29,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Header({active}) {
   const classes = useStyles();
-  const match = useRouteMatch();
-  console.log(match)
+  const location = useLocation();
 
   return (
     <header>
@@ -42,7 +41,7 @@ export default function Header({active}) {
             </Typography>
           </Link>
           <div className={classes.grow}></div>
-          {active && match.isExact && (
+          {active && !location.pathname.endsWith('/lookup') && (
             <Link to='/lookup' className={classes.lookup}><SearchIcon /></Link>
           )}
           <ConnectButton />
