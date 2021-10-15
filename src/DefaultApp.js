@@ -33,7 +33,7 @@ const theme = createMuiTheme({
       root: {
         display: 'block'
       }
-    }
+    },
   },
 });
 
