@@ -1,17 +1,20 @@
-import { DOMAIN_EVENTS } from './constants';
+import { CNS_DOMAIN_EVENTS, UNS_DOMAIN_EVENTS } from './constants';
 
-export async function fetchDomainEvents(library, contract, domainId) {
-  return Promise.all(DOMAIN_EVENTS.map((event) => {
+export async function fetchDomainEvents(contract, domain) {
+  const events = domain.type.toLowerCase() === 'uns'
+    ? UNS_DOMAIN_EVENTS
+    : CNS_DOMAIN_EVENTS;
+  return Promise.all(events.map((event) => {
     return fetchEvents(
       contract,
       event,
-      { tokenId: domainId },
+      { tokenId: domain.id },
       contract._config.deploymentBlock
     );
   })).then(x => x.flat().sort((a, b) => a.blockNumber - b.blockNumber));
 }
 
-export async function fetchTransferEvents(library, contract, account) {
+export async function fetchTransferEvents(contract, account) {
   return fetchEvents(
     contract,
     'Transfer',
@@ -20,7 +23,7 @@ export async function fetchTransferEvents(library, contract, account) {
   );
 }
 
-export async function fetchNewURIEvents(library, contract, tokenId) {
+export async function fetchNewURIEvents(contract, tokenId) {
   return fetchEvents(
     contract,
     'NewURI',

@@ -1,10 +1,18 @@
 export const DOMAIN_EVENTS = [
   'Approval',
   'NewURI',
-  // 'Resolve', // CNS
-  // 'Sync',    // CNS
-  // 'Set',     // UNS
   'Transfer'
+];
+
+export const CNS_DOMAIN_EVENTS = [
+  ...DOMAIN_EVENTS,
+  'Resolve', // CNS
+  'Sync',    // CNS
+];
+
+export const UNS_DOMAIN_EVENTS = [
+  ...DOMAIN_EVENTS,
+  'Set',     // UNS
 ];
 
 export const ETHERSCAN_MAP = {

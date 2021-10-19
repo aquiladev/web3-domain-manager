@@ -69,8 +69,8 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-async function getDomainName(library, registry, tokenId) {
-  const events = await fetchNewURIEvents(library, registry, tokenId);
+async function getDomainName(registry, tokenId) {
+  const events = await fetchNewURIEvents(registry, tokenId);
   if (!events || !events.length)
     return tokenId;
 
@@ -245,7 +245,7 @@ const Domains = ({ library, account, chainId }) => {
   }
 
   const fetchTokens = (registry, type) => {
-    return fetchTransferEvents(library, registry, account)
+    return fetchTransferEvents(registry, account)
       .then(async (events) => {
         console.debug(`Loaded events from registry ${registry._address}`, events);
 
@@ -268,8 +268,7 @@ const Domains = ({ library, account, chainId }) => {
   const fetchDomains = async (tokens) => {
     const domains = [];
 
-    for (let index = 0; index < tokens.length; index++) {
-      const token = tokens[index];
+    for (const token of tokens) {
       const registry = unsRegistry._address === token.registry ? unsRegistry : cnsRegistry;
 
       const domain = {
@@ -305,7 +304,7 @@ const Domains = ({ library, account, chainId }) => {
     const records = {};
     _keys.forEach((k, i) => records[k] = _data.values[i]);
 
-    domain.name = await getDomainName(library, registry, domain.id);
+    domain.name = await getDomainName(registry, domain.id);
     domain.owner = _data.owner;
     domain.removed = _data.owner !== account;
     domain.resolver = _data.resolver;
@@ -339,7 +338,7 @@ const Domains = ({ library, account, chainId }) => {
     console.debug('Loading DOMAIN events...');
 
     const registry = unsRegistry._address === domain.registry ? unsRegistry : cnsRegistry;
-    return fetchDomainEvents(library, registry, domain.id)
+    return fetchDomainEvents(registry, domain)
       .then((domainEvents) => {
         console.debug('Loaded DOMAIN events', domainEvents);
 

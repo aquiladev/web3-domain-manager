@@ -97,6 +97,7 @@ const Lookup = ({ library, chainId }) => {
       registry: data.resolver === unsRegistry._address
         ? unsRegistry._address
         : cnsRegistry._address,
+      type: data.resolver === unsRegistry._address ? 'uns' : 'cns',
       owner: data.owner,
       resolver: data.resolver,
       records
@@ -111,7 +112,7 @@ const Lookup = ({ library, chainId }) => {
     console.debug('Loading DOMAIN events...');
 
     const registry = unsRegistry._address === domain.registry ? unsRegistry : cnsRegistry;
-    return fetchDomainEvents(library, registry, domain.id)
+    return fetchDomainEvents(registry, domain)
       .then((domainEvents) => {
         console.debug('Loaded DOMAIN events', domainEvents);
 
