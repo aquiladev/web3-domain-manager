@@ -19,7 +19,6 @@ import proxyReaderJson from 'uns/artifacts/ProxyReader.json';
 
 import DomainList from './DomainList';
 import { createContract } from '../utils/contract';
-import { fetchDomainEvents } from '../utils/events';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -112,7 +111,7 @@ const Lookup = ({ library, chainId }) => {
     console.debug('Loading DOMAIN events...');
 
     const registry = unsRegistry.address === domain.registry ? unsRegistry : cnsRegistry;
-    return fetchDomainEvents(registry, domain)
+    return registry.source.fetchEvents(domain)
       .then((domainEvents) => {
         console.debug('Loaded DOMAIN events', domainEvents);
 
