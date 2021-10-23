@@ -50,7 +50,7 @@ const renderEvent = (event, chainId) => {
 
   switch (event.event) {
     case 'Approval':
-      return <>Approved operator {event.args.approved} for token {event.args.tokenId}</>;
+      return <>Approved operator {event.args.approved} for token {event.args.tokenId.toHexString()}</>;
     case 'ApprovalForAll':
       return <>{event.args.approved ? 'Approved' : 'Disapproved'} operator {event.args.operator}</>;
     case 'NewURI':
@@ -60,7 +60,7 @@ const renderEvent = (event, chainId) => {
         <EtherscanAddress address={event.args.to} chainId={chainId}></EtherscanAddress>
       }</>;
     case 'Sync':
-      return <>Set record with key hash {event.args.updateId} <div>(Resolver: {
+      return <>Set record with key hash {event.args.updateId.toHexString()} <div>(Resolver: {
         <EtherscanAddress address={event.args.resolver} chainId={chainId}></EtherscanAddress>
       })</div></>;
     case 'Transfer':

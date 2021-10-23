@@ -11,13 +11,13 @@ import Alert from '@material-ui/lab/Alert';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import NetworkConfig from 'uns/uns-config.json';
+import supportedKeys from 'uns/resolver-keys.json';
 
 import cnsRegistryJson from 'uns/artifacts/CNSRegistry.json';
 import unsRegistryJson from 'uns/artifacts/UNSRegistry.json';
 import proxyReaderJson from 'uns/artifacts/ProxyReader.json';
 
 import DomainList from './DomainList';
-import supportedKeys from '../utils/supported-keys.json';
 import { createContract } from '../utils/contract';
 import { fetchDomainEvents } from '../utils/events';
 

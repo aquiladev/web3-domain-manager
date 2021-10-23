@@ -28,10 +28,19 @@ export default class EthereumEventSource {
       ? UNS_DOMAIN_EVENTS
       : CNS_DOMAIN_EVENTS;
 
+    const filtersMap = {
+      Approval: (tokenId) => this.contract.filters.Approval(undefined, undefined, tokenId),
+      NewURI: (tokenId) => this.contract.filters.NewURI(tokenId),
+      Transfer: (tokenId) => this.contract.filters.Transfer(undefined, undefined, tokenId),
+      Resolve: (tokenId) => this.contract.filters.Resolve(tokenId),
+      Sync: (tokenId) => this.contract.filters.Sync(undefined, undefined, tokenId),
+      Set: (tokenId) => this.contract.filters.Set(tokenId),
+    };
+
     let current = 1;
     return Promise.all(
       eventsToFetch.map((event) => {
-        const filter = this.contract.filters[event](domain.id);
+        const filter = filtersMap[event](domain.id);
         return this.contract.queryFilter(filter, this.config.deploymentBlock)
           .then(this._progress({
             loaded: current++,

@@ -15,6 +15,7 @@ import Alert from '@material-ui/lab/Alert';
 import Typography from '@material-ui/core/Typography';
 
 import NetworkConfig from 'uns/uns-config.json';
+import supportedKeys from 'uns/resolver-keys.json';
 
 import cnsRegistryJson from 'uns/artifacts/CNSRegistry.json';
 import unsRegistryJson from 'uns/artifacts/UNSRegistry.json';
@@ -23,7 +24,6 @@ import proxyReaderJson from 'uns/artifacts/ProxyReader.json';
 import mintingManagerJson from 'uns/artifacts/MintingManager.json';
 
 import DomainList from './DomainList';
-import supportedKeys from '../utils/supported-keys.json';
 import { createContract } from '../utils/contract';
 import { isAddress } from '../utils/address';
 import RecordsForm from './RecordsForm';
@@ -244,13 +244,13 @@ const Domains = ({ library, account, chainId }) => {
         const _tokens = [];
         const _distinct = [];
         events.forEach(async (e) => {
-          if (!_distinct.includes(e.args.tokenId)) {
+          if (!_distinct.includes(e.args.tokenId.toString())) {
             _tokens.push({
-              tokenId: e.args.tokenId,
+              tokenId: e.args.tokenId.toHexString(),
               registry: registry.address,
               type
             });
-            _distinct.push(e.args.tokenId);
+            _distinct.push(e.args.tokenId.toString());
           }
         });
         return _tokens;
@@ -260,7 +260,7 @@ const Domains = ({ library, account, chainId }) => {
   const fetchNames = async (source, tokens) => {
     const events = await source.fetchNewURIEvents(tokens);
     return tokens.map(t => {
-      const event = events.find(e => e.args.tokenId === t);
+      const event = events.find(e => e.args.tokenId.toHexString() === t);
       return {
         tokenId: t,
         name: !!event ? event.args.uri : t
@@ -268,7 +268,7 @@ const Domains = ({ library, account, chainId }) => {
     })
   }
 
-  const fetchDomains = async (tokens) => {
+  const fetchDomains = async () => {
     const domains = [];
 
     const cnsTokens = await fetchTokens(cnsRegistry, 'cns');
@@ -282,8 +282,8 @@ const Domains = ({ library, account, chainId }) => {
       const registry = unsRegistry.address === token.registry ? unsRegistry : cnsRegistry;
 
       const domain = {
-        id: token.tokenId.toHexString(),
-        name: token.tokenId.toHexString(),
+        id: token.tokenId,
+        name: token.tokenId,
         registry: token.registry,
         type: token.type,
         loading: true,
