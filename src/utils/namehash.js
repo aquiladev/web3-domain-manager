@@ -1,5 +1,4 @@
-import { BigNumber } from "@ethersproject/bignumber";
-const namehash = require('@ensdomains/eth-ens-namehash');
+import { ethers, BigNumber } from 'ethers';
 
 export default function hamehash(domain) {
   domain = domain ? domain.trim().toLowerCase() : '';
@@ -8,7 +7,7 @@ export default function hamehash(domain) {
   } catch {}
 
   ensureSupportedTLD(domain);
-  return namehash.hash(domain)
+  return ethers.utils.namehash.hash(domain)
 }
 
 function ensureSupportedTLD(domain) {

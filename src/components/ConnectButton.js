@@ -57,7 +57,7 @@ export default function ConnectButton() {
     if (!!account && !!library) {
       let stale = false
 
-      library.eth
+      library
         .getBalance(account)
         .then((balance) => {
           if (!stale) {

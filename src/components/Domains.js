@@ -25,11 +25,6 @@ import mintingManagerJson from 'uns/artifacts/MintingManager.json';
 import DomainList from './DomainList';
 import supportedKeys from '../utils/supported-keys.json';
 import { createContract } from '../utils/contract';
-import {
-  fetchTransferEvents,
-  fetchDomainEvents,
-  fetchNewURIEvents,
-} from '../utils/events';
 import { isAddress } from '../utils/address';
 import RecordsForm from './RecordsForm';
 import FreeDomain from './FreeDomain';
@@ -69,14 +64,6 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-async function getDomainName(registry, tokenId) {
-  const events = await fetchNewURIEvents(registry, tokenId);
-  if (!events || !events.length)
-    return tokenId;
-
-  return events[0].returnValues.uri;
-}
-
 // NOTE: It is not possible to use `useWeb3React` context here, because Gnosis Safe provider
 const Domains = ({ library, account, chainId }) => {
   const classes = useStyles();
@@ -113,6 +100,14 @@ const Domains = ({ library, account, chainId }) => {
   const proxyReader = createContract(library, chainId, proxyReaderJson.abi, contracts.ProxyReader);
   const mintingManager = createContract(library, chainId, mintingManagerJson.abi, contracts.MintingManager);
 
+  async function getDomainName(registry, tokenId) {
+    const events = await registry.source.fetchNewURIEvents(tokenId);
+    if (!events || !events.length)
+      return tokenId;
+  
+    return events[0].args.uri;
+  }
+
   const handleTransferOpen = (_domain) => () => {
     setDomain(_domain)
   };
@@ -144,7 +139,7 @@ const Domains = ({ library, account, chainId }) => {
     try {
       setTransferring(true);
 
-      const registry = unsRegistry._address === _domain.registry ? unsRegistry : cnsRegistry;
+      const registry = unsRegistry.address === _domain.registry ? unsRegistry : cnsRegistry;
       await registry.methods['0x42842e0e'](account, receiver, _domain.id)
         .send({ from: account });
 
@@ -228,10 +223,7 @@ const Domains = ({ library, account, chainId }) => {
     setFetched(false);
     console.debug('Loading events...');
 
-    const cnsTokens = await fetchTokens(cnsRegistry, 'cns');
-    const unsTokens = await fetchTokens(unsRegistry, 'uns');
-
-    const _domains = await fetchDomains([...cnsTokens, ...unsTokens]);
+    const _domains = await fetchDomains();
     const _data = {
       ...data,
       [stateKey]: {
@@ -245,42 +237,60 @@ const Domains = ({ library, account, chainId }) => {
   }
 
   const fetchTokens = (registry, type) => {
-    return fetchTransferEvents(registry, account)
+    return registry.source.fetchTransferEvents(account)
       .then(async (events) => {
-        console.debug(`Loaded events from registry ${registry._address}`, events);
+        console.debug(`Loaded events from registry ${registry.address}`, events);
 
         const _tokens = [];
         const _distinct = [];
         events.forEach(async (e) => {
-          if (!_distinct.includes(e.returnValues.tokenId)) {
+          if (!_distinct.includes(e.args.tokenId)) {
             _tokens.push({
-              tokenId: e.returnValues.tokenId,
-              registry: registry._address,
+              tokenId: e.args.tokenId,
+              registry: registry.address,
               type
             });
-            _distinct.push(e.returnValues.tokenId);
+            _distinct.push(e.args.tokenId);
           }
         });
         return _tokens;
       });
   }
 
+  const fetchNames = async (source, tokens) => {
+    const events = await source.fetchNewURIEvents(tokens);
+    return tokens.map(t => {
+      const event = events.find(e => e.args.tokenId === t);
+      return {
+        tokenId: t,
+        name: !!event ? event.args.uri : t
+      };
+    })
+  }
+
   const fetchDomains = async (tokens) => {
     const domains = [];
 
-    for (const token of tokens) {
-      const registry = unsRegistry._address === token.registry ? unsRegistry : cnsRegistry;
+    const cnsTokens = await fetchTokens(cnsRegistry, 'cns');
+    const unsTokens = await fetchTokens(unsRegistry, 'uns');
+
+    const cnsNames = await fetchNames(cnsRegistry.source, cnsTokens.map(t => t.tokenId));
+    const unsNames = await fetchNames(unsRegistry.source, unsTokens.map(t => t.tokenId));
+    const names = cnsNames.concat(unsNames);
+
+    for (const token of cnsTokens.concat(unsTokens)) {
+      const registry = unsRegistry.address === token.registry ? unsRegistry : cnsRegistry;
 
       const domain = {
-        id: token.tokenId,
-        name: token.tokenId,
+        id: token.tokenId.toHexString(),
+        name: token.tokenId.toHexString(),
         registry: token.registry,
         type: token.type,
         loading: true,
       };
       domains.push(domain);
 
-      fetchDomain(domain, registry).then(dd => {
+      fetchDomain(domain, registry, names).then(dd => {
         domains.map(d => {
           return d.id === dd.id ? {...d, ...dd} : d;
         });
@@ -298,13 +308,14 @@ const Domains = ({ library, account, chainId }) => {
     return domains.filter(d => !d.removed);
   }
 
-  const fetchDomain = async (domain, registry) => {
-    const _data = await proxyReader.methods.getData(_keys, domain.id).call();
+  const fetchDomain = async (domain, registry, names) => {
+    const _data = await proxyReader.callStatic.getData(_keys, domain.id);
 
     const records = {};
     _keys.forEach((k, i) => records[k] = _data.values[i]);
 
-    domain.name = await getDomainName(registry, domain.id);
+    const name = names && names.find(n => n.tokenId === domain.id)
+    domain.name = name ? name.name : await getDomainName(registry, domain.id);
     domain.owner = _data.owner;
     domain.removed = _data.owner !== account;
     domain.resolver = _data.resolver;
@@ -315,7 +326,7 @@ const Domains = ({ library, account, chainId }) => {
   }
 
   const updateDomainState = async (domain) => {
-    const registry = unsRegistry._address === domain.registry ? unsRegistry : cnsRegistry;
+    const registry = unsRegistry.address === domain.registry ? unsRegistry : cnsRegistry;
     const _domain = await fetchDomain(domain, registry);
     const domains = data[stateKey].domains
       .map(d => _domain && d.id === _domain.id ? { ...d, ..._domain } : d)
@@ -337,8 +348,8 @@ const Domains = ({ library, account, chainId }) => {
   const loadDomainEvents = (domain) => {
     console.debug('Loading DOMAIN events...');
 
-    const registry = unsRegistry._address === domain.registry ? unsRegistry : cnsRegistry;
-    return fetchDomainEvents(registry, domain)
+    const registry = unsRegistry.address === domain.registry ? unsRegistry : cnsRegistry;
+    return registry.source.fetchEvents(domain)
       .then((domainEvents) => {
         console.debug('Loaded DOMAIN events', domainEvents);
 

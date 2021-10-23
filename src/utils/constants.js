@@ -6,18 +6,20 @@ export const DOMAIN_EVENTS = [
 
 export const CNS_DOMAIN_EVENTS = [
   ...DOMAIN_EVENTS,
-  'Resolve', // CNS
-  'Sync',    // CNS
+  'Resolve',
+  'Sync',
 ];
 
 export const UNS_DOMAIN_EVENTS = [
   ...DOMAIN_EVENTS,
-  'Set',     // UNS
+  'Set',
 ];
 
 export const ETHERSCAN_MAP = {
   1: 'https://etherscan.io/',
   4: 'https://rinkeby.etherscan.io/',
+  137: 'https://polygonscan.com/',
+  80001: 'https://mumbai.polygonscan.com/',
 };
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
@@ -27,17 +29,18 @@ export const CHAIN_ID_NETWORK = {
   3: 'Ropsten',
   4: 'Rinkeby',
   5: 'Goerli',
+  8: 'Ubiq',
+  18: 'ThundercoreTestnet',
   42: 'Kovan',
-  100: 'xDai',
   30: 'Orchid',
   31: 'OrchidTestnet',
-  99: 'Core',
-  77: 'Sokol',
   61: 'Classic',
-  8: 'Ubiq',
+  77: 'Sokol',
+  99: 'Core',
+  100: 'xDai',
   108: 'Thundercore',
-  18: 'ThundercoreTestnet',
-  163: 'Lightstreams',
   122: 'Fuse',
-  15001: 'MaticTestnet'
+  137: 'Polygon Mainnet',
+  163: 'Lightstreams',
+  80001: 'Polygon Mumbai',
 }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
+import { ethers } from 'ethers';
 import Container from '@material-ui/core/Container';
 import Paper from '@material-ui/core/Paper';
 import InputBase from '@material-ui/core/InputBase';
@@ -16,7 +17,6 @@ import unsRegistryJson from 'uns/artifacts/UNSRegistry.json';
 import proxyReaderJson from 'uns/artifacts/ProxyReader.json';
 
 import DomainList from './DomainList';
-import namehash from '../utils/namehash';
 import supportedKeys from '../utils/supported-keys.json';
 import { createContract } from '../utils/contract';
 import { fetchDomainEvents } from '../utils/events';
@@ -73,7 +73,7 @@ const Lookup = ({ library, chainId }) => {
       }
 
       setDomain(undefined);
-      const tokenId = namehash(domainName);
+      const tokenId = ethers.utils.namehash(domainName);
       console.debug(domainName, tokenId);
       await loadData(tokenId, domainName);
     } catch (error) {
@@ -85,7 +85,7 @@ const Lookup = ({ library, chainId }) => {
     setFetched(false);
 
     console.debug('Fetching state...');
-    const data = await proxyReader.methods.getData(_keys, tokenId).call();
+    const data = await proxyReader.callStatic.getData(_keys, tokenId);
     console.debug('Fetched state', data);
 
     const records = {};
@@ -94,10 +94,10 @@ const Lookup = ({ library, chainId }) => {
     const _domain = {
       id: tokenId,
       name,
-      registry: data.resolver === unsRegistry._address
-        ? unsRegistry._address
-        : cnsRegistry._address,
-      type: data.resolver === unsRegistry._address ? 'uns' : 'cns',
+      registry: data.resolver === unsRegistry.address
+        ? unsRegistry.address
+        : cnsRegistry.address,
+      type: data.resolver === unsRegistry.address ? 'uns' : 'cns',
       owner: data.owner,
       resolver: data.resolver,
       records
@@ -111,7 +111,7 @@ const Lookup = ({ library, chainId }) => {
   const loadDomainEvents = (domain) => {
     console.debug('Loading DOMAIN events...');
 
-    const registry = unsRegistry._address === domain.registry ? unsRegistry : cnsRegistry;
+    const registry = unsRegistry.address === domain.registry ? unsRegistry : cnsRegistry;
     return fetchDomainEvents(registry, domain)
       .then((domainEvents) => {
         console.debug('Loaded DOMAIN events', domainEvents);
