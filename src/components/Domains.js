@@ -312,7 +312,7 @@ const Domains = ({ library, account, chainId }) => {
     const _data = await proxyReader.callStatic.getData(_keys, domain.id);
 
     const records = {};
-    _keys.forEach((k, i) => records[k] = _data.values[i]);
+    _keys.forEach((k, i) => records[k] = _data[2][i]);
 
     const name = names && names.find(n => n.tokenId === domain.id)
     domain.name = name ? name.name : await getDomainName(registry, domain.id);

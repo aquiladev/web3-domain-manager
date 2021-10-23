@@ -89,7 +89,7 @@ const Lookup = ({ library, chainId }) => {
     console.debug('Fetched state', data);
 
     const records = {};
-    _keys.forEach((k, i) => records[k] = data.values[i]);
+    _keys.forEach((k, i) => records[k] = data[2][i]);
 
     const _domain = {
       id: tokenId,
