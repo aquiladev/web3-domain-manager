@@ -12,7 +12,7 @@ import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Alert from '@material-ui/lab/Alert';
 
-import supportedKeys from '../utils/supported-keys.json';
+import supportedKeys from 'uns/resolver-keys.json';
 
 const useStyles = makeStyles((theme) => ({
   form: {

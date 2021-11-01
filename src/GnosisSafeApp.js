@@ -4,7 +4,7 @@ import { ThemeProvider } from 'styled-components';
 import { theme, Loader, Title } from '@gnosis.pm/safe-react-components';
 import SafeProvider, { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk';
 import { SafeAppProvider } from '@gnosis.pm/safe-apps-provider';
-import Web3 from 'web3';
+import { ethers } from 'ethers';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
@@ -50,7 +50,7 @@ function GnosisSafeApp() {
   const classes = useStyles();
 
   const { sdk, safe } = useSafeAppsSDK();
-  const web3Provider = useMemo(() => new Web3(new SafeAppProvider(safe, sdk)), [sdk, safe]);
+  const web3Provider = useMemo(() => ethers.providers.Web3Provider(new SafeAppProvider(safe, sdk)), [sdk, safe]);
   const chainId = NETWORK_CHAIN_ID[safe.network];
 
   return (

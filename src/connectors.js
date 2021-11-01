@@ -5,7 +5,9 @@ import { WalletLinkConnector } from '@web3-react/walletlink-connector';
 export const POLLING_INTERVAL = 12000
 const RPC_URLS = {
   1: 'https://mainnet.infura.io/v3/3947c045ca5a4d68bff484fb038fb11c',
-  4: 'https://rinkeby.infura.io/v3/3947c045ca5a4d68bff484fb038fb11c'
+  4: 'https://rinkeby.infura.io/v3/3947c045ca5a4d68bff484fb038fb11c',
+  137: 'https://polygon-mainnet.infura.io/v3/3947c045ca5a4d68bff484fb038fb11c',
+  80001: 'https://polygon-mumbai.infura.io/v3/3947c045ca5a4d68bff484fb038fb11c',
 }
 
 export const injected = new InjectedConnector({ supportedChainIds: [1, 4] });

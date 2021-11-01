@@ -8,8 +8,8 @@ import {
 } from '@web3-react/injected-connector';
 import {
   UserRejectedRequestError as UserRejectedRequestErrorWalletConnect
-} from '@web3-react/walletconnect-connector'
-import Web3 from 'web3';
+} from '@web3-react/walletconnect-connector';
+import { ethers } from 'ethers';
 
 import Container from '@material-ui/core/Container';
 import Alert from '@material-ui/lab/Alert';
@@ -83,9 +83,7 @@ function getErrorMessage(error) {
 }
 
 function getLibrary(provider) {
-  const library = new Web3(provider);
-  library.pollingInterval = POLLING_INTERVAL;
-  return library;
+  return new ethers.providers.Web3Provider(provider);
 }
 
 function DefaultApp() {
