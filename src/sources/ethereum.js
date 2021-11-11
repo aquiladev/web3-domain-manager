@@ -52,12 +52,38 @@ export default class EthereumEventSource {
 
   async fetchTransferEvents(address) {
     const filter = this.contract.filters.Transfer(undefined, address);
-    return this.contract.queryFilter(filter, this.config.deploymentBlock);
+    return this._fetchEvents(this.contract, filter, parseInt(this.config.deploymentBlock, 16));
   }
 
   async fetchNewURIEvents(tokenOrArray) {
     const filter = this.contract.filters.NewURI(tokenOrArray);
-    return this.contract.queryFilter(filter, this.config.deploymentBlock);
+    return this._fetchEvents(this.contract, filter, parseInt(this.config.deploymentBlock, 16));
+  }
+
+  async _fetchEvents(contract, filter, fromBlock, toBlock, limit = 1000000) {
+    if (!toBlock) {
+      toBlock = await contract.provider.getBlockNumber();
+    }
+  
+    if(fromBlock > toBlock) {
+      return [];
+    }
+  
+    const _toBlock = Math.min(fromBlock + limit, toBlock);
+    console.log(`Fetching events blocks [${contract.address}: ${fromBlock}-${_toBlock}][limit: ${limit}]`);
+  
+    try {
+      const events = await contract.queryFilter(filter, fromBlock, _toBlock);
+      const nextLimit = Math.min(Math.floor(limit * 2), 1000000);
+      return events.concat(await this._fetchEvents(contract, filter, _toBlock + 1, toBlock, nextLimit));
+    } catch (err) {
+      if (err.message.includes('query returned more than 10000 results') || err.message.includes('timeout')) {
+        return this._fetchEvents(contract, filter, fromBlock, toBlock, Math.floor(limit / 10));
+      }
+  
+      console.log('FAIL', err);
+      throw err;
+    }
   }
 
   _progress(data) {

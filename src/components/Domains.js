@@ -258,6 +258,8 @@ const Domains = ({ library, account, chainId }) => {
   }
 
   const fetchNames = async (source, tokens) => {
+    if(!tokens.length) return [];
+
     const events = await source.fetchNewURIEvents(tokens);
     return tokens.map(t => {
       const event = events.find(e => e.args.tokenId.toHexString() === t);
@@ -271,12 +273,19 @@ const Domains = ({ library, account, chainId }) => {
   const fetchDomains = async () => {
     const domains = [];
 
-    const cnsTokens = await fetchTokens(cnsRegistry, 'cns');
-    const unsTokens = await fetchTokens(unsRegistry, 'uns');
+    const [cnsTokens, unsTokens] = await Promise.all(
+      [
+        fetchTokens(cnsRegistry, 'cns'),
+        fetchTokens(unsRegistry, 'uns')
+      ]
+    );
 
-    const cnsNames = await fetchNames(cnsRegistry.source, cnsTokens.map(t => t.tokenId));
-    const unsNames = await fetchNames(unsRegistry.source, unsTokens.map(t => t.tokenId));
-    const names = cnsNames.concat(unsNames);
+    const names = await Promise.all(
+      [
+        fetchNames(cnsRegistry.source, cnsTokens.map(t => t.tokenId)),
+        fetchNames(unsRegistry.source, unsTokens.map(t => t.tokenId))
+      ]
+    ).then(x => x.flat());
 
     for (const token of cnsTokens.concat(unsTokens)) {
       const registry = unsRegistry.address === token.registry ? unsRegistry : cnsRegistry;
