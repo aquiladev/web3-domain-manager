@@ -140,8 +140,7 @@ const Domains = ({ library, account, chainId }) => {
       setTransferring(true);
 
       const registry = unsRegistry.address === _domain.registry ? unsRegistry : cnsRegistry;
-      await registry.methods['0x42842e0e'](account, receiver, _domain.id)
-        .send({ from: account });
+      await registry['safeTransferFrom(address,address,uint256)'](account, receiver, _domain.id);
 
       setDomain();
       await updateDomainState(_domain);
@@ -160,8 +159,7 @@ const Domains = ({ library, account, chainId }) => {
 
     try {
       setDefaultResolving(true);
-      await cnsRegistry.methods.resolveTo(contracts.Resolver.address, _domain.id)
-        .send({ from: account });
+      await cnsRegistry.resolveTo(contracts.Resolver.address, _domain.id);
 
       await updateDomainState(_domain);
     } catch (error) {
@@ -182,8 +180,7 @@ const Domains = ({ library, account, chainId }) => {
       const resolver = new library.eth.Contract(resolverJson.abi, _domain.resolver);
       const keysToUpdate = records.map(r => r.key);
       const valuesToUpdate = records.map(r => r.newValue || '');
-      await resolver.methods.setMany(keysToUpdate, valuesToUpdate, _domain.id)
-        .send({ from: account });
+      await resolver.setMany(keysToUpdate, valuesToUpdate, _domain.id);
 
       setRecords();
       await updateDomainState(_domain);
@@ -203,8 +200,7 @@ const Domains = ({ library, account, chainId }) => {
     try {
       setClaiming(true);
 
-      await mintingManager.methods.claim(tld, domainName)
-        .send({ from: account });
+      await mintingManager.claim(tld, domainName);
 
       setFreeDomain(false);
       await loadTokens();
