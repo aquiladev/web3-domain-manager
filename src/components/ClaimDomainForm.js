@@ -35,7 +35,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const FreeDomain = ({ claiming, error, onClaim, onCancel }) => {
+const ClaimDomainForm = ({ claiming, error, onClaim, onCancel }) => {
   const classes = useStyles();
 
   const [domainName, setDomainName] = useState('');
@@ -116,4 +116,4 @@ const FreeDomain = ({ claiming, error, onClaim, onCancel }) => {
   );
 }
 
-export default FreeDomain;
+export default ClaimDomainForm;

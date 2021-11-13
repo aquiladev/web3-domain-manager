@@ -27,7 +27,7 @@ import DomainList from './DomainList';
 import { createContract } from '../utils/contract';
 import { isAddress } from '../utils/address';
 import RecordsForm from './RecordsForm';
-import FreeDomain from './FreeDomain';
+import ClaimDomainForm from './ClaimDomainForm';
 import { ZERO_ADDRESS } from './../utils/constants';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -90,7 +90,8 @@ const Domains = ({ library, account, chainId }) => {
   const [updateError, setUpdateError] = React.useState(undefined);
   const [updating, setUpdating] = React.useState(false);
 
-  const [freeDomain, setFreeDomain] = useState(false);
+  const [allowClaiming, setAllowClaiming] = useState(false);
+  const [domainToClaim, setDomainToClaim] = useState(false);
   const [claimError, setClaimError] = React.useState(undefined);
   const [claiming, setClaiming] = React.useState(false);
 
@@ -99,6 +100,8 @@ const Domains = ({ library, account, chainId }) => {
   const unsRegistry = createContract(library, chainId, unsRegistryJson.abi, contracts.UNSRegistry);
   const proxyReader = createContract(library, chainId, proxyReaderJson.abi, contracts.ProxyReader);
   const mintingManager = createContract(library, chainId, mintingManagerJson.abi, contracts.MintingManager);
+
+  const _keys = Object.keys(supportedKeys.keys);
 
   async function getDomainName(registry, tokenId) {
     const events = await registry.source.fetchNewURIEvents(tokenId);
@@ -199,10 +202,8 @@ const Domains = ({ library, account, chainId }) => {
 
     try {
       setClaiming(true);
-
       await mintingManager.claim(tld, domainName);
-
-      setFreeDomain(false);
+      setDomainToClaim(false);
       await loadTokens();
     } catch (error) {
       console.error(error);
@@ -213,7 +214,11 @@ const Domains = ({ library, account, chainId }) => {
     }
   }
 
-  const _keys = Object.keys(supportedKeys.keys);
+  const initClaim = async () => {
+    console.debug('Initiating claiming...');
+    const paused = await mintingManager.paused();
+    setAllowClaiming(!paused);
+  }
 
   const loadTokens = async () => {
     setFetched(false);
@@ -367,6 +372,7 @@ const Domains = ({ library, account, chainId }) => {
 
   useEffect(() => {
     if (!data[stateKey] || !data[stateKey].isFetched) {
+      initClaim();
       loadTokens();
     }
   }, [data, stateKey])
@@ -381,7 +387,8 @@ const Domains = ({ library, account, chainId }) => {
           </Typography>
           <Button color='primary'
             variant='contained'
-            onClick={() => { setFreeDomain(true) }}>
+            disabled={!allowClaiming}
+            onClick={() => { setDomainToClaim(true) }}>
             Claim free domain
           </Button>
         </div> :
@@ -486,17 +493,17 @@ const Domains = ({ library, account, chainId }) => {
         }
       </Dialog>
       <Dialog
-        open={!!freeDomain}
+        open={!!domainToClaim}
         TransitionComponent={Transition}
         maxWidth='lg'
         keepMounted
       >
         <DialogTitle>Claim Free domain</DialogTitle>
         <DialogContent>
-          <FreeDomain
+          <ClaimDomainForm
             claiming={claiming}
             onClaim={(tld, domainName) => { handleClaim(tld, domainName); }}
-            onCancel={() => { setFreeDomain(false) }}
+            onCancel={() => { setDomainToClaim(false) }}
             error={claimError} />
         </DialogContent>
       </Dialog>
@@ -506,7 +513,8 @@ const Domains = ({ library, account, chainId }) => {
           <Button color='primary'
             variant='contained'
             className={classes.btn}
-            onClick={() => { setFreeDomain(true) }}>
+            disabled={!allowClaiming}
+            onClick={() => { setDomainToClaim(true) }}>
             Claim free domain
           </Button>
           OR <a href='https://unstoppabledomains.com/'>Buy here</a>
