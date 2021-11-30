@@ -4,8 +4,7 @@ import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import AddIcon from '@material-ui/icons/Add';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Backdrop from '@material-ui/core/Backdrop';
@@ -174,25 +173,19 @@ const RecordsForm = ({ records, updating, error, onUpdate, onCancel }) => {
         <Grid container item xs={12} className={classes.record}>
           <Grid item sm={4} xs={12}>
             <div className={classes.recordKeySelectContainer}>
-              <Select value={recordKey}
-                displayEmpty
-                size='small'
-                variant='filled'
+              <Autocomplete
+                value={recordKey}
                 className={classes.recordKeySelect}
-                onChange={(event) => { setRecordKey(event.target.value) }}>
-                <MenuItem value=''>Select record key</MenuItem>
-                {
-                  form.fillableKeys.map((k) => {
-                    return (
-                      <MenuItem value={k} key={k}>{k}</MenuItem>
-                    );
-                  })
-                }
-              </Select>
+                options={form.fillableKeys}
+                onChange={(_, value) => { setRecordKey(value) }}
+                renderInput={(params) => <TextField {...params} label="Key" size="small" />}
+              />
             </div>
           </Grid>
           <Grid item sm={8} xs={12} className={classes.recordValue}>
-            <TextField variant='filled'
+            <TextField
+              label="Value"
+              size="small"
               className={classes.grow}
               defaultValue={recordValue}
               value={recordValue}

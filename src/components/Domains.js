@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { ethers } from 'ethers';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import Button from '@material-ui/core/Button';
@@ -180,7 +181,8 @@ const Domains = ({ library, account, chainId }) => {
 
     try {
       setUpdating(true);
-      const resolver = new library.eth.Contract(resolverJson.abi, _domain.resolver);
+      const provider = new ethers.providers.Web3Provider(library.provider);
+      const resolver = new ethers.Contract(_domain.resolver, resolverJson.abi, provider.getSigner());
       const keysToUpdate = records.map(r => r.key);
       const valuesToUpdate = records.map(r => r.newValue || '');
       await resolver.setMany(keysToUpdate, valuesToUpdate, _domain.id);

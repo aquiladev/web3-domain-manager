@@ -71,6 +71,11 @@ const Lookup = ({ library, chainId }) => {
         return;
       }
 
+      if(ethers.utils.isHexString(domainName) && domainName.length === 66) {
+        setDomainName(await fetchName(domainName));
+        return;
+      }
+
       setDomain(undefined);
       const tokenId = ethers.utils.namehash(domainName);
       console.debug(domainName, tokenId);
@@ -79,6 +84,15 @@ const Lookup = ({ library, chainId }) => {
       setError(error.message);
     }
   };
+
+  const fetchName = async (token) => {
+    const registry = await unsRegistry.exists(token) ? unsRegistry : cnsRegistry;
+    const events = await registry.source.fetchNewURIEvents([token]);
+    if(!events.length) {
+      throw new Error("Token not found");
+    }
+    return events.find(e => e.args.tokenId.toHexString() === token).args.uri;
+  }
 
   const loadData = async (tokenId, name) => {
     setFetched(false);

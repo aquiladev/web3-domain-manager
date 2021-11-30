@@ -20,7 +20,9 @@ const DomainInfo = ({ domain, chainId }) => {
     return (
       <Grid container item xs={12} key={`${domain.id}_${key}`}>
         <Grid item sm={3} xs={12}>
-          <b>{key}</b>
+          <Typography style={{ fontWeight: 'bold' }} noWrap>
+            {key}
+          </Typography>
         </Grid>
         <Grid item sm={9} xs={12}>
           <Typography noWrap>
