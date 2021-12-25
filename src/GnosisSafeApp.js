@@ -12,6 +12,7 @@ import Container from '@material-ui/core/Container';
 
 import GlobalStyle from './components/GlobalStyle';
 import Domains from './components/Domains';
+import DeprecatedNetwork from './components/DeprecatedNetwork';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -42,16 +43,19 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const NETWORK_CHAIN_ID = {
-  MAINNET: 1,
-  RINKEBY: 4,
+  mainnet: 1,
+  rinkeby: 4,
+  goerli: 5,
 };
 
 function GnosisSafeApp() {
   const classes = useStyles();
 
   const { sdk, safe } = useSafeAppsSDK();
-  const web3Provider = useMemo(() => ethers.providers.Web3Provider(new SafeAppProvider(safe, sdk)), [sdk, safe]);
-  const chainId = NETWORK_CHAIN_ID[safe.network];
+  const chainId = NETWORK_CHAIN_ID[safe.network.toLowerCase()];
+  const web3Provider = useMemo(() => {
+    return new ethers.providers.Web3Provider(new SafeAppProvider(safe, sdk), chainId);
+  }, [sdk, safe, chainId]);
 
   return (
     <div className={classes.root}>
@@ -67,6 +71,7 @@ function GnosisSafeApp() {
         </Toolbar>
       </AppBar>
       <Container maxWidth="lg" className={classes.content}>
+        <DeprecatedNetwork chainId={chainId} />
         <Domains library={web3Provider} account={safe.safeAddress} chainId={chainId} />
       </Container>
     </div>

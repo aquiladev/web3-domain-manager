@@ -391,7 +391,7 @@ const Domains = ({ library, account, chainId }) => {
             variant='contained'
             disabled={!allowClaiming}
             onClick={() => { setDomainToClaim(true) }}>
-            Claim free domain
+            Mint free domain
           </Button>
         </div> :
         <></>
@@ -500,7 +500,7 @@ const Domains = ({ library, account, chainId }) => {
         maxWidth='lg'
         keepMounted
       >
-        <DialogTitle>Claim Free domain</DialogTitle>
+        <DialogTitle>Mint free domain</DialogTitle>
         <DialogContent>
           <ClaimDomainForm
             claiming={claiming}
@@ -517,7 +517,7 @@ const Domains = ({ library, account, chainId }) => {
             className={classes.btn}
             disabled={!allowClaiming}
             onClick={() => { setDomainToClaim(true) }}>
-            Claim free domain
+            Mint free domain
           </Button>
           OR <a href='https://unstoppabledomains.com/'>Buy here</a>
         </p>

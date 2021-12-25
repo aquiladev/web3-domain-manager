@@ -16,11 +16,11 @@ import Alert from '@material-ui/lab/Alert';
 
 import GlobalStyle from './components/GlobalStyle';
 import { useEagerConnect, useInactiveListener } from './hooks';
-import { POLLING_INTERVAL } from './connectors';
 import Domains from './components/Domains';
 import Lookup from './components/Lookup';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import DeprecatedNetwork from './components/DeprecatedNetwork';
 
 const theme = createMuiTheme({
   overrides: {
@@ -108,6 +108,7 @@ function DefaultApp() {
         <div className={classes.root}>
           <Header active={active} account={account} />
           <Container maxWidth='lg' className={classes.content}>
+            <DeprecatedNetwork chainId={chainId} />
             {
               !!error &&
               <Alert
