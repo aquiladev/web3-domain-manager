@@ -102,7 +102,7 @@ const ClaimDomainForm = ({ claiming, error, onClaim, onCancel }) => {
             variant='contained'
             disabled={!domainName}
             onClick={claim}>
-            Claim
+            Mint
           </Button>
           <div className={classes.grow}></div>
         </Grid>

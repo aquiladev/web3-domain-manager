@@ -18,6 +18,7 @@ export const UNS_DOMAIN_EVENTS = [
 export const ETHERSCAN_MAP = {
   1: 'https://etherscan.io/',
   4: 'https://rinkeby.etherscan.io/',
+  5: 'https://goerli.etherscan.io/',
   137: 'https://polygonscan.com/',
   80001: 'https://mumbai.polygonscan.com/',
 };
