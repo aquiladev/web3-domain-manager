@@ -54,7 +54,7 @@ jobs:
           CI=false REACT_APP_SAPP_TARGET=true yarn build
       
       - name: Upload sApp to IPFS
-        uses: aquiladev/ipfs-action@v0.2.1-alpha.2
+        uses: aquiladev/ipfs-action@v0.2.1-alpha.3
         id: ipfs_sapp_upload
         with:
           path: ./build
