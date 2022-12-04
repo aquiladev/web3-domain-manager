@@ -4,7 +4,6 @@ Decentralized application for blockchain domain management.
 
 ## TLDs
 - .crypto
-- .coin
 - .wallet
 - .bitcoin
 - .x

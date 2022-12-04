@@ -1,6 +1,6 @@
-import { ethers } from 'ethers';
+import { ethers } from "ethers";
 
-import EthereumEventSource from '../sources/ethereum';
+import EthereumEventSource from "../sources/ethereum";
 
 export function createContract(library, chainId, abi, config) {
   const provider = new ethers.providers.Web3Provider(library.provider);
