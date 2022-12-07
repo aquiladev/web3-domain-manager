@@ -1,23 +1,6 @@
-import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
+import { gql } from "@apollo/client";
 
-export const THE_GRAPH_CLIENTS = {
-  1: new ApolloClient({
-    uri: "https://api.thegraph.com/subgraphs/name/aquiladev/uns",
-    cache: new InMemoryCache(),
-  }),
-  5: new ApolloClient({
-    uri: "https://api.thegraph.com/subgraphs/name/aquiladev/uns-goerli",
-    cache: new InMemoryCache(),
-  }),
-  137: new ApolloClient({
-    uri: "https://api.thegraph.com/subgraphs/name/aquiladev/uns-polygon",
-    cache: new InMemoryCache(),
-  }),
-  80001: new ApolloClient({
-    uri: "https://api.thegraph.com/subgraphs/name/aquiladev/uns-mumbai",
-    cache: new InMemoryCache(),
-  }),
-};
+import { config } from "../utils/config";
 
 export const getAccount = async (chainId, address, force = false) => {
   if (!chainId || !address) {
@@ -26,7 +9,7 @@ export const getAccount = async (chainId, address, force = false) => {
     );
   }
 
-  const client = THE_GRAPH_CLIENTS[chainId];
+  const { client } = config[chainId];
   if (!client) {
     throw new Error(`Unsupported chain ${chainId}`);
   }
@@ -44,6 +27,9 @@ export const getAccount = async (chainId, address, force = false) => {
             id
             name
             registry
+            owner {
+              id
+            }
             resolver {
               address
               records {
@@ -64,9 +50,31 @@ export const getAccount = async (chainId, address, force = false) => {
     return {};
   }
 
+  const domains = _parseDomains(account.domains);
+
+  // Domain name lookup in linked network
+  const unknownTokens = domains.filter((d) => !d.name).map((d) => d.id);
+  if (unknownTokens.length) {
+    const map = await _getDomainNamesMap(
+      config[chainId].linkedChainId,
+      unknownTokens
+    );
+    console.log(
+      "NO_NAME_DOMAINS",
+      domains.filter((d) => !d.name).map((d) => d.id),
+      map
+    );
+    domains.map((d) => {
+      if (!d.name && !!map[d.id]) {
+        d.name = map[d.id];
+      }
+      return d;
+    });
+  }
+
   return {
     id: account.id,
-    domains: _parseDomains(account.id, account.domains),
+    domains,
   };
 };
 
@@ -77,7 +85,7 @@ export const getDomain = async (chainId, tokenId, force = false) => {
     );
   }
 
-  const client = THE_GRAPH_CLIENTS[chainId];
+  const { client } = config[chainId];
   if (!client) {
     throw new Error(`Unsupported chain ${chainId}`);
   }
@@ -121,7 +129,7 @@ export const getDomain = async (chainId, tokenId, force = false) => {
   };
 };
 
-const _parseDomains = (account, domains) => {
+const _parseDomains = (domains) => {
   if (!domains || !Array(domains).length) {
     return [];
   }
@@ -130,7 +138,7 @@ const _parseDomains = (account, domains) => {
     return {
       id: d.id,
       name: d.name,
-      owner: account,
+      owner: d.owner.id,
       registry: d.registry,
       resolver: (d.resolver || {}).address,
       records: _parseRecords(d.resolver),
@@ -145,6 +153,36 @@ const _parseRecords = (resolver) => {
 
   return Object.values(resolver.records).reduce((obj, r) => {
     obj[r.key] = r.value;
+    return obj;
+  }, {});
+};
+
+const _getDomainNamesMap = async (chainId, tokenIds) => {
+  const { client } = config[chainId];
+  if (!client) {
+    throw new Error(`Unsupported chain ${chainId}`);
+  }
+
+  const { data } = await client.query({
+    query: gql`
+      query filteredDomains($ids: [ID!]!) {
+        domains(where: { id_in: $ids }) {
+          id
+          name
+        }
+      }
+    `,
+    variables: {
+      ids: tokenIds,
+    },
+  });
+  const { domains } = data;
+  if (!domains) {
+    return {};
+  }
+
+  return Object.values(domains).reduce((obj, key) => {
+    obj[key.id] = key.name;
     return obj;
   }, {});
 };

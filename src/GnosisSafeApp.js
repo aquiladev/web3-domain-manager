@@ -44,7 +44,6 @@ const useStyles = makeStyles((theme) => ({
 
 const NETWORK_CHAIN_ID = {
   mainnet: 1,
-  rinkeby: 4,
   goerli: 5,
 };
 
