@@ -58,7 +58,7 @@ export default function Header({active}) {
         <Toolbar>
           <Link to='/' className={classes.title}>
             <Typography variant='h5' noWrap>
-              Web3 Domain Manager
+              Web3 Domain Manager (alpha)
             </Typography>
           </Link>
           <div className={classes.grow}></div>
