@@ -41,11 +41,13 @@ jobs:
           cname: web3domain.xyz
 
       - name: Upload dApp to IPFS
-        uses: aquiladev/ipfs-action@v0.2.0
+        uses: aquiladev/ipfs-action@v0.2.1
         id: ipfs_dapp_upload
         with:
           path: ./build
           service: infura
+          infuraProjectId: ${{ secrets.INFURA_PROJECT_ID }}
+          infuraProjectSecret: ${{ secrets.INFURA_PROJECT_SECRET }}
           timeout: 120000
           verbose: true
 
@@ -54,11 +56,13 @@ jobs:
           CI=false REACT_APP_SAPP_TARGET=true yarn build
       
       - name: Upload sApp to IPFS
-        uses: aquiladev/ipfs-action@v0.2.0
+        uses: aquiladev/ipfs-action@v0.2.1
         id: ipfs_sapp_upload
         with:
           path: ./build
           service: infura
+          infuraProjectId: ${{ secrets.INFURA_PROJECT_ID }}
+          infuraProjectSecret: ${{ secrets.INFURA_PROJECT_SECRET }}
           timeout: 120000
           verbose: true
 
