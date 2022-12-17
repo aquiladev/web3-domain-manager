@@ -35,14 +35,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ClaimDomainForm = ({ claiming, error, onClaim, onCancel }) => {
+const MintDomainForm = ({ minting, error, onMint, onCancel }) => {
   const classes = useStyles();
 
   const [domainName, setDomainName] = useState('');
   const [tld, setTLD] = useState('0x0f4a10a4f46c288cea365fcf45cccf0e9d901b945b9829ccdb54c10dc3cb7a6f');
 
-  const claim = () => {
-    onClaim && onClaim(tld, domainName);
+  const mint = () => {
+    onMint && onMint(tld, domainName);
   }
 
   return (
@@ -75,7 +75,7 @@ const ClaimDomainForm = ({ claiming, error, onClaim, onCancel }) => {
               onChange={(event) => { setTLD(event.target.value) }}
               className={classes.grow} select>
               <MenuItem value='0x0f4a10a4f46c288cea365fcf45cccf0e9d901b945b9829ccdb54c10dc3cb7a6f'>.crypto</MenuItem>
-              <MenuItem value='0x7674e7282552c15f203b9c4a6025aeaf28176ef7f5451b280f9bada3f8bc98e2'>.coin</MenuItem>
+              {/* <MenuItem value='0x7674e7282552c15f203b9c4a6025aeaf28176ef7f5451b280f9bada3f8bc98e2'>.coin</MenuItem> */}
               <MenuItem value='0x1e3f482b3363eb4710dae2cb2183128e272eafbe137f686851c1caea32502230'>.wallet</MenuItem>
               <MenuItem value='0x042fb01c1e43fb4a32f85b41c821e17d2faeac58cfc5fb23f80bc00c940f85e3'>.bitcoin</MenuItem>
               <MenuItem value='0x241e7e2b7fd7333b3c0c049b326316b811af0c01cfc0c7a90b466fda3a70fc2d'>.x</MenuItem>
@@ -101,14 +101,14 @@ const ClaimDomainForm = ({ claiming, error, onClaim, onCancel }) => {
             color='primary'
             variant='contained'
             disabled={!domainName}
-            onClick={claim}>
+            onClick={mint}>
             Mint
           </Button>
           <div className={classes.grow}></div>
         </Grid>
       </Grid>
       {
-        <Backdrop className={classes.backdrop} open={claiming}>
+        <Backdrop className={classes.backdrop} open={minting}>
           <CircularProgress color='inherit' />
         </Backdrop>
       }
@@ -116,4 +116,4 @@ const ClaimDomainForm = ({ claiming, error, onClaim, onCancel }) => {
   );
 }
 
-export default ClaimDomainForm;
+export default MintDomainForm;
