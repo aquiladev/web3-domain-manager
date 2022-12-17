@@ -9,25 +9,39 @@ import GitHubButton from "react-github-btn";
 
 const useStyles = makeStyles(() => ({
   footer: {
-    alignItems: 'center',
-    background: 'transparent',
-    boxShadow: 'none'
+    alignItems: "center",
+    background: "transparent",
+    boxShadow: "none",
   },
   info: {
-    marginTop: 20
-  }
+    marginTop: 20,
+  },
 }));
 
 export default function Footer() {
   const classes = useStyles();
 
   return (
-    <AppBar position='static' className={classes.footer}>
-      <Typography color='textSecondary' variant='subtitle2' className={classes.info}>
-        This open source project uses the Ethereum blockchain as a datasource. It does not collect any user data or analytics.
+    <AppBar position="static" className={classes.footer}>
+      <Typography
+        color="textSecondary"
+        variant="subtitle2"
+        className={classes.info}
+      >
+        This open source project uses the Ethereum blockchain as a datasource.
+        It does not collect any user data or analytics.
       </Typography>
-      <Typography color='textSecondary' variant='subtitle2'>
-        The best way to leave a feedback are star the project or create an issue on <Link href='//github.com/aquiladev/web3-domain-manager' target='_blank' rel='noopener'>GitHub</Link>.
+      <Typography color="textSecondary" variant="subtitle2">
+        The best way to leave a feedback are star the project or create an issue
+        on{" "}
+        <Link
+          href="//github.com/aquiladev/web3-domain-manager"
+          target="_blank"
+          rel="noopener"
+        >
+          GitHub
+        </Link>
+        .
       </Typography>
       <Toolbar>
         <span style={{ marginRight: 12 }}>

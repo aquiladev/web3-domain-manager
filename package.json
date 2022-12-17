@@ -4,6 +4,7 @@
   "private": true,
   "homepage": ".",
   "dependencies": {
+    "@apollo/client": "^3.7.1",
     "@gitgraph/react": "1.5.4",
     "@gnosis.pm/safe-apps-provider": "0.9.2",
     "@gnosis.pm/safe-apps-react-sdk": "4.0.8",
@@ -21,6 +22,7 @@
     "@web3-react/walletlink-connector": "^6.2.3",
     "crypto-js": "^4.0.0",
     "ethers": "^5.5.1",
+    "graphql": "^16.6.0",
     "react": "^17.0.1",
     "react-app-rewired": "2.1.8",
     "react-dom": "^17.0.1",
@@ -29,7 +31,7 @@
     "react-router-dom": "^5.3.0",
     "react-scripts": "4.0.1",
     "styled-components": "5.2.3",
-    "uns": "https://github.com/unstoppabledomains/uns#4d054a1d78767fe5d489895a276fea3b900165fe",
+    "uns": "https://github.com/unstoppabledomains/uns#v0.6.20",
     "web-vitals": "^0.2.4"
   },
   "scripts": {

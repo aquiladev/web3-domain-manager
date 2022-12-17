@@ -154,8 +154,8 @@ const Lookup = ({ library, chainId }) => {
           className={classes.input}
           onKeyPress={keyPress}
           onChange={handleChange}
-          placeholder='Search domain (.crypto, .coin, .wallet, .bitcoin, .x, .888, .nft, .dao, .blockchain)'
-          inputProps={{ 'aria-label': 'search domain (.crypto, .coin, .wallet, .bitcoin, .x, .888, .nft, .dao, .blockchain)' }}
+          placeholder='Search domain (.crypto, .wallet, .bitcoin, .x, .888, .nft, .dao, .blockchain)'
+          inputProps={{ 'aria-label': 'search domain (.crypto, .wallet, .bitcoin, .x, .888, .nft, .dao, .blockchain)' }}
           defaultValue={domainName}
           value={domainName}
         />
