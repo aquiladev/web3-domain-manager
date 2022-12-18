@@ -3,8 +3,6 @@ import { makeStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
-import Link from "@material-ui/core/Link";
-import Chip from "@material-ui/core/Chip";
 import GitHubButton from "react-github-btn";
 
 const useStyles = makeStyles(() => ({
@@ -28,20 +26,8 @@ export default function Footer() {
         variant="subtitle2"
         className={classes.info}
       >
-        This open source project uses the Ethereum blockchain as a datasource.
-        It does not collect any user data or analytics.
-      </Typography>
-      <Typography color="textSecondary" variant="subtitle2">
-        The best way to leave a feedback are star the project or create an issue
-        on{" "}
-        <Link
-          href="//github.com/aquiladev/web3-domain-manager"
-          target="_blank"
-          rel="noopener"
-        >
-          GitHub
-        </Link>
-        .
+        This is an open-source project for managing blockchain domains. It uses
+        Ethereum/Polygon blockchain and TheGraph as data sources.
       </Typography>
       <Toolbar>
         <span style={{ marginRight: 12 }}>
@@ -74,10 +60,9 @@ export default function Footer() {
           </GitHubButton>
         </span>
         {process.env.REACT_APP_GITHUB_REF_SHA && (
-          <Chip
-            label={process.env.REACT_APP_GITHUB_REF_SHA}
-            variant="outlined"
-          />
+          <Typography color="textSecondary" variant="subtitle2">
+            version: {process.env.REACT_APP_GITHUB_REF_SHA}
+          </Typography>
         )}
       </Toolbar>
     </AppBar>
