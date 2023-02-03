@@ -26,7 +26,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v1
         with:
-          node-version: '14.x'
+          node-version: '16.x'
 
       - run: yarn install
 
@@ -41,11 +41,13 @@ jobs:
           cname: web3domain.xyz
 
       - name: Upload dApp to IPFS
-        uses: aquiladev/ipfs-action@v0.1.6-1
+        uses: aquiladev/ipfs-action@v0.3.1-alpha.3
         id: ipfs_dapp_upload
         with:
           path: ./build
           service: infura
+          infuraProjectId: ${{ secrets.INFURA_PROJECT_ID }}
+          infuraProjectSecret: ${{ secrets.INFURA_PROJECT_SECRET }}
           timeout: 120000
           verbose: true
 
@@ -54,11 +56,13 @@ jobs:
           CI=false REACT_APP_SAPP_TARGET=true yarn build
       
       - name: Upload sApp to IPFS
-        uses: aquiladev/ipfs-action@v0.1.6-1
+        uses: aquiladev/ipfs-action@v0.3.1-alpha.3
         id: ipfs_sapp_upload
         with:
           path: ./build
           service: infura
+          infuraProjectId: ${{ secrets.INFURA_PROJECT_ID }}
+          infuraProjectSecret: ${{ secrets.INFURA_PROJECT_SECRET }}
           timeout: 120000
           verbose: true
 
@@ -76,6 +80,7 @@ jobs:
           tag_name: ${{ steps.tag_version.outputs.new_tag }}
           release_name: Release ${{ steps.tag_version.outputs.new_tag }}
           body: |
+            GitHub hosted app [https://web3domain.xyz/](https://web3domain.xyz/)
             dApp [https://cloudflare-ipfs.com/ipfs/${{ steps.ipfs_dapp_upload.outputs.hash }}/](https://cloudflare-ipfs.com/ipfs/${{ steps.ipfs_dapp_upload.outputs.hash }}/)
             Gnosis Safe App [https://cloudflare-ipfs.com/ipfs/${{ steps.ipfs_sapp_upload.outputs.hash }}/](https://cloudflare-ipfs.com/ipfs/${{ steps.ipfs_sapp_upload.outputs.hash }}/)
             Note: [Gnosis Safe App guideline](https://github.com/aquiladev/web3-domain-manager/blob/main/README.md#gnosis-safe-app)

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
+import { ethers } from 'ethers';
 import Container from '@material-ui/core/Container';
 import Paper from '@material-ui/core/Paper';
 import InputBase from '@material-ui/core/InputBase';
@@ -10,16 +11,14 @@ import Alert from '@material-ui/lab/Alert';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import NetworkConfig from 'uns/uns-config.json';
+import supportedKeys from 'uns/resolver-keys.json';
 
 import cnsRegistryJson from 'uns/artifacts/CNSRegistry.json';
 import unsRegistryJson from 'uns/artifacts/UNSRegistry.json';
 import proxyReaderJson from 'uns/artifacts/ProxyReader.json';
 
 import DomainList from './DomainList';
-import namehash from '../utils/namehash';
-import supportedKeys from '../utils/supported-keys.json';
 import { createContract } from '../utils/contract';
-import { fetchDomainEvents } from '../utils/events';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -72,8 +71,13 @@ const Lookup = ({ library, chainId }) => {
         return;
       }
 
+      if(ethers.utils.isHexString(domainName) && domainName.length === 66) {
+        setDomainName(await fetchName(domainName));
+        return;
+      }
+
       setDomain(undefined);
-      const tokenId = namehash(domainName);
+      const tokenId = ethers.utils.namehash(domainName);
       console.debug(domainName, tokenId);
       await loadData(tokenId, domainName);
     } catch (error) {
@@ -81,22 +85,32 @@ const Lookup = ({ library, chainId }) => {
     }
   };
 
+  const fetchName = async (token) => {
+    const registry = await unsRegistry.exists(token) ? unsRegistry : cnsRegistry;
+    const events = await registry.source.fetchNewURIEvents([token]);
+    if(!events.length) {
+      throw new Error("Token not found");
+    }
+    return events.find(e => e.args.tokenId.toHexString() === token).args.uri;
+  }
+
   const loadData = async (tokenId, name) => {
     setFetched(false);
 
     console.debug('Fetching state...');
-    const data = await proxyReader.methods.getData(_keys, tokenId).call();
+    const data = await proxyReader.callStatic.getData(_keys, tokenId);
     console.debug('Fetched state', data);
 
     const records = {};
-    _keys.forEach((k, i) => records[k] = data.values[i]);
+    _keys.forEach((k, i) => records[k] = data[2][i]);
 
     const _domain = {
       id: tokenId,
       name,
-      registry: data.resolver === unsRegistry._address
-        ? unsRegistry._address
-        : cnsRegistry._address,
+      registry: data.resolver === unsRegistry.address
+        ? unsRegistry.address
+        : cnsRegistry.address,
+      type: data.resolver === unsRegistry.address ? 'uns' : 'cns',
       owner: data.owner,
       resolver: data.resolver,
       records
@@ -110,8 +124,8 @@ const Lookup = ({ library, chainId }) => {
   const loadDomainEvents = (domain) => {
     console.debug('Loading DOMAIN events...');
 
-    const registry = unsRegistry._address === domain.registry ? unsRegistry : cnsRegistry;
-    return fetchDomainEvents(library, registry, domain.id)
+    const registry = unsRegistry.address === domain.registry ? unsRegistry : cnsRegistry;
+    return registry.source.fetchEvents(domain)
       .then((domainEvents) => {
         console.debug('Loaded DOMAIN events', domainEvents);
 
@@ -140,8 +154,8 @@ const Lookup = ({ library, chainId }) => {
           className={classes.input}
           onKeyPress={keyPress}
           onChange={handleChange}
-          placeholder='Search domain (.crypto, .coin, .wallet, .bitcoin, .x, .888, .nft, .dao, .blockchain)'
-          inputProps={{ 'aria-label': 'search domain (.crypto, .coin, .wallet, .bitcoin, .x, .888, .nft, .dao, .blockchain)' }}
+          placeholder='Search domain (.crypto, .wallet, .bitcoin, .x, .888, .nft, .dao, .blockchain)'
+          inputProps={{ 'aria-label': 'search domain (.crypto, .wallet, .bitcoin, .x, .888, .nft, .dao, .blockchain)' }}
           defaultValue={domainName}
           value={domainName}
         />

@@ -3,7 +3,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Box from '@material-ui/core/Box';
 import { Typography } from '@material-ui/core';
-import { indigo, amber } from '@material-ui/core/colors';
 import { useWeb3React } from '@web3-react/core';
 import { formatEther } from "@ethersproject/units";
 
@@ -12,26 +11,25 @@ import AccountModal from './AccountModal';
 import ConnectModal from './ConnectModal';
 import { CHAIN_ID_NETWORK } from './../utils/constants';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   box_net: {
     display: 'flex',
     alignItems: 'center',
-    background: indigo[400],
+    background: theme.palette.grey[200],
     borderRadius: 6,
     padding: 8,
     marginRight: 8,
-    color: amber[500],
   },
   box_acc: {
     display: 'flex',
     alignItems: 'center',
-    background: indigo[400],
+    background: theme.palette.grey[300],
     borderRadius: 6,
     paddingLeft: 8,
   },
   info_btn: {
     margin: '2px 2px 2px 6px',
-    background: indigo[500],
+    background: theme.palette.grey[500],
     color: 'white',
     textTransform: 'none',
   },
@@ -39,8 +37,7 @@ const useStyles = makeStyles(() => ({
     paddingRight: 6,
   },
   connect_btn: {
-    background: indigo[400],
-    color: 'white',
+    background: theme.palette.grey[400],
   }
 }));
 
@@ -57,7 +54,7 @@ export default function ConnectButton() {
     if (!!account && !!library) {
       let stale = false
 
-      library.eth
+      library
         .getBalance(account)
         .then((balance) => {
           if (!stale) {

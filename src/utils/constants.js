@@ -1,35 +1,38 @@
 export const DOMAIN_EVENTS = [
-  'Approval',
-  'NewURI',
-  // 'Resolve', // CNS
-  // 'Sync',    // CNS
-  // 'Set',     // UNS
-  'Transfer'
+  "Approval",
+  "NewURI",
+  "Transfer",
+  "Resolve",
+  "Sync",
+  "Set",
 ];
 
 export const ETHERSCAN_MAP = {
-  1: 'https://etherscan.io/',
-  4: 'https://rinkeby.etherscan.io/',
+  1: "https://etherscan.io/",
+  5: "https://goerli.etherscan.io/",
+  137: "https://polygonscan.com/",
+  80001: "https://mumbai.polygonscan.com/",
 };
 
-export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 export const CHAIN_ID_NETWORK = {
-  1: 'Mainnet',
-  3: 'Ropsten',
-  4: 'Rinkeby',
-  5: 'Goerli',
-  42: 'Kovan',
-  100: 'xDai',
-  30: 'Orchid',
-  31: 'OrchidTestnet',
-  99: 'Core',
-  77: 'Sokol',
-  61: 'Classic',
-  8: 'Ubiq',
-  108: 'Thundercore',
-  18: 'ThundercoreTestnet',
-  163: 'Lightstreams',
-  122: 'Fuse',
-  15001: 'MaticTestnet'
-}
+  1: "Mainnet",
+  3: "Ropsten",
+  4: "Rinkeby",
+  5: "Goerli",
+  8: "Ubiq",
+  18: "ThundercoreTestnet",
+  42: "Kovan",
+  30: "Orchid",
+  31: "OrchidTestnet",
+  61: "Classic",
+  77: "Sokol",
+  99: "Core",
+  100: "xDai",
+  108: "Thundercore",
+  122: "Fuse",
+  137: "Polygon Mainnet",
+  163: "Lightstreams",
+  80001: "Polygon Mumbai",
+};

@@ -1,31 +1,33 @@
-import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import { useWeb3React } from '@web3-react/core';
-import Popover from '@material-ui/core/Popover';
-import Container from '@material-ui/core/Container';
-import Box from '@material-ui/core/Box';
-import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
+import React from "react";
+import { makeStyles } from "@material-ui/core/styles";
+import { useWeb3React } from "@web3-react/core";
+import Popover from "@material-ui/core/Popover";
+import Container from "@material-ui/core/Container";
+import Box from "@material-ui/core/Box";
+import Typography from "@material-ui/core/Typography";
+import Button from "@material-ui/core/Button";
+import { CopyToClipboard } from "react-copy-to-clipboard";
+import CopyIcon from "@material-ui/icons/FileCopy";
 
-import Identicon from './Identicon';
+import Identicon from "./Identicon";
 
 const useStyles = makeStyles(() => ({
   modal: {
-    padding: 20
+    padding: 20,
   },
   box: {
-    display: 'flex'
+    display: "flex",
   },
   account: {
-    paddingLeft: 8
+    paddingLeft: 8,
   },
   btn: {
-    padding: 0,
-    marginLeft: 20
-  }
+    marginTop: 10,
+    width: "100%",
+  },
 }));
 
-export default function AccountModal({anchorEl, onClose}) {
+export default function AccountModal({ anchorEl, onClose }) {
   const classes = useStyles();
 
   const { account, deactivate, connector } = useWeb3React();
@@ -42,17 +44,17 @@ export default function AccountModal({anchorEl, onClose}) {
       anchorEl={anchorEl}
       onClose={handleClose}
       anchorOrigin={{
-        vertical: 'bottom',
-        horizontal: 'right',
+        vertical: "bottom",
+        horizontal: "right",
       }}
       transformOrigin={{
-        vertical: 'top',
-        horizontal: 'right',
+        vertical: "top",
+        horizontal: "right",
       }}
     >
       <Container className={classes.modal}>
         <Box className={classes.box}>
-          <Identicon account={account} />
+          <Identicon account={account} size={20} />
           <Typography className={classes.account}>
             {account &&
               `${account.slice(0, 6)}...${account.slice(
@@ -60,18 +62,25 @@ export default function AccountModal({anchorEl, onClose}) {
                 account.length
               )}`}
           </Typography>
-          <Button size='small'
-            className={classes.btn}
-            onClick={() => {
-              deactivate();
-              connector.close && connector.close();
-              handleClose();
-            }}
-          >
-            Disconnect
-          </Button>
+          <CopyToClipboard text={account}>
+            <CopyIcon
+              fontSize="small"
+              style={{ marginLeft: 6, cursor: "pointer" }}
+            />
+          </CopyToClipboard>
         </Box>
+        <Button
+          size="small"
+          className={classes.btn}
+          onClick={() => {
+            deactivate();
+            connector.close && connector.close();
+            handleClose();
+          }}
+        >
+          Disconnect
+        </Button>
       </Container>
     </Popover>
-  )
+  );
 }

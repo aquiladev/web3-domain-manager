@@ -1,7 +1,7 @@
 {
   "short_name": "web3_domain_manager",
   "name": "Web3 Domain Manager",
-  "description": "Create and manage blockchain domains (.crypto, .coin, .wallet, .bitcoin, .x, .888, .nft, .dao, .blockchain)",
+  "description": "Create and manage blockchain domains (.crypto, .wallet, .bitcoin, .x, .888, .nft, .dao, .blockchain)",
   "iconPath": "logo.png",
   "icons": [
     {

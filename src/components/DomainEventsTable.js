@@ -29,9 +29,9 @@ const renderEventType = (event) => {
   switch (event.event) {
     case 'Transfer':
       return <>{
-        event.returnValues.from === ZERO_ADDRESS ?
+        event.args.from === ZERO_ADDRESS ?
           'Mint' :
-          event.returnValues.to === ZERO_ADDRESS ?
+          event.args.to === ZERO_ADDRESS ?
             'Burn' :
             'Transfer'
       }</>;
@@ -41,35 +41,35 @@ const renderEventType = (event) => {
 }
 
 const renderEvent = (event, chainId) => {
-  const data = Object.keys(event.returnValues)
+  const data = Object.keys(event.args)
     .filter(key => !(+key) && key !== '0')
     .reduce((obj, key) => {
-      obj[key] = event.returnValues[key];
+      obj[key] = event.args[key];
       return obj;
     }, {});
 
   switch (event.event) {
     case 'Approval':
-      return <>Approved operator {event.returnValues.approved} for token {event.returnValues.tokenId}</>;
+      return <>Approved operator {event.args.approved} for token {event.args.tokenId.toHexString()}</>;
     case 'ApprovalForAll':
-      return <>{event.returnValues.approved ? 'Approved' : 'Disapproved'} operator {event.returnValues.operator}</>;
+      return <>{event.args.approved ? 'Approved' : 'Disapproved'} operator {event.args.operator}</>;
     case 'NewURI':
-      return <>{event.returnValues.uri}</>;
+      return <>{event.args.uri}</>;
     case 'Resolve':
       return <>Set resolver {
-        <EtherscanAddress address={event.returnValues.to} chainId={chainId}></EtherscanAddress>
+        <EtherscanAddress address={event.args.to} chainId={chainId}></EtherscanAddress>
       }</>;
     case 'Sync':
-      return <>Set record with key hash {event.returnValues.updateId} <div>(Resolver: {
-        <EtherscanAddress address={event.returnValues.resolver} chainId={chainId}></EtherscanAddress>
+      return <>Set record with key hash {event.args.updateId.toHexString()} <div>(Resolver: {
+        <EtherscanAddress address={event.args.resolver} chainId={chainId}></EtherscanAddress>
       })</div></>;
     case 'Transfer':
       return <>
         Transfer to {
-          <EtherscanAddress address={event.returnValues.to} chainId={chainId}></EtherscanAddress>
+          <EtherscanAddress address={event.args.to} chainId={chainId}></EtherscanAddress>
         }
-        {event.returnValues.from !== ZERO_ADDRESS &&
-          <div>(From: {<EtherscanAddress address={event.returnValues.from} chainId={chainId}></EtherscanAddress>})</div>
+        {event.args.from !== ZERO_ADDRESS &&
+          <div>(From: {<EtherscanAddress address={event.args.from} chainId={chainId}></EtherscanAddress>})</div>
         }
       </>;
     default:

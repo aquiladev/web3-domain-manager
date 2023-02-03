@@ -1,73 +1,82 @@
-import React, { useMemo } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import { ThemeProvider } from 'styled-components';
-import { theme, Loader, Title } from '@gnosis.pm/safe-react-components';
-import SafeProvider, { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk';
-import { SafeAppProvider } from '@gnosis.pm/safe-apps-provider';
-import Web3 from 'web3';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import Container from '@material-ui/core/Container';
+import React, { useMemo } from "react";
+import { makeStyles } from "@material-ui/core/styles";
+import { ThemeProvider } from "styled-components";
+import { theme, Loader, Title } from "@gnosis.pm/safe-react-components";
+import SafeProvider, { useSafeAppsSDK } from "@gnosis.pm/safe-apps-react-sdk";
+import { SafeAppProvider } from "@gnosis.pm/safe-apps-provider";
+import { ethers } from "ethers";
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
+import Typography from "@material-ui/core/Typography";
+import Container from "@material-ui/core/Container";
 
-import GlobalStyle from './components/GlobalStyle';
-import Domains from './components/Domains';
+import GlobalStyle from "./components/GlobalStyle";
+import Domains from "./components/Domains";
+import DeprecatedNetwork from "./components/DeprecatedNetwork";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   title: {
-    display: 'none',
-    [theme.breakpoints.up('sm')]: {
-      display: 'block',
+    display: "none",
+    [theme.breakpoints.up("sm")]: {
+      display: "block",
     },
   },
   content: {
     paddingTop: 64,
-    minHeight: 100
+    minHeight: 100,
   },
   backdrop: {
     zIndex: theme.zIndex.drawer + 1,
-    color: '#fff',
+    color: "#fff",
   },
   grow: {
     flexGrow: 1,
     paddingLeft: 30,
   },
   navButton: {
-    color: 'white',
+    color: "white",
   },
 }));
 
 const NETWORK_CHAIN_ID = {
-  MAINNET: 1,
-  RINKEBY: 4,
+  mainnet: 1,
+  goerli: 5,
 };
 
 function GnosisSafeApp() {
   const classes = useStyles();
 
   const { sdk, safe } = useSafeAppsSDK();
-  const web3Provider = useMemo(() => new Web3(new SafeAppProvider(safe, sdk)), [sdk, safe]);
-  const chainId = NETWORK_CHAIN_ID[safe.network];
+  const chainId = NETWORK_CHAIN_ID[safe.network.toLowerCase()];
+  const web3Provider = useMemo(() => {
+    return new ethers.providers.Web3Provider(
+      new SafeAppProvider(safe, sdk),
+      chainId
+    );
+  }, [sdk, safe, chainId]);
 
   return (
     <div className={classes.root}>
       <AppBar position="fixed">
         <Toolbar>
           <Typography className={classes.title} variant="h5" noWrap>
-            Web3 Domain Manager
+            Web3 Domain Manager (beta)
           </Typography>
           <div className={classes.grow}></div>
-          <Typography variant="subtitle1">
-            {safe.safeAddress}
-          </Typography>
+          <Typography variant="subtitle1">{safe.safeAddress}</Typography>
         </Toolbar>
       </AppBar>
       <Container maxWidth="lg" className={classes.content}>
-        <Domains library={web3Provider} account={safe.safeAddress} chainId={chainId} />
+        <DeprecatedNetwork chainId={chainId} />
+        <Domains
+          library={web3Provider}
+          account={safe.safeAddress}
+          chainId={chainId}
+        />
       </Container>
     </div>
   );
@@ -82,7 +91,8 @@ export default function () {
             <Title size="md">Waiting for Gnosis Safe...</Title>
             <Loader size="md" />
           </>
-        }>
+        }
+      >
         <GlobalStyle />
         <GnosisSafeApp />
       </SafeProvider>

@@ -89,7 +89,7 @@ const DomainList = ({ chainId, isFetching, domains, onEventsLoad, onDomainSelect
                   ? <CircularProgress size={18} thickness={5} />
                   : <ExpandMoreIcon />
                 }>
-                <Typography noWrap>{domain.name}</Typography>
+                <Typography noWrap>{domain.name || `[${domain.id}]`}</Typography>
               </AccordionSummary>
               <AccordionDetails>
                 {domainTab && domainTab.startsWith(domain.id) &&
