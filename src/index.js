@@ -1,19 +1,22 @@
-import React, { StrictMode } from 'react';
-import ReactDOM from 'react-dom';
-import ReactGA from 'react-ga';
+import React, { StrictMode } from "react";
+import ReactDOM from "react-dom";
+import ReactGA from "react-ga4";
 
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import "./index.css";
+import App from "./App";
+import reportWebVitals from "./reportWebVitals";
 
-ReactGA.initialize('UA-205068498-1');
-ReactGA.pageview(window.location.pathname + window.location.search);
+ReactGA.initialize("395730461");
+ReactGA.send({
+  hitType: "pageview",
+  page: window.location.pathname + window.location.search,
+});
 
 ReactDOM.render(
   <StrictMode>
     <App />
   </StrictMode>,
-  document.getElementById('root')
+  document.getElementById("root")
 );
 
 // If you want to start measuring performance in your app, pass a function
