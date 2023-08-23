@@ -6,7 +6,7 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 
-ReactGA.initialize("395730461");
+ReactGA.initialize("G-E307TY909N");
 ReactGA.send({
   hitType: "pageview",
   page: window.location.pathname + window.location.search,
