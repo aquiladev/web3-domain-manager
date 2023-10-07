@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { makeStyles } from "@material-ui/core/styles";
+import { Link, useHistory } from "react-router-dom";
+import { alpha, makeStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
@@ -11,6 +11,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import BarChartIcon from "@material-ui/icons/BarChart";
 import CodeIcon from "@material-ui/icons/Code";
+import InputBase from "@material-ui/core/InputBase";
 
 import ConnectButton from "./ConnectButton";
 
@@ -38,18 +39,70 @@ const useStyles = makeStyles((theme) => ({
     color: "inherit",
     textDecoration: "none",
   },
+  search: {
+    position: "relative",
+    borderRadius: theme.shape.borderRadius,
+    backgroundColor: alpha(theme.palette.common.black, 0.15),
+    "&:hover": {
+      backgroundColor: alpha(theme.palette.common.black, 0.25),
+    },
+    marginRight: theme.spacing(2),
+    marginLeft: 0,
+    width: "100%",
+    [theme.breakpoints.up("sm")]: {
+      marginLeft: theme.spacing(3),
+      width: "auto",
+    },
+  },
+  searchIcon: {
+    padding: theme.spacing(0, 2),
+    height: "100%",
+    position: "absolute",
+    pointerEvents: "none",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  inputRoot: {
+    color: "inherit",
+  },
+  inputInput: {
+    padding: theme.spacing(1, 1, 1, 0),
+    // vertical padding + font size from searchIcon
+    paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
+    transition: theme.transitions.create("width"),
+    width: "100%",
+    [theme.breakpoints.up("md")]: {
+      width: "20ch",
+    },
+  },
 }));
 
 export default function Header({ active }) {
   const classes = useStyles();
+  const history = useHistory();
 
   const [anchorEl, setAnchorEl] = useState(null);
+  const [domainName, setDomainName] = useState();
   const open = Boolean(anchorEl);
+
   const handleOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
+
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleChange = (e) => {
+    setDomainName(e.target.value);
+  };
+
+  const keyPress = (e) => {
+    if (e.charCode === 13) {
+      setDomainName("");
+      history.push(`/search/${domainName}`);
+    }
   };
 
   return (
@@ -62,6 +115,23 @@ export default function Header({ active }) {
             </Typography>
           </Link>
           <div className={classes.grow}></div>
+          <div className={classes.search}>
+            <div className={classes.searchIcon}>
+              <SearchIcon />
+            </div>
+            <InputBase
+              placeholder="Search…"
+              classes={{
+                root: classes.inputRoot,
+                input: classes.inputInput,
+              }}
+              inputProps={{ "aria-label": "search" }}
+              onKeyPress={keyPress}
+              onChange={handleChange}
+              defaultValue={domainName}
+              value={domainName}
+            />
+          </div>
           <ConnectButton />
           <Button
             aria-label="more"
@@ -86,10 +156,10 @@ export default function Header({ active }) {
               },
             }}
           >
-            <MenuItem component={Link} to="/lookup" disabled={!active}>
+            {/* <MenuItem component={Link} to="/lookup" disabled={!active}>
               <div style={{ flexGrow: 1 }}>Lookup</div>
               <SearchIcon />
-            </MenuItem>
+            </MenuItem> */}
             <a
               href="//dune.xyz/aquiladev/uns"
               target="_blank"

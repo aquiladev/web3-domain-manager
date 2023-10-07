@@ -24,6 +24,7 @@ import GlobalStyle from "./components/GlobalStyle";
 import { useEagerConnect, useInactiveListener } from "./hooks";
 import Domains from "./components/Domains";
 import Lookup from "./components/Lookup";
+import Search from "./components/Search";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import DeprecatedNetwork from "./components/DeprecatedNetwork";
@@ -133,6 +134,9 @@ function DefaultApp() {
             <Switch>
               <Route path="/lookup/:domain">
                 {active && <Lookup library={library} chainId={chainId} />}
+              </Route>
+              <Route path="/search/:domain">
+                {active && <Search library={library} chainId={chainId} />}
               </Route>
               <Route path="/lookup">
                 {active && <Lookup library={library} chainId={chainId} />}
