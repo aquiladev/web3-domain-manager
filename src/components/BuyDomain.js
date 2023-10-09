@@ -1,4 +1,6 @@
+import { ethers } from "ethers";
 import React, { useState } from "react";
+import { useWeb3React } from "@web3-react/core";
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import { Chip } from "@material-ui/core";
@@ -28,8 +30,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const BuyDomain = ({ name, status, price }) => {
+const BuyDomain = ({ library, name, status, price }) => {
   const classes = useStyles();
+  const { account } = useWeb3React();
 
   const [fetched, setFetched] = useState(true);
   const [error, setError] = useState(undefined);
@@ -38,12 +41,22 @@ const BuyDomain = ({ name, status, price }) => {
     try {
       setError(undefined);
       setFetched(false);
-      const res = await getPurchaseParams(name);
+      const res = await getPurchaseParams(name, account);
       console.log("RES", res);
+
+      const { params: txParams } = res.tx;
+      const provider = new ethers.providers.Web3Provider(library.provider);
+      const params = {
+        to: txParams.to,
+        data: txParams.data,
+        value: txParams.value,
+      };
+
+      const signer = provider.getSigner();
+      await signer.sendTransaction(params);
     } catch (error) {
-      console.error(error.message);
-      // setError(error.message);
-      setError("Comming soon...");
+      console.error(error);
+      setError(error.message);
     } finally {
       setFetched(true);
     }

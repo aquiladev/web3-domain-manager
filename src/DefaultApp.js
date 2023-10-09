@@ -131,6 +131,17 @@ function DefaultApp() {
                 {getErrorMessage(error)}
               </Alert>
             )}
+            {!active && (
+              <Alert
+                variant="filled"
+                severity="warning"
+                style={{
+                  marginTop: 16,
+                }}
+              >
+                Please connect your wallet
+              </Alert>
+            )}
             <Switch>
               <Route path="/lookup/:domain">
                 {active && <Lookup library={library} chainId={chainId} />}

@@ -86,15 +86,23 @@ const Search = ({ library, chainId }) => {
       setFetched(false);
       const tokenId = ethers.utils.namehash(domainName);
       console.debug(domainName, tokenId);
-      const [_domain, _availabilityResp] = await Promise.all([
-        getDomain(chainId, tokenId, true),
-        getAvailability(domainName),
-      ]);
 
-      const _availabilityStatus = _availabilityResp?.availability?.status;
-      if (_availabilityStatus === "AVAILABLE") {
-        setAvailability(_availabilityResp);
-      } else if (_domain?.name) {
+      // It is possyble to buy domain on Polygon directly from the dapp
+      if (chainId === 137) {
+        const [_domain, _availabilityResp] = await Promise.all([
+          getDomain(chainId, tokenId, true),
+          getAvailability(domainName),
+        ]);
+
+        console.debug("DOMAIN", _domain);
+        const _availabilityStatus = _availabilityResp?.availability?.status;
+        if (_availabilityStatus === "AVAILABLE") {
+          setAvailability(_availabilityResp);
+        } else if (_domain?.name) {
+          setDomain(_domain);
+        }
+      } else {
+        const _domain = await getDomain(chainId, tokenId, true);
         setDomain(_domain);
       }
     } catch (error) {
@@ -161,6 +169,7 @@ const Search = ({ library, chainId }) => {
       {fetched && availability && (
         <div style={{ marginTop: 20 }}>
           <BuyDomain
+            library={library}
             name={availability?.name}
             status={availability?.availability?.status}
             price={availability?.availability?.price?.listPrice?.usdCents}
