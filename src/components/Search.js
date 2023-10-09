@@ -49,7 +49,7 @@ const Search = ({ library, chainId }) => {
   const history = useHistory();
   const { domain: domainParam } = useParams();
 
-  const [domainName, setDomainName] = useState(domainParam);
+  const [domainName, setDomainName] = useState();
   const [domain, setDomain] = useState(undefined);
   const [availability, setAvailability] = useState(undefined);
   const [fetched, setFetched] = useState(true);
@@ -71,34 +71,34 @@ const Search = ({ library, chainId }) => {
 
   useEffect(() => {
     if (domainParam) {
-      search();
+      setDomainName(domainParam);
+      search(domainParam);
     }
   }, [domainParam]);
 
-  const search = async () => {
+  const search = async (name) => {
     try {
       setError(undefined);
-      if (domain && domainName === domain.name) {
+      if (domain && name === domain.name) {
         return;
       }
       setDomain(undefined);
       setAvailability(undefined);
       setFetched(false);
-      const tokenId = ethers.utils.namehash(domainName);
-      console.debug(domainName, tokenId);
+      const tokenId = ethers.utils.namehash(name);
+      console.debug(name, tokenId);
 
       // It is possyble to buy domain on Polygon directly from the dapp
       if (chainId === 137) {
         const [_domain, _availabilityResp] = await Promise.all([
           getDomain(chainId, tokenId, true),
-          getAvailability(domainName),
+          getAvailability(name),
         ]);
 
-        console.debug("DOMAIN", _domain);
         const _availabilityStatus = _availabilityResp?.availability?.status;
         if (_availabilityStatus === "AVAILABLE") {
           setAvailability(_availabilityResp);
-        } else if (_domain?.name) {
+        } else if (_domain?.id) {
           setDomain(_domain);
         }
       } else {
@@ -128,7 +128,7 @@ const Search = ({ library, chainId }) => {
   };
 
   const handleChange = (e) => {
-    setDomainName(e.target.value);
+    setDomainName(String(e.target.value).trim());
   };
 
   const keyPress = (e) => {
