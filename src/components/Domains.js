@@ -148,7 +148,9 @@ const Domains = ({ library, account, chainId }) => {
       setTransferring(true);
 
       const registry =
-        unsRegistry.address === _domain.registry ? unsRegistry : cnsRegistry;
+        unsRegistry.address.toLowerCase() === _domain.registry
+          ? unsRegistry
+          : cnsRegistry;
       await registry["safeTransferFrom(address,address,uint256)"](
         account,
         receiver,

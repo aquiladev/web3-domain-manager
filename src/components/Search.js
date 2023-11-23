@@ -116,7 +116,9 @@ const Search = ({ library, chainId }) => {
     console.debug("Loading DOMAIN events...");
 
     const registry =
-      unsRegistry.address === domain.registry ? unsRegistry : cnsRegistry;
+      unsRegistry.address.toLowerCase() === domain.registry
+        ? unsRegistry
+        : cnsRegistry;
     return registry.source.fetchEvents(domain).then((domainEvents) => {
       console.debug("Loaded DOMAIN events", domainEvents);
 
